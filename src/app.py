@@ -33,11 +33,13 @@ def initiate_auth():
 def refresh():
     with open ('../private/config.json') as config_file:
         appConfig = json.load(config_file)
+    with open('../private/auth_token_response.json') as token_file:
+        token = json.load(token_file)
     data = {
         'client_id': appConfig["clientId"],
         'client_secret': appConfig["clientSecret"],
         'grant_type': 'refresh_token',
-        'refresh_token': request.args.get('token'),
+        'refresh_token': token["refresh_token"],
         'user_type': 'Location',
         'redirect_uri': 'http://localhost:3000/oauth/callback'
     }
@@ -50,6 +52,9 @@ def refresh():
     response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=urlencode(data), headers=headers)
 
     if response.status_code == 200:
+        # Save the response.json() to a file
+        with open('../private/auth_token_response.json', 'w') as token_file:
+            json.dump(response.json(), token_file)
         return jsonify(response.json())
     else:
         return jsonify({"error": "Failed to fetch access token."}), 500
@@ -59,6 +64,7 @@ def refresh():
 def oauth_callback():
     with open ('../private/config.json') as config_file:
         appConfig = json.load(config_file)
+        print('Config.json loaded')
 
     data = {
         'client_id': appConfig["clientId"],
@@ -68,7 +74,7 @@ def oauth_callback():
         'user_type': 'Location',
         'redirect_uri': 'http://localhost:3000/oauth/callback'
     }
-
+    print(f'Code: {data["code"]}')
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -77,6 +83,9 @@ def oauth_callback():
     response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=urlencode(data), headers=headers)
 
     if response.status_code == 200:
+        # Save the response.json() to a file
+        with open('../private/auth_token_response.json', 'w') as token_file:
+            json.dump(response.json(), token_file)
         return jsonify(response.json())
     else:
         return jsonify({"error": "Failed to fetch access token."}), 500
