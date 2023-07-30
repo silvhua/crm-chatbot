@@ -5,36 +5,34 @@ from urllib.parse import urlencode
 
 app = Flask(__name__)
 
+
 # initiate.js equivalent
 @app.route('/initiate')
 def initiate_auth():
-    config = {
-        "clientId": "your_client_id",
-        "baseUrl": "https://example.com"  # Replace with your base URL
-    }
+    with open ('../private/config.json') as config_file:
+        appConfig = json.load(config_file)
 
     options = {
         "requestType": "code",
         "redirectUri": "http://localhost:3000/oauth/callback",
-        "clientId": config["clientId"],
+        "clientId": appConfig["clientId"],
         "scopes": [
-            "calendars.readonly",
-            "campaigns.readonly",
-            "contacts.readonly"
+            "conversations/message.readonly",
+            "conversations/message.write",
+            "contacts.readonly",
+            "conversations.readonly"
+
         ]
     }
 
-    redirect_url = f"{config['baseUrl']}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}"
+    redirect_url = f"{appConfig['baseUrl']}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}"
     return redirect(redirect_url)
 
 # refresh.js equivalent
 @app.route('/refresh')
 def refresh():
-    appConfig = {
-        "clientId": "your_client_id",
-        "clientSecret": "your_client_secret"
-    }
-
+    with open ('../private/config.json') as config_file:
+        appConfig = json.load(config_file)
     data = {
         'client_id': appConfig["clientId"],
         'client_secret': appConfig["clientSecret"],
@@ -59,10 +57,8 @@ def refresh():
 # callback.js equivalent
 @app.route('/oauth/callback')
 def oauth_callback():
-    appConfig = {
-        "clientId": "your_client_id",
-        "clientSecret": "your_client_secret"
-    }
+    with open ('../private/config.json') as config_file:
+        appConfig = json.load(config_file)
 
     data = {
         'client_id': appConfig["clientId"],
