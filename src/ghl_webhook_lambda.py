@@ -1,11 +1,12 @@
 import json
 import sys
 import boto3
+from datetime import datetime, timezone
 
 def lambda_handler(event, context):
     
     try:
-        payload = event["body"].json()
+        payload = event["body"]
         relevant_types = [
             'ContactCreate', 'ContactDelete', 'ContactDndUpdate', 
             'InboundMessage', 'OutboundMessage'
@@ -17,6 +18,9 @@ def lambda_handler(event, context):
             for key, value in payload.items():
                 if type(value) == str:
                     item_attributes[key] = {'S': value}
+            if payload['type'] in ['ContactDelete', 'ContactDndUpdate']:
+                timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+                item_attributes['dateAdded'] = {'S': timestamp}
             dynamodb.put_item(
                 TableName=table_name,
                 Item=item_attributes
@@ -36,5 +40,5 @@ def lambda_handler(event, context):
         print("An error occurred on line", lineno, "in", filename, ":", error)
         return {
             "statusCode": 500,
-            "body": json.dumps("Error processing data: " + str(error))
+            "body": json.dumps(f"Error in line {lineno} of {filename}: {str(error)}")
         }
