@@ -9,7 +9,7 @@ app = Flask(__name__)
 # initiate.js equivalent
 @app.route('/initiate')
 def initiate_auth():
-    with open ('../private/config.json') as config_file:
+    with open ('private/config.json') as config_file:
         appConfig = json.load(config_file)
 
     options = {
@@ -31,9 +31,9 @@ def initiate_auth():
 # refresh.js equivalent
 @app.route('/refresh')
 def refresh():
-    with open ('../private/config.json') as config_file:
+    with open ('private/config.json') as config_file:
         appConfig = json.load(config_file)
-    with open('../private/auth_token_response.json') as token_file:
+    with open('private/auth_token_response.json') as token_file:
         token = json.load(token_file)
     data = {
         'client_id': appConfig["clientId"],
@@ -53,7 +53,7 @@ def refresh():
 
     if response.status_code == 200:
         # Save the response.json() to a file
-        with open('../private/auth_token_response.json', 'w') as token_file:
+        with open('private/auth_token_response.json', 'w') as token_file:
             json.dump(response.json(), token_file)
         return jsonify(response.json())
     else:
@@ -62,7 +62,7 @@ def refresh():
 # callback.js equivalent
 @app.route('/oauth/callback')
 def oauth_callback():
-    with open ('../private/config.json') as config_file:
+    with open ('private/config.json') as config_file:
         appConfig = json.load(config_file)
         print('Config.json loaded')
 
@@ -84,7 +84,7 @@ def oauth_callback():
 
     if response.status_code == 200:
         # Save the response.json() to a file
-        with open('../private/auth_token_response.json', 'w') as token_file:
+        with open('private/auth_token_response.json', 'w') as token_file:
             json.dump(response.json(), token_file)
         return jsonify(response.json())
     else:
