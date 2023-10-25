@@ -28,8 +28,10 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
     Taken from ghl_webhook_lambda.py
     """
     item_attributes = dict()
-    item_attributes['SessionId'] = {'S': payload.get('contactId', 'no contact id')}
-    payload.pop('contactId')
+    message_events = ['InboundMessage', 'OutboundMessage']
+    contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
+    item_attributes['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
+    payload.pop(contact_id_key)
     message_events = ['InboundMessage', 'OutboundMessage']
     if payload['type'] in message_events:
         item_attributes['type'] = {'S': 'MessageHistory'}

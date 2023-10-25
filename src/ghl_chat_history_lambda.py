@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     """
     Add GHL message events to dynamodb table as chat history.
     """
-    table_name = 'ghlData' ############
+    table_name = 'SessionTable' ############
     try:
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
@@ -25,13 +25,15 @@ def lambda_handler(event, context):
                 )
         elif payload['type'] in message_events + contact_update_events:
             # Only save webhook data if contact exists in database so only data from new leads are saved.
+            contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
             contact_data = query_dynamodb_table(
-                'SessionTable', payload['contactId'], key='SessionId'
+                'SessionTable', payload[contact_id_key], key='SessionId'
                 )['Items']
             if len(contact_data) > 0:
                 message = add_webhook_data_to_dynamodb(
                     payload, table_name, dynamodb
                     )
+                print(message)
         return {
             "statusCode": 200,
             "body": json.dumps(message)
