@@ -31,7 +31,6 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
     """
     try:
         item_attributes = dict()
-        message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
         item_attributes['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
         payload.pop(contact_id_key)
@@ -40,6 +39,9 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         payload_type = payload['type']
         if payload_type in message_events:
             item_attributes['type'] = {'S': 'MessageHistory'}
+        elif payload_type == 'NoteCreate':
+            timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            item_attributes['type'] = {'S': f'NoteCreate_{timestamp}'}
         else:
             item_attributes['type'] = {'S': payload.get('type', 'no event type')}
         payload.pop('type')
