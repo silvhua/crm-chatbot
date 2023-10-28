@@ -15,7 +15,7 @@ def lambda_handler(event, context):
         else:
             payload = event["body"]
             
-        message_events = ['InboundMessage', 'OutboundMessage']
+        message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate']
         print(f'Payload: {payload}')
         dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
@@ -29,11 +29,13 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', payload[contact_id_key], key='SessionId'
                 )['Items']
-            if len(contact_data) > 0:
-                message = add_webhook_data_to_dynamodb(
-                    payload, table_name, dynamodb
-                    )
-                print(message)
+            message = add_webhook_data_to_dynamodb(
+                payload, table_name, dynamodb
+                )
+            print(message)
+        else:
+            message = f'No need to save webhook data for {payload["type"]}'
+            print(message)
         return {
             "statusCode": 200,
             "body": json.dumps(message)
