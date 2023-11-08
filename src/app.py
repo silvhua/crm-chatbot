@@ -29,17 +29,29 @@ def initiate_auth():
     return redirect(redirect_url)
 
 # refresh.js equivalent
+import os
+
 @app.route('/refresh')
 def refresh():
-    with open ('../private/config.json') as config_file:
+    token_file_path = '../private/auth_token_response.json'
+
+    with open('../private/config.json') as config_file:
         appConfig = json.load(config_file)
-    with open('../private/auth_token_response.json') as token_file:
-        token = json.load(token_file)
+
+    # Read the existing tokens from the token_file
+    with open(token_file_path, 'r') as token_file:
+        tokens = json.load(token_file)
+
+    if 'SamLab' in tokens:
+        sam_lab_token = tokens['SamLab']
+    else:
+        return jsonify({"error": "SamLab token not found in token_file."}), 500
+
     data = {
         'client_id': appConfig["clientId"],
         'client_secret': appConfig["clientSecret"],
         'grant_type': 'refresh_token',
-        'refresh_token': token["refresh_token"],
+        'refresh_token': sam_lab_token["refresh_token"],
         'user_type': 'Location',
         'redirect_uri': 'http://localhost:3000/oauth/callback'
     }
@@ -52,9 +64,11 @@ def refresh():
     response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=urlencode(data), headers=headers)
 
     if response.status_code == 200:
-        # Save the response.json() to a file
-        with open('../private/auth_token_response.json', 'w') as token_file:
-            json.dump(response.json(), token_file)
+        # Update the SamLab token in the tokens dictionary
+        tokens['SamLab'] = response.json()
+        # Save the updated tokens to the token_file
+        with open(token_file_path, 'w') as token_file:
+            json.dump(tokens, token_file)
         return jsonify(response.json())
     else:
         return jsonify({"error": "Failed to fetch access token."}), 500
