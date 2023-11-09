@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+import json
 
 def send_message(contactId, message_dict, location='SamLab'):
     """
