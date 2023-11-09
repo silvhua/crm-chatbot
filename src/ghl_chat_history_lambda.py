@@ -32,9 +32,12 @@ def lambda_handler(event, context):
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
                 )
+            # if payload['type'] in message_events:
+            #     message2 = add_to_chat_history(payload)
+            #     message = f'{message}\n{message2}'
             print(message)
         else:
-            message = f'No need to save webhook data for {payload["type"]}'
+            message = f'No need to save webhook data for {payload["type"]}.'
             print(message)
         return {
             "statusCode": 200,

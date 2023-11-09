@@ -31,17 +31,15 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
     """
     try:
         item_attributes = dict()
-        contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
-        item_attributes['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
-        payload.pop(contact_id_key)
         message_events = ['InboundMessage', 'OutboundMessage']
         contact_events = ['ContactDelete', 'ContactDndUpdate']
+        contact_id_key = 'contactId' if payload['type'] in ['NoteCreate'] + message_events else 'id'
+        item_attributes['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
+        payload.pop(contact_id_key)
         payload_type = payload['type']
-        if payload_type in message_events:
-            item_attributes['type'] = {'S': 'MessageHistory'}
-        elif payload_type == 'NoteCreate':
+        if payload_type in ['NoteCreate'] + message_events:
             timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-            item_attributes['type'] = {'S': f'NoteCreate_{timestamp}'}
+            item_attributes['type'] = {'S': f'{payload_type}_{timestamp}'}
         else:
             item_attributes['type'] = {'S': payload.get('type', 'no event type')}
         payload.pop('type')
@@ -82,4 +80,25 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         filename = f.f_code.co_filename
         print("An error occurred on line", lineno, "in", filename, ":", error)
         return f"Error in line {lineno} of {filename}: {str(error)}"
-   
+
+# def add_to_chat_history(payload):
+#     try:
+#         from langchain.memory.chat_message_histories import DynamoDBChatMessageHistory
+#         contactId = payload.get('contactId', 'no contact id')
+
+#         history = DynamoDBChatMessageHistory(table_name="SessionTable", session_id=contactId)
+#         if payload['type'] == 'InboundMessage':
+#             history.add_user_message(payload['message'])
+#             message = f'Added user message to chat history for webhook type {payload["type"]}'
+#         elif payload['type'] == 'OutboundMessage':
+#             history.add_ai_message(payload['message'])
+#             message = f'Added AI message to chat history for webhook type {payload["type"]}'
+#         else:
+#             message = f'No chat history to save.'
+#     except Exception as error:
+#         exc_type, exc_obj, tb = sys.exc_info()
+#         f = tb.tb_frame
+#         lineno = tb.tb_lineno
+#         filename = f.f_code.co_filename
+#         message = f'An error occurred on line {lineno} in {filename}: {error}.'
+#     return message
