@@ -22,9 +22,10 @@ def initiate_auth():
         "scopes": [
             "conversations/message.readonly",
             "conversations/message.write",
-            "contacts.readonly",
-            "conversations.readonly"
-
+            "users.readonly",
+            "conversations.readonly",
+            "contacts.write",
+            "contacts.readonly"
         ]
     }
 
