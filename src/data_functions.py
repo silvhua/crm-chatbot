@@ -42,19 +42,19 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
             item_attributes['type'] = {'S': f'{payload_type}_{timestamp}'}
         else:
             item_attributes['type'] = {'S': payload.get('type', 'no event type')}
-        payload.pop('type')
         for key, value in payload.items():
-            if type(value) == str:
-                item_attributes[key] = {'S': value}
-            elif type(value) == bool:
-                item_attributes[key] = {"BOOL": value}
-            elif type(value) == dict:
-                item_attributes[key] = {"S": json.dumps(value)}
-            elif type(value) == list:
-                value = ''.join([f'{item}, ' for item in value])
-                item_attributes[key] = {"S": value}
-            else:
-                print(f'Unable to save payload item {key} of type {type(value)}')
+            if key != 'type':
+                if type(value) == str:
+                    item_attributes[key] = {'S': value}
+                elif type(value) == bool:
+                    item_attributes[key] = {"BOOL": value}
+                elif type(value) == dict:
+                    item_attributes[key] = {"S": json.dumps(value)}
+                elif type(value) == list:
+                    value = ''.join([f'{item}, ' for item in value])
+                    item_attributes[key] = {"S": value}
+                else:
+                    print(f'Unable to save payload item {key} of type {type(value)}')
         try:
             location_id = payload['locationId']
             item_attributes['business'] = {"S": os.getenv(location_id)}

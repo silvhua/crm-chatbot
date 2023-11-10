@@ -32,9 +32,17 @@ def lambda_handler(event, context):
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
                 )
-            # if payload['type'] in message_events:
-            #     message2 = add_to_chat_history(payload)
-            #     message = f'{message}\n{message2}'
+            try:
+                if payload['type'] in message_events:
+                    message2 = add_to_chat_history(payload)
+                    message = f'{message}\n{message2}'
+            except Exception as error:
+                exc_type, exc_obj, tb = sys.exc_info()
+                f = tb.tb_frame
+                lineno = tb.tb_lineno
+                filename = f.f_code.co_filename
+                message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
+                message = f'{message}\n{message2}'
             print(message)
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
