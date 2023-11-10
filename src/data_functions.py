@@ -35,7 +35,6 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         contact_events = ['ContactDelete', 'ContactDndUpdate']
         contact_id_key = 'contactId' if payload['type'] in ['NoteCreate'] + message_events else 'id'
         item_attributes['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
-        payload.pop(contact_id_key)
         payload_type = payload['type']
         if payload_type in ['NoteCreate'] + message_events:
             timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
@@ -43,7 +42,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         else:
             item_attributes['type'] = {'S': payload.get('type', 'no event type')}
         for key, value in payload.items():
-            if key != 'type':
+            if (key != 'type') & (key != contact_id_key):
                 if type(value) == str:
                     item_attributes[key] = {'S': value}
                 elif type(value) == bool:
@@ -90,7 +89,7 @@ def add_to_chat_history(payload):
             table_name="SessionTable", session_id=contactId,
             key={
                 'SessionId': contactId,
-                'type': payload['type']
+                'type': 'ChatHistory'
             }
             )
         if payload['type'] == 'InboundMessage':
@@ -101,6 +100,7 @@ def add_to_chat_history(payload):
             message = f'Added AI message to chat history for webhook type {payload["type"]}'
         else:
             message = f'No chat history to save.'
+        print(f'Chat history: \n{history.messages}')
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
