@@ -24,25 +24,28 @@ def lambda_handler(event, context):
                 payload, table_name, dynamodb
                 )
         elif payload['type'] in message_events + contact_update_events:
-            # Only save webhook data if contact exists in database so only data from new leads are saved.
+            # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
             contact_data = query_dynamodb_table(
                 'SessionTable', payload[contact_id_key], key='SessionId'
                 )['Items']
-            message = add_webhook_data_to_dynamodb(
-                payload, table_name, dynamodb
-                )
-            try:
-                if payload['type'] in message_events:
-                    message2 = add_to_chat_history(payload)
+            if contact_data:
+                message = add_webhook_data_to_dynamodb(
+                    payload, table_name, dynamodb
+                    )
+                try:
+                    if payload['type'] in message_events:
+                        message2 = add_to_chat_history(payload)
+                        message = f'{message}\n{message2}'
+                except Exception as error:
+                    exc_type, exc_obj, tb = sys.exc_info()
+                    f = tb.tb_frame
+                    lineno = tb.tb_lineno
+                    filename = f.f_code.co_filename
+                    message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
                     message = f'{message}\n{message2}'
-            except Exception as error:
-                exc_type, exc_obj, tb = sys.exc_info()
-                f = tb.tb_frame
-                lineno = tb.tb_lineno
-                filename = f.f_code.co_filename
-                message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
-                message = f'{message}\n{message2}'
+            else:
+                message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
             print(message)
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
