@@ -2,6 +2,7 @@ import os
 from time import time
 
 # documents
+from langchain.document_loaders import UnstructuredMarkdownLoader
 from langchain.document_loaders import DirectoryLoader
 from langchain.document_loaders import TextLoader
 from langchain.document_loaders.csv_loader import CSVLoader
@@ -45,6 +46,11 @@ answer_dict=dict()
 conversation_dict = dict()
 doc_dict = dict()
 queries_dict = dict()
+
+def create_docs_from_markdown(filename, filepath='../data/rag_docs'):
+    loader = UnstructuredMarkdownLoader(f'{filepath}/{filename}')
+    documents = loader.load()
+    return documents
 
 def create_documents(directory='../data', glob='**/[!.]*', show_progress=True, loader_cls=CSVLoader):
     loader = DirectoryLoader(
