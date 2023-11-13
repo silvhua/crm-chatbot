@@ -80,14 +80,58 @@ def get_email_history(contactId, message_dict, location='SamLab'):
 
     return response.json()
 
-iteration = 1.5
-timestamp = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M:%S')
-message_dict = {
-    "type": "Email",
-    "message": f"Hi, me. This is a test message from the GHL API using Python at {timestamp} Pacific time",
-    "subject": "Testing GHL API with Python threadId",
-    "emailFrom": "Brian Quinlan <brian@ownitfit.com.au>",
-}
-# response_dict[iteration] = get_email_history(contacts['me'], message_dict)
-response_dict[iteration] = send_message(contacts['me_mcloone'], message_dict, location='CoachMcloone')
-response_dict[iteration]
+from datetime import datetime
+def ghl_request(contactId, endpoint='createTask', payload=None, params_dict=None, location='SamLab'):
+    """
+    Send a message to a contact in GoHighLevel.
+    
+    Parameters:
+    - contactId (str): Contact ID.
+
+    Returns:
+    - response_dict (dict): Dictionary containing the response from the API.
+    """
+    url_root = 'https://services.leadconnectorhq.com/'
+
+    if endpoint == 'createNote':
+        endpoint_url = f'contacts/{contactId}/notes'
+        request_type = 'POST'
+        payload = {
+            'body': f"Send message to contact {contactId} {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}",
+            'userId': contactId
+        }
+    elif endpoint == 'createTask':
+        endpoint_url = f'contacts/{contactId}/tasks'
+        request_type = 'POST'
+        payload = {
+            'title': f'Send message to contact {contactId}',
+            'dueDate': datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'completed': False
+        }
+    url = f'{url_root}{endpoint_url}'
+    with open('../private/auth_token_response.json') as token_file:
+        token = json.load(token_file)[location]
+    
+    headers = {
+        "Authorization": f"Bearer {token['access_token']}",
+        "Version": "2021-04-15",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    print(f'Sending {endpoint} messages with these parameters:')
+    if params_dict:
+        print(params_dict)
+    if request_type == 'POST':
+        response = requests.post(
+            url, headers=headers, 
+            json=payload if payload else None
+            )
+    else:
+        response = requests.get(
+            url, headers=headers, 
+            json=payload if payload else None
+            )
+    print(f'Status code {response.status_code}: {response.reason}')
+    print(f'Status code {response.status_code}: {response.reason}')
+
+    return response.json()
