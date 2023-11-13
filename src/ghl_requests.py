@@ -11,7 +11,6 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
     - contactId (str): Contact ID.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'createNote', 'send_message', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
-    - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
 
     Example payload for sendMessage endpoint:
