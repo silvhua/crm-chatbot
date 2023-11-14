@@ -37,15 +37,20 @@ def lambda_handler(event, context):
                     if payload['type'] in message_events:
                         message2 = add_to_chat_history(payload)
                         message = f'{message}\n{message2}'
-                        if payload['type'] == 'InboundMessage':
-                            new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body'] if key in payload}
-                            # Invoke another Lambda function
-                            lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                            lambda_client.invoke(
-                                FunctionName='ghl_reply',
-                                InvocationType='Event',
-                                Payload=json.dumps(new_payload)
-                            )
+                        if (payload['type'] == 'InboundMessage'):
+                            location =  os.getenv(payload['locationId']) 
+                            if location == 'Sam Lab': ## Update this later to include other businesses
+                                new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body'] if key in payload}
+                                # Invoke another Lambda function
+                                lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                lambda_client.invoke(
+                                    FunctionName='ghl_reply',
+                                    InvocationType='Event',
+                                    Payload=json.dumps(new_payload)
+                                )
+                                message3 = f'`ghl_reply` function invoked.'
+                                print(message3)
+                                message = f'{message}\n{message3}'
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()
                     f = tb.tb_frame
