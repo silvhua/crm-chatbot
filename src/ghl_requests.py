@@ -87,6 +87,8 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
 
     print(f'Status code {response.status_code}: {response.reason}')
     data = response.json()
+    data['status_code'] = response.status_code
+    data['response_reason'] = response.reason
     try:
         if endpoint == 'getEmailHistory':
             email_timestamp = data['conversations'][0]['dateUpdated']/1000
