@@ -11,6 +11,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
     - contactId (str): Contact ID.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'createNote', 'send_message', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
+    - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
 
     Example payload for sendMessage endpoint:
@@ -35,14 +36,15 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
         request_type = 'POST'
         if payload == None:
             payload = {}
-            payload['body'] = (f"Send message to contact {contactId} {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
+            payload['body'] = (f"Reply to SMS (contactID {contactId}) {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
             payload['userId'] = contactId
     elif endpoint == 'createTask':
         endpoint_url = f'contacts/{contactId}/tasks'
         request_type = 'POST'
         if payload == None:
             payload = {}
-            payload['title'] = f'Send message to contact {contactId}' if text==None else text
+            payload['title'] = f'Send message to contact {contactId}'
+            payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
         payload['dueDate'] = payload.get('dueDate', datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))
         payload['completed'] = False
     elif endpoint == 'sendMessage':
@@ -68,6 +70,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
+
 
     if request_type == 'POST':
         response = requests.post(
