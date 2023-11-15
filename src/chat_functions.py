@@ -65,7 +65,13 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
         openai_api_key=os.environ['openai_api_key'],
         model=model
         )
-    message_history = DynamoDBChatMessageHistory(table_name="SessionTable", session_id=contactId)
+    message_history = DynamoDBChatMessageHistory(
+        table_name="SessionTable", session_id=contactId,
+        key={
+            "PK": "SessionId",
+            "SK": "type",
+            }
+        )
     memory = ConversationBufferMemory(
         memory_key="ChatHistory", chat_memory=message_history, return_messages=True, 
         input_key='input', output_key="output" # Required to avoid `ValueError: One output key expected, got dict_keys(['output', 'intermediate_steps'])`; https://github.com/langchain-ai/langchain/issues/2068
@@ -107,21 +113,3 @@ def chat_with_chatbot(user_input, agent_info):
 
 def fake_func(inp: str) -> str:
     return "foo"
-
-from langchain.agents import Tool
-
-tools = [
-    Tool(
-        name=f"foo-{i}",
-        func=fake_func,
-        description=f"a silly function that you can use to get more information about the number {i}",
-    )
-    for i in range(2)
-]
-business_dict = {
-    'SAM_Lab': (
-        'SAM_Lab.txt', # business-specific system message
-        'new_contact_messages_2023-11-10_0953_trimmed2023-11-11_1140.txt', # Examples 
-        'SAM_Lab_doc.md' # RAG doc
-        )
-}
