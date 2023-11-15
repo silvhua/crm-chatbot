@@ -3,18 +3,26 @@ from datetime import datetime
 import json
 import sys
 from urllib.parse import urlencode
+import boto3
 
 def refresh_token():
-    token_file_path = '../private/auth_token_response.json'
+    token_file_path = 'private'
+    filename = 'auth_token_response.json'
 
-    with open('../private/config.json') as config_file:
+    with open(f'{token_file_path}/config.json') as config_file:
         appConfig = json.load(config_file)
-
-    with open(token_file_path, 'r') as token_file:
-        tokens = json.load(token_file)
-
+    try:
+        with open(f'{token_file_path}/{filename}', 'r') as token_file:
+            tokens = json.load(token_file)
+    except:
+        # Load JSON from S3
+        s3 = boto3.client('s3')
+        response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
+        tokens = json.loads(response['Body'].read().decode('utf-8'))
+    print(f'tokens: {tokens}\n')
     if 'SamLab' in tokens:
         sam_lab_token = tokens['SamLab']
+        print(f'SameLab refresh token: {sam_lab_token["refresh_token"]}')
     else:
         return {
             'statusCode': 500,
@@ -40,8 +48,23 @@ def refresh_token():
 
     if response.status_code == 200:
         tokens['SamLab'] = response.json()
-        with open(token_file_path, 'w') as token_file:
-            json.dump(tokens, token_file)
+        try:
+            with open(f'{token_file_path}/{filename}', 'w') as token_file:
+                json.dump(tokens, token_file)
+        except:
+            try:
+                # Save tokens to S3
+                s3 = boto3.client('s3')
+                s3.put_object(
+                    Body=json.dumps(tokens), 
+                    Bucket='ownitfit-silvhua', Key=filename
+                    )
+            except Exception as error:
+                exc_type, exc_obj, tb = sys.exc_info()
+                f = tb.tb_frame
+                lineno = tb.tb_lineno
+                filename = f.f_code.co_filename
+                print(f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}")
         return {
             'statusCode': 200,
             'body': json.dumps(response.json())
@@ -49,7 +72,8 @@ def refresh_token():
     else:
         return {
             'statusCode': 500,
-            'body': json.dumps({"error": "Failed to fetch access token."})
+            'body': json.dumps({"error": f"Failed to fetch access token: {response.reason}",}),
+            'response': json.dumps(response.json())
         }
 
 def ghl_request(contactId, endpoint='createTask', text=None, payload=None, location='SamLab'):
