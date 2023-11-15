@@ -12,7 +12,7 @@ def initiate_auth():
     """
     Create access token for SAM lab.
     """
-    with open ('../private/config.json') as config_file:
+    with open ('private/config.json') as config_file:
         appConfig = json.load(config_file)
 
     options = {
@@ -40,9 +40,9 @@ def refresh():
     """
     Refresh access token for SAM lab.
     """
-    token_file_path = '../private/auth_token_response.json'
+    token_file_path = 'private/auth_token_response.json'
 
-    with open('../private/config.json') as config_file:
+    with open('private/config.json') as config_file:
         appConfig = json.load(config_file)
 
     # Read the existing tokens from the token_file
@@ -78,17 +78,17 @@ def refresh():
             json.dump(tokens, token_file)
         return jsonify(response.json())
     else:
-        return jsonify({"error": "Failed to fetch access token."}), 500
+        return jsonify({"error": f"Failed to fetch access token: {response.reason}"}), 500
 
 # callback.js equivalent
 @app.route('/oauth/callback')
 def oauth_callback():
-    with open ('../private/config.json') as config_file:
+    with open ('private/config.json') as config_file:
         appConfig = json.load(config_file)
         print('Config.json loaded')
 
     # Read the existing tokens from the token_file
-    token_file_path = '../private/auth_token_response.json'
+    token_file_path = 'private/auth_token_response.json'
     with open(token_file_path, 'r') as token_file:
         tokens = json.load(token_file)
 
@@ -111,7 +111,7 @@ def oauth_callback():
     if response.status_code == 200:
         # Save the response.json() to a file
         tokens['SamLab'] = response.json()
-        with open('../private/auth_token_response.json', 'w') as token_file:
+        with open('private/auth_token_response.json', 'w') as token_file:
             json.dump(tokens, token_file)
         return jsonify(response.json())
     else:
