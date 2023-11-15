@@ -19,10 +19,8 @@ def refresh_token():
         s3 = boto3.client('s3')
         response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
         tokens = json.loads(response['Body'].read().decode('utf-8'))
-    print(f'tokens: {tokens}\n')
     if 'SamLab' in tokens:
         sam_lab_token = tokens['SamLab']
-        print(f'SameLab refresh token: {sam_lab_token["refresh_token"]}')
     else:
         return {
             'statusCode': 500,
