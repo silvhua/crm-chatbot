@@ -125,15 +125,3 @@ business_dict = {
         'SAM_Lab_doc.md' # RAG doc
         )
 }
-conversation_id = 2.2
-contactId = 'test'
-input1 = 'I change my mind; small group training instead'
-
-system_message_dict[conversation_id] = create_system_message('SAM_Lab', business_dict)
-conversation_dict[conversation_id] = create_chatbot(contactId, system_message_dict[conversation_id], tools=tools)
-
-
-answer_dict[conversation_id] = chat_with_chatbot(
-    input1, conversation_dict[conversation_id]
-)
-answer_dict[conversation_id]
