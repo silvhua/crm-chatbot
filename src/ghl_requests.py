@@ -1,3 +1,4 @@
+# import pytz # Not included in Lambda by default
 import requests
 from datetime import datetime
 import json
@@ -5,7 +6,26 @@ import sys
 from urllib.parse import urlencode
 import boto3
 
+
 def refresh_token():
+    """
+    Refreshes the authentication token. 
+
+    This function does the following:
+    1. Reads the application configuration from a local file.
+    2. Attempts to load the authentication tokens from a local file.
+    3. If local file is not found, it retrieves the tokens from an S3 bucket.
+    4. Checks if the 'SamLab' token is present in the loaded tokens. If not, it returns an error.
+    5. Prepares data for the token refresh request, including client_id, client_secret, grant_type, refresh_token, user_type, and redirect_uri from the application configuration and SamLab token.
+    6. Sends a POST request to the Lead Connector API to refresh the token.
+    7. If the token refresh request is successful, it updates the 'SamLab' token in the loaded tokens with the response and tries to save it to a local file.
+    8. If local save fails, it tries to save the tokens to the same S3 bucket.
+    9. If S3 save also fails, it prints the error details.
+    10. Returns the response of the token refresh request.
+
+    Returns:
+        dict: A dictionary with 'statusCode', 'body', and optionally 'response' keys. 'statusCode' is 200 if the token refresh request is successful, and 500 otherwise. 'body' contains the response of the token refresh request if it is successful, and an error message otherwise. 'response' is present only if the token refresh request fails, and contains the response of the failed request.
+    """
     token_file_path = 'private'
     filename = 'auth_token_response.json'
 
@@ -132,8 +152,13 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
         raise ValueError("Invalid endpoint value. Valid values are 'createTask', 'createNote', 'sendMessage', and 'getEmailHistory'.")
 
     url = f'{url_root}{endpoint_url}'
-    with open('../private/auth_token_response.json') as token_file:
-        token = json.load(token_file)[location]
+    try:
+        with open('private/auth_token_response.json') as token_file:
+            token = json.load(token_file)[location]
+    except:
+        s3 = boto3.client('s3')
+        response = s3.get_object(Bucket='ownitfit-silvhua', Key='auth_token_response.json')
+        token = json.loads(response['Body'].read().decode('utf-8'))[location]
 
     headers = {
         "Authorization": f"Bearer {token['access_token']}",
