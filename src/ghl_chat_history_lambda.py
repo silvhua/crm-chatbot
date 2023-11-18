@@ -40,7 +40,7 @@ def lambda_handler(event, context):
                         if (payload['type'] == 'InboundMessage'):
                             location =  os.getenv(payload['locationId']) 
                             if location == 'Sam Lab': ## Update this later to include other businesses
-                                new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body'] if key in payload}
+                                new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
                                 # Invoke another Lambda function
                                 lambda_client = boto3.client('lambda')  # Initialize Lambda client
                                 lambda_client.invoke(
