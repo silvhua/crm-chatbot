@@ -68,8 +68,8 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
     message_history = DynamoDBChatMessageHistory(
         table_name="SessionTable", session_id=contactId,
         key={
-            "PK": "SessionId",
-            "SK": "type",
+            "SessionId": contactId,
+            "type": 'ChatHistory',
             }
         )
     memory = ConversationBufferMemory(
