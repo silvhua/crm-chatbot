@@ -18,6 +18,7 @@ def lambda_handler(event, context):
         InboundMessage = payload.get('body')
         locationId = payload.get('locationId', 'SAMLab')
         location = os.getenv(locationId)
+        print(f'location: {location}')
 
         system_message_dict = dict()
         conversation_dict = dict()
@@ -40,6 +41,8 @@ def lambda_handler(event, context):
         }
 
         try:
+            refresh_token_response = refresh_token()
+            print(f'Refresh token response: {refresh_token_response}')
 
             system_message_dict[conversation_id] = create_system_message(
                 'SAM_Lab', business_dict, prompts_filepath='prompts',

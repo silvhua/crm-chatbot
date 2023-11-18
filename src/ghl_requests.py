@@ -136,7 +136,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
                 payload = {}
                 payload['title'] = f'Send message to contact {contactId}'
                 payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
-            payload['dueDate'] = payload.get('dueDate', datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))
+            payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
         elif endpoint == 'sendMessage':
             endpoint_url = f'conversations/messages'
@@ -159,9 +159,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
             try:
                 s3 = boto3.client('s3')
                 response = s3.get_object(Bucket='ownitfit-silvhua', Key='auth_token_response.json')
-                print(f'Token reponse: {response}')
-                token = json.loads(response['Body'].read().decode('utf-8'))
-                print(f"Token: {json.loads(response['Body'].read().decode('utf-8'))}")
+                token = json.loads(response['Body'].read().decode('utf-8'))[location]
             except Exception as error:
                 exc_type, exc_obj, tb = sys.exc_info()
                 f = tb.tb_frame
@@ -171,7 +169,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
                 return None
 
         headers = {
-            "Authorization": f"Bearer {token[location]['access_token']}",
+            "Authorization": f"Bearer {token['access_token']}",
             "Version": "2021-04-15",
             "Content-Type": "application/json",
             "Accept": "application/json"
