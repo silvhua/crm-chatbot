@@ -1,3 +1,4 @@
+from openai import OpenAI
 import os
 from time import time
 
@@ -126,17 +127,20 @@ def chat_with_chatbot(user_input, agent_info):
 def fake_func(inp: str) -> str:
     return "foo"
 
-def openai_models(env="api_key_openai", query='gpt'):
+def openai_models(env="openai_api_key", query='gpt'):
     """
     List the availabel OpenAI models.
     Parameters:
         - env (str): Name of environmental variable storing the OpenAI API key.
         - query (str): Search term for filtering models.
     """
-    openai.api_key = os.getenv(env)
-    response = openai.Model.list()
-    filtered_models = [model for model in response['data'] if model['id'].find(query) != -1]
+    client = OpenAI(
+        organization=os.environ['openai_organization']
+    )
+    # openai.api_key = os.getenv(env)
+    response = client.models.list()
+    filtered_models = [model for model in response.data if model.id.find(query) != -1]
 
     for item in filtered_models:
-        print(item['id'])
+        print(item.id)
     return filtered_models
