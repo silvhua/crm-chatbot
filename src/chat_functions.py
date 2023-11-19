@@ -38,16 +38,28 @@ def create_system_message(
     examples = load_txt(business_dict[business_name][1], examples_filepath)
     document = load_txt(business_dict[business_name][2], doc_filepath)
 
-    system_message = f"""{instructions}
+    system_message = f"""# Stage 1
 
-    **Examples**
+    {instructions}
+
+    ## Examples
 
     {examples}
 
-    **Relevant documentation**
+    ## Relevant documentation
 
     {document}
 
+    # Stage 2
+
+    Review your response from stage 1. 
+    Revise your response if needed to make sure you followed the instructions.
+    Make sure that if the question cannot be answered through the documentation, 
+    you return 'flag'.
+    
+    # Stage 3
+
+    Review your response from stage 2 to ensure your response is concise.
     """
 
     prompt = """
@@ -113,3 +125,18 @@ def chat_with_chatbot(user_input, agent_info):
 
 def fake_func(inp: str) -> str:
     return "foo"
+
+def openai_models(env="api_key_openai", query='gpt'):
+    """
+    List the availabel OpenAI models.
+    Parameters:
+        - env (str): Name of environmental variable storing the OpenAI API key.
+        - query (str): Search term for filtering models.
+    """
+    openai.api_key = os.getenv(env)
+    response = openai.Model.list()
+    filtered_models = [model for model in response['data'] if model['id'].find(query) != -1]
+
+    for item in filtered_models:
+        print(item['id'])
+    return filtered_models
