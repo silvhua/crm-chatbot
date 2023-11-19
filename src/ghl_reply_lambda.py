@@ -42,13 +42,16 @@ def lambda_handler(event, context):
 
         try:
             refresh_token_response = refresh_token()
-            print(f'Refresh token response: {refresh_token_response}')
+            # print(f'Refresh token response: {refresh_token_response}')
 
             system_message_dict[conversation_id] = create_system_message(
                 'SAM_Lab', business_dict, prompts_filepath='prompts',
                 examples_filepath='chat_examples', doc_filepath='rag_docs'
             )
-            conversation_dict[conversation_id] = create_chatbot(contactId, system_message_dict[conversation_id], tools=tools)
+            conversation_dict[conversation_id] = create_chatbot(
+                contactId, system_message_dict[conversation_id], tools=tools,
+                # model='gpt-4-32k'
+                )
 
             reply = chat_with_chatbot(
                 InboundMessage, conversation_dict[conversation_id]
