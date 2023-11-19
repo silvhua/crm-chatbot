@@ -16,7 +16,7 @@ def lambda_handler(event, context):
             payload = event["body"]
             
         message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
-        contact_update_events = ['ContactDelete', 'ContactDndUpdate']
+        contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate']
         print(f'Payload: {payload}')
         dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         if payload['type'] == 'ContactCreate':
@@ -25,9 +25,9 @@ def lambda_handler(event, context):
                 )
         elif payload['type'] in message_events + contact_update_events:
             # Only save message_events data if contact exists in database so only data from new leads are saved.
-            contact_id_key = 'contactId' if payload['type'] in message_events else 'id'
+            contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
             contact_data = query_dynamodb_table(
-                'SessionTable', payload[contact_id_key], key='SessionId'
+                'SessionTable', payload[contact_id_key], partition_key='SessionId'
                 )['Items']
             if contact_data:
                 message = add_webhook_data_to_dynamodb(
@@ -35,11 +35,14 @@ def lambda_handler(event, context):
                     )
                 try:
                     if payload['type'] in message_events:
-                        message2 = add_to_chat_history(payload)
-                        message = f'{message}\n{message2}'
-                        if (payload['type'] == 'InboundMessage'):
-                            location =  os.getenv(payload['locationId']) 
-                            if location == 'Sam Lab': ## Update this later to include other businesses
+                        if (payload['type'] != 'InboundMessage'):
+                            print(f'Webhook type: {payload["type"]}')
+                            message2 = add_to_chat_history(payload)
+                            message = f'{message}\n{message2}'
+                        elif (payload['type'] == 'InboundMessage'):
+                            location =  os.getenv(payload['locationId'])
+                            print(f'Location: {location}') 
+                            if location == 'SAM Lab': ## Update this later to include other businesses
                                 new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
                                 # Invoke another Lambda function
                                 lambda_client = boto3.client('lambda')  # Initialize Lambda client
@@ -49,8 +52,12 @@ def lambda_handler(event, context):
                                     Payload=json.dumps(new_payload)
                                 )
                                 message3 = f'`ghl_reply` function invoked.'
-                                print(message3)
                                 message = f'{message}\n{message3}'
+                            else:
+                                print(f'Webhook type: {payload["type"]} for other location')
+                                message2 = add_to_chat_history(payload)
+                                message = f'{message}\n{message2}'
+
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()
                     f = tb.tb_frame
