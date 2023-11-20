@@ -35,11 +35,11 @@ def lambda_handler(event, context):
                     )
                 try:
                     if payload['type'] in message_events:
-                        if (payload['type'] != 'InboundMessage'):
-                            print(f'Webhook type: {payload["type"]}')
-                            message2 = add_to_chat_history(payload)
-                            message = f'{message}\n{message2}'
-                        elif (payload['type'] == 'InboundMessage'):
+                        # if (payload['type'] != 'InboundMessage'):
+                        print(f'Webhook type: {payload["type"]}')
+                        message2 = add_to_chat_history(payload)
+                        message = f'{message}\n{message2}'
+                        if payload['type'] == 'InboundMessage':
                             location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
                             if location == 'SAM Lab': ## Update this later to include other businesses
@@ -53,10 +53,10 @@ def lambda_handler(event, context):
                                 )
                                 message3 = f'`ghl_reply` function invoked.'
                                 message = f'{message}\n{message3}'
-                            else:
-                                print(f'Webhook type: {payload["type"]} for other location')
-                                message2 = add_to_chat_history(payload)
-                                message = f'{message}\n{message2}'
+                            # else:
+                            #     print(f'Webhook type: {payload["type"]} for other location')
+                            #     message2 = add_to_chat_history(payload)
+                            #     message = f'{message}\n{message2}'
 
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()

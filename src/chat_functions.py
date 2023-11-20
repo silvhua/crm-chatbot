@@ -85,10 +85,10 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
             "type": 'ChatHistory',
             }
         )
-    memory = ConversationBufferMemory(
-        memory_key="ChatHistory", chat_memory=message_history, return_messages=True, 
-        input_key='input', output_key="output" # Required to avoid `ValueError: One output key expected, got dict_keys(['output', 'intermediate_steps'])`; https://github.com/langchain-ai/langchain/issues/2068
-    )
+    # memory = ConversationBufferMemory(
+    #     memory_key="ChatHistory", chat_memory=message_history, return_messages=True, 
+    #     input_key='input', output_key="output" # Required to avoid `ValueError: One output key expected, got dict_keys(['output', 'intermediate_steps'])`; https://github.com/langchain-ai/langchain/issues/2068
+    # )
     system_message = SystemMessage(
         content=(system_message),
         input_variables=['InboundMessage']
@@ -103,7 +103,9 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
 
     agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
     agent_executor = AgentExecutor(
-        agent=agent, tools=tools, memory=memory, verbose=verbose, return_intermediate_steps=True
+        agent=agent, tools=tools, 
+        # memory=memory, 
+        verbose=verbose, return_intermediate_steps=True
         )
     agent_info = {
         'agent': agent,
