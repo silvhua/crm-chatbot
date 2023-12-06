@@ -41,7 +41,7 @@ def query_dynamodb_table(
 
 def get_dynamodb_table(
     table_name, sort_key_value='ChatHistory', partition_key_value=None, partition_key='SessionId', sort_key='type', 
-    profile='mcgill_credentials', region_name="us-west-2", limit=None, last_evaluated_key=None, use_scan=False
+    profile='mcgill_credentials', region_name="us-west-2", limit=100, last_evaluated_key=None, use_scan=False
 ):
     """
     Query or scan a DynamoDB table based on both the partition key and sort key, or only the sort key.
@@ -65,36 +65,66 @@ def get_dynamodb_table(
         result = get_dynamodb_table('SessionTable', 'YourPartitionKeyValue', limit=10)
         From 2023-12-05 Codeium chat.
     """
+
     if profile:
         session = boto3.Session(profile_name=profile)
         dynamodb = session.resource('dynamodb', region_name=region_name)
     else:
         dynamodb = boto3.resource('dynamodb', region_name=region_name)
-    
+
     table = dynamodb.Table(table_name)
 
     if use_scan and sort_key:
-        # Perform a scan when partition_key_value is not provided
+        print('Using scan...')
         filter_expression = Key(sort_key).eq(sort_key_value)
-        print(f'FilterExpression: {filter_expression}')
-        response = table.scan(
-            FilterExpression=filter_expression,
-            Limit=limit,
-            ExclusiveStartKey=last_evaluated_key
-        )
+        params = {
+            'FilterExpression': filter_expression
+        }
+        if last_evaluated_key:
+            params['ExclusiveStartKey'] = last_evaluated_key
+
+        if limit:
+            params['Limit'] = limit
+
+        response = table.scan(**params)
     else:
-        # Construct the KeyConditionExpression for the query
+        print('Using query...')
+        key_condition_expression = Key(partition_key).eq(partition_key_value)
         if sort_key:
-            key_condition_expression = Key(partition_key).eq(partition_key_value) & Key(sort_key).eq(sort_key_value)
-        else:
-            key_condition_expression = Key(partition_key).eq(partition_key_value)
-        
-        print(f'KeyConditionExpression: {key_condition_expression}')
-        response = table.query(
-            KeyConditionExpression=key_condition_expression,
-            Limit=limit,
-            ExclusiveStartKey=last_evaluated_key
-        )
+            key_condition_expression &= Key(sort_key).eq(sort_key_value)
+        params = {
+            'KeyConditionExpression': key_condition_expression,
+            'Limit': limit
+        }
+        if last_evaluated_key:
+            params['ExclusiveStartKey'] = last_evaluated_key
+
+        response = table.query(**params)
 
     return response
 
+def dynamodb_response_to_df(response):
+    # Extract the 'Items' list from the DynamoDB response
+    items = response.get('Items', [])
+    
+    # Create an empty dictionary
+    df_dict = {}
+    
+    # Iterate over the items and add them to the dictionary
+    for item in items:
+        session_id = item.get('SessionId', {})
+        message_history = item.get('History', {})
+        data = [
+            {
+                'type': message['data']['type'],
+                'content': message['data']['content']
+            } for message in message_history
+            ]
+        
+        # Create a DataFrame for the current item
+        df = pd.DataFrame(data)
+        
+        # Add the DataFrame to the dictionary with the session_id as the key
+        df_dict[session_id] = df
+    
+    return df_dict
