@@ -71,7 +71,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
                     print(f'Unable to save payload item {key} of type {type(value)}')
         try:
             location_id = payload['locationId']
-            item_attributes['business'] = {"S": os.getenv(location_id)}
+            item_attributes['business'] = {"S": os.getenv(location_id, 'Not available')}
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
             f = tb.tb_frame
