@@ -4,4 +4,5 @@ notebooks/2023-08-19 dynamodb langchain integration.ipynb
 notebooks/2023-10-21 get FAQ.ipynb
 data
 prompts
-**[private]**
+**private**.ipynb
+src/aws_requests.py

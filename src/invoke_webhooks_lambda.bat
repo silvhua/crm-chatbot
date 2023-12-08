@@ -1,0 +1,1 @@
+sam local invoke WebhooksLambda --event events/OutboundMessageTest.json
