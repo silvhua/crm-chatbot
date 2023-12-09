@@ -23,12 +23,12 @@ Resources:
       Runtime: python3.11
       CodeUri: src/
       Timeout: 300
-      # Events:
-      #   WebhooksApi:
-      #     Type: Api
-      #     Properties:
-      #       Path: /ghl_webhook
-      #       Method: ANY
+      Events:
+        WebhooksApi:
+          Type: Api
+          Properties:
+            Path: /ghl_webhook
+            Method: ANY
 
   OifBucket:
     Type: AWS::S3::Bucket
