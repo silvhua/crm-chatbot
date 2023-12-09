@@ -21,9 +21,9 @@ env:
   # TESTING_IMAGE_REPOSITORY = '0123456789.dkr.ecr.region.amazonaws.com/repository-name'
   TESTING_REGION: us-west-2
   PROD_STACK_NAME: ghl-chat-prod
-  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-prod-pipe-PipelineExecutionRole-onD90D3FDGwl
-  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-prod--CloudFormationExecutionRo-EKqVW3juq2Co
-  PROD_ARTIFACTS_BUCKET: aws-sam-cli-managed-prod-pipeline--artifactsbucket-frz5xdkafqxk
+  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-prod-pipe-PipelineExecutionRole-a5LtoOmGFKRW
+  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-prod--CloudFormationExecutionRo-o3fbfPikXO6j
+  PROD_ARTIFACTS_BUCKET: aws-sam-cli-managed-prod-pipeline--artifactsbucket-ecopdm998jna
   # If there are functions with "Image" PackageType in your template,
   # uncomment the line below and add "--image-repository ${PROD_IMAGE_REPOSITORY}" to
   # prod "sam package" and "sam deploy" commands.
