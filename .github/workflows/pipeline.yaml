@@ -12,9 +12,9 @@ on:
 env:
   SAM_TEMPLATE: template.yaml
   TESTING_STACK_NAME: ghl-chat-dev
-  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-pipel-PipelineExecutionRole-IBQpv0Zm6IX3
-  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionRo-6M7nwbhM9yIA
-  TESTING_ARTIFACTS_BUCKET: aws-sam-cli-managed-dev-pipeline-r-artifactsbucket-ld2eyroophf0
+  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-pipel-PipelineExecutionRole-wZa9f5hPeZFb
+  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionRo-9UZKUY9snq2H
+  TESTING_ARTIFACTS_BUCKET: aws-sam-cli-managed-dev-pipeline-r-artifactsbucket-fepziccg4nk6
   # If there are functions with "Image" PackageType in your template,
   # uncomment the line below and add "--image-repository ${TESTING_IMAGE_REPOSITORY}" to
   # testing "sam package" and "sam deploy" commands.

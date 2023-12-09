@@ -9,9 +9,9 @@ oidc_provider = "github-actions"
 permissions_provider = "OpenID Connect (OIDC)"
 
 [dev.pipeline_bootstrap.parameters]
-pipeline_execution_role = "arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-pipel-PipelineExecutionRole-IBQpv0Zm6IX3"
-cloudformation_execution_role = "arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionRo-6M7nwbhM9yIA"
-artifacts_bucket = "aws-sam-cli-managed-dev-pipeline-r-artifactsbucket-ld2eyroophf0"
+pipeline_execution_role = "arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-pipel-PipelineExecutionRole-wZa9f5hPeZFb"
+cloudformation_execution_role = "arn:aws:iam::661497771663:role/aws-sam-cli-managed-dev-p-CloudFormationExecutionRo-9UZKUY9snq2H"
+artifacts_bucket = "aws-sam-cli-managed-dev-pipeline-r-artifactsbucket-fepziccg4nk6"
 image_repository = ""
 region = "us-west-2"
 
