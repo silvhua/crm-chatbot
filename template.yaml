@@ -34,10 +34,10 @@ Resources:
       #       Path: /ghl_webhook
       #       Method: ANY
 
-  OifBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: ownitfit-silvhua
+  # OifBucket:
+  #   Type: AWS::S3::Bucket
+  #   Properties:
+  #     BucketName: ownitfit-silvhua
 
   # SessionTable:
   #   Type: AWS::DynamoDB::Table
