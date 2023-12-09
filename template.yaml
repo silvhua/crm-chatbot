@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  sam-app
+  ghl-chat
 
 Resources:
   # WebhooksApi:
@@ -16,7 +16,7 @@ Resources:
       Handler: ghl_reply_lambda.lambda_handler
       Role: arn:aws:iam::661497771663:role/service-role/ghl_reply-role-xi672gxy
       Runtime: python3.11
-      CodeUri: src/
+      # CodeUri: src/
 
   WebhooksLambda:
     Type: AWS::Lambda::Function
@@ -25,7 +25,7 @@ Resources:
       Handler: ghl_chat_history_lambda.lambda_handler
       Role: arn:aws:iam::661497771663:role/service-role/ghl_webhooks-role-7acnstq7
       Runtime: python3.11
-      CodeUri: src/
+      # CodeUri: src/
       Timeout: 300
       # Events:
       #   WebhooksApi:
