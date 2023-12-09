@@ -12,23 +12,27 @@ Resources:
   ReplyLambda:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: ghl_reply
       Handler: ghl_reply_lambda.lambda_handler
+      Role: arn:aws:iam::661497771663:role/service-role/ghl_reply-role-xi672gxy
       Runtime: python3.11
       CodeUri: src/
 
   WebhooksLambda:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: ghl_webhooks
       Handler: ghl_chat_history_lambda.lambda_handler
+      Role: arn:aws:iam::661497771663:role/service-role/ghl_webhooks-role-7acnstq7
       Runtime: python3.11
       CodeUri: src/
       Timeout: 300
-      Events:
-        WebhooksApi:
-          Type: Api
-          Properties:
-            Path: /ghl_webhook
-            Method: ANY
+      # Events:
+      #   WebhooksApi:
+      #     Type: Api
+      #     Properties:
+      #       Path: /ghl_webhook
+      #       Method: ANY
 
   OifBucket:
     Type: AWS::S3::Bucket
