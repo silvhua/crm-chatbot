@@ -94,7 +94,10 @@ def refresh_token():
             'response': json.dumps(response.json())
         }
 
-def ghl_request(contactId, endpoint='createTask', text=None, payload=None, location='SamLab'):
+def ghl_request(
+        contactId, endpoint='createTask', text=None, payload=None, location='SamLab',
+        auth_token_path='private/auth_token_response.json'
+        ):
     """
     Send a message to a contact in GoHighLevel or retrieve email history.
 
@@ -104,6 +107,8 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
+    - auth_token_path (str): Local path to the JSON file containing the authentication token.
+        Default value works if script is run from project root folder.If running from notebook directory, use '../src/private/auth_token_response.json'
 
     Example payload for sendMessage endpoint:
         
@@ -122,13 +127,10 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
     if payload:
         print(f'input payload: {payload}')
     try:
-        if endpoint == 'createNote':
-            endpoint_url = f'contacts/{contactId}/notes'
-            request_type = 'POST'
-            if payload == None:
-                payload = {}
-                payload['body'] = (f"Reply to SMS (contactID {contactId}) {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
-                payload['userId'] = contactId
+        if endpoint == 'getContact':
+            endpoint_url = f'contacts/{contactId}'
+            request_type = 'GET'
+            payload = None
         elif endpoint == 'createTask':
             endpoint_url = f'contacts/{contactId}/tasks'
             request_type = 'POST'
@@ -138,6 +140,13 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
                 payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
             payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
+        elif endpoint == 'createNote':
+            endpoint_url = f'contacts/{contactId}/notes'
+            request_type = 'POST'
+            if payload == None:
+                payload = {}
+                payload['body'] = (f"Reply to SMS (contactID {contactId}) {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
+                payload['userId'] = contactId
         elif endpoint == 'sendMessage':
             endpoint_url = f'conversations/messages'
             request_type = 'POST'
@@ -153,7 +162,7 @@ def ghl_request(contactId, endpoint='createTask', text=None, payload=None, locat
 
         url = f'{url_root}{endpoint_url}'
         try:
-            with open('private/auth_token_response.json') as token_file:
+            with open(auth_token_path) as token_file:
                 token = json.load(token_file)[location]
         except:
             try:
