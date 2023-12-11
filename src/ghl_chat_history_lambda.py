@@ -16,7 +16,7 @@ def lambda_handler(event, context):
             payload = event["body"]
             
         message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
-        contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate']
+        contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
         print(f'Payload: {payload}')
         dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         if payload['type'] == 'ContactCreate':
