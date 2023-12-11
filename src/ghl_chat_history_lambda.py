@@ -45,23 +45,34 @@ def lambda_handler(event, context):
                             location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
                             if location == 'SAM Lab': ## Update this later to include other businesses
-                                contact_details = ghl_request(
-                                    contact_id, endpoint='getContact', location=location
-                                    )
-                                contact_tags = contact_details['contact']['tags']
-                                contact_tags = [tag.strip('"\'') for tag in contact_tags]
+                                try:
+                                    contact_details = ghl_request(
+                                        contact_id, endpoint='getContact', 
+                                        location=convert_to_pascal_case(location) ## Update this later to include other businesses
+                                        )
+                                    contact_tags = contact_details['contact']['tags']
+                                    contact_tags = [tag.strip('"\'') for tag in contact_tags]
+                                    print(f'Contact tags: \n{contact_tags}')
 
-                                if 'sam lab members' in contact_tags:
-                                    new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
-                                    # Invoke another Lambda function
-                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                    lambda_client.invoke(
-                                        FunctionName='ghl_reply',
-                                        InvocationType='Event',
-                                        Payload=json.dumps(new_payload)
-                                    )
-                                    message3 = f'`ghl_reply` function invoked.'
-                                    message = f'{message}\n{message3}'
+                                    if 'sam lab members' not in contact_tags:
+                                        new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
+                                        # Invoke another Lambda function
+                                        if payload.get("noReply", False) == False:
+                                            lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                            lambda_client.invoke(
+                                                FunctionName='ghl_reply',
+                                                InvocationType='Event',
+                                                Payload=json.dumps(new_payload)
+                                            )
+                                            message3 = f'`ghl_reply` function invoked.'
+                                            message = f'{message}\n{message3}'
+                                        else:
+                                            message3 = f'`ghl_reply` function skipped because `noReply` is set.'
+                                            message = f'{message}\n{message3}'
+                                    else:
+                                        print(f'Contact is a already member. No AI response required.')
+                                except:
+                                    print(f'Error getting contact details.')
                             # else:
                             #     print(f'Webhook type: {payload["type"]} for other location')
                             #     message2 = add_to_chat_history(payload)
