@@ -1,8 +1,8 @@
 # import pytz # Not included in Lambda by default
+import sys
 import requests
 from datetime import datetime
 import json
-import sys
 from urllib.parse import urlencode
 import boto3
 
