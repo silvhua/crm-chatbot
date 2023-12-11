@@ -6,3 +6,4 @@ data
 prompts
 **private**.ipynb
 src/aws_requests.py
+src/__pycache__
