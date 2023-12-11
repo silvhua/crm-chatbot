@@ -3,6 +3,7 @@ import sys
 import boto3
 from datetime import datetime, timezone
 from data_functions import *
+from ghl_requests import *
 
 def lambda_handler(event, context):
     """
@@ -26,8 +27,9 @@ def lambda_handler(event, context):
         elif payload['type'] in message_events + contact_update_events:
             # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
+            contact_id = payload[contact_id_key]
             contact_data = query_dynamodb_table(
-                'SessionTable', payload[contact_id_key], partition_key='SessionId'
+                'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
             if contact_data:
                 message = add_webhook_data_to_dynamodb(
@@ -43,16 +45,23 @@ def lambda_handler(event, context):
                             location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
                             if location == 'SAM Lab': ## Update this later to include other businesses
-                                new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
-                                # Invoke another Lambda function
-                                lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                lambda_client.invoke(
-                                    FunctionName='ghl_reply',
-                                    InvocationType='Event',
-                                    Payload=json.dumps(new_payload)
-                                )
-                                message3 = f'`ghl_reply` function invoked.'
-                                message = f'{message}\n{message3}'
+                                contact_details = ghl_request(
+                                    contact_id, endpoint='getContact', location=location
+                                    )
+                                contact_tags = contact_details['contact']['tags']
+                                contact_tags = [tag.strip('"\'') for tag in contact_tags]
+
+                                if 'sam lab members' in contact_tags:
+                                    new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
+                                    # Invoke another Lambda function
+                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                    lambda_client.invoke(
+                                        FunctionName='ghl_reply',
+                                        InvocationType='Event',
+                                        Payload=json.dumps(new_payload)
+                                    )
+                                    message3 = f'`ghl_reply` function invoked.'
+                                    message = f'{message}\n{message3}'
                             # else:
                             #     print(f'Webhook type: {payload["type"]} for other location')
                             #     message2 = add_to_chat_history(payload)
