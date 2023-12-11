@@ -123,3 +123,8 @@ def add_to_chat_history(payload):
         filename = f.f_code.co_filename
         message = f'An error occurred on line {lineno} in {filename}: {error}.'
     return message
+
+def convert_to_pascal_case(text):
+    words = text.split()
+    words = [w.title() for w in words]
+    return ''.join(words)
