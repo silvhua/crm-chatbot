@@ -2,8 +2,8 @@ import json
 import sys
 import boto3
 from datetime import datetime, timezone
-from data_functions import *
-from ghl_requests import *
+from app.data_functions import *
+from app.ghl_requests import *
 
 def lambda_handler(event, context):
     """
@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
-            if contact_data:
+            if contact_data: 
                 if payload.get("noReply", False) == False:
                     message = add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
