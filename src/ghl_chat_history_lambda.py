@@ -9,6 +9,7 @@ def lambda_handler(event, context):
     """
     Add GHL message events to dynamodb table as chat history.
     """
+    print(f'System paths: {sys.path}')
     table_name = 'SessionTable' ############
     try:
         if type(event["body"]) == str:
@@ -31,10 +32,13 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
-            if contact_data:
-                message = add_webhook_data_to_dynamodb(
-                    payload, table_name, dynamodb
-                    )
+            if contact_data: 
+                if payload.get("noReply", False) == False:
+                    message = add_webhook_data_to_dynamodb(
+                        payload, table_name, dynamodb
+                        )
+                else:
+                    message = 'Testing data not added to DynamoDB.'
                 try:
                     if payload['type'] in message_events:
                         # if (payload['type'] != 'InboundMessage'):
