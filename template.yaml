@@ -27,7 +27,7 @@ Resources:
       Handler: ghl_chat_history_lambda.lambda_handler
       Role: arn:aws:iam::661497771663:role/service-role/ghl_webhooks-role-7acnstq7
       Runtime: python3.11
-      CodeUri: src/app
+      CodeUri: src
       Timeout: 300
       # Events:
       #   WebhooksApi:

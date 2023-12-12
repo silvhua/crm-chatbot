@@ -2,8 +2,8 @@ import json
 import sys
 import boto3
 from datetime import datetime, timezone
-from data_functions import *
-from ghl_requests import *
+from app.data_functions import *
+from app.ghl_requests import *
 
 def lambda_handler(event, context):
     """
