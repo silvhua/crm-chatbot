@@ -8,3 +8,9 @@ prompts
 src/aws_requests.py
 src/__pycache__
 events/InboundMessageTest.json
+src/*/**
+src/jsonpatch.py
+src/mypy_extensions.py
+src/jsonpointer.py
+src/typing_extensions.py
+src/typing_inspect.py
