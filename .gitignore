@@ -8,7 +8,7 @@ prompts
 src/aws_requests.py
 src/app/__pycache__
 events/InboundMessageTest.json
-src/*
+src/*/**
 !src/app/
 src/jsonpatch.py
 src/mypy_extensions.py
