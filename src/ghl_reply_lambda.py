@@ -1,7 +1,7 @@
 import json
 import sys
-from chat_functions import *
-from ghl_requests import *
+from app.chat_functions import *
+from app.ghl_requests import *
 from langchain.agents import Tool
 def lambda_handler(event, context):
     """
@@ -41,25 +41,30 @@ def lambda_handler(event, context):
         }
 
         try:
-            refresh_token_response = refresh_token()
-            # print(f'Refresh token response: {refresh_token_response}')
+            if payload.get("noReply", False) == False:
+                refresh_token_response = refresh_token()
+                # print(f'Refresh token response: {refresh_token_response}')
 
-            system_message_dict[conversation_id] = create_system_message(
-                'SAM_Lab', business_dict, prompts_filepath='prompts',
-                examples_filepath='chat_examples', doc_filepath='rag_docs'
-            )
-            conversation_dict[conversation_id] = create_chatbot(
-                contactId, system_message_dict[conversation_id], tools=tools,
-                # model='gpt-4-32k'
+                system_message_dict[conversation_id] = create_system_message(
+                    'SAM_Lab', business_dict, prompts_filepath='prompts',
+                    examples_filepath='chat_examples', doc_filepath='rag_docs'
                 )
+                conversation_dict[conversation_id] = create_chatbot(
+                    contactId, system_message_dict[conversation_id], tools=tools,
+                    # model='gpt-4-32k'
+                    )
 
-            reply = chat_with_chatbot(
-                InboundMessage, conversation_dict[conversation_id]
-            )
-            print(f'Reply from `chat_with_chatbot`: {reply}')
+                reply = chat_with_chatbot(
+                    InboundMessage, conversation_dict[conversation_id]
+                )
+                print(f'Reply from `chat_with_chatbot`: {reply}')
+                reply_text = reply['output']
+            else:
+                reply_text = 'No AI reply generated for test event.'
+                print(f'{reply_text}')
             ghl_api_response = ghl_request(
                 contactId=contactId, 
-                text=reply['output'],
+                text=reply_text,
                 endpoint='createTask', 
                 payload=None, 
                 location=location

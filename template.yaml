@@ -17,7 +17,8 @@ Resources:
       Handler: ghl_reply_lambda.lambda_handler
       Role: arn:aws:iam::661497771663:role/service-role/ghl_reply-role-xi672gxy
       Runtime: python3.11
-      CodeUri: src/app
+      CodeUri: src
+      Timeout: 300
 
   WebhooksLambda:
     # Type: AWS::Lambda::Function
