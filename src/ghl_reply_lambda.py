@@ -1,7 +1,7 @@
 import json
 import sys
-from chat_functions import *
-from ghl_requests import *
+from app.chat_functions import *
+from app.ghl_requests import *
 from langchain.agents import Tool
 def lambda_handler(event, context):
     """
