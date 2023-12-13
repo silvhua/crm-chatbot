@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                                     print(f'Contact tags: \n{contact_tags}')
 
                                     if 'sam lab members' not in contact_tags:
-                                        new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId'] if key in payload}
+                                        new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
                                         # Invoke another Lambda function
                                         if payload.get("noReply", False) == False:
                                             lambda_client = boto3.client('lambda')  # Initialize Lambda client

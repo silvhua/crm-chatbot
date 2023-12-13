@@ -26,7 +26,7 @@ def refresh_token():
     Returns:
         dict: A dictionary with 'statusCode', 'body', and optionally 'response' keys. 'statusCode' is 200 if the token refresh request is successful, and 500 otherwise. 'body' contains the response of the token refresh request if it is successful, and an error message otherwise. 'response' is present only if the token refresh request fails, and contains the response of the failed request.
     """
-    token_file_path = 'private'
+    token_file_path = 'app/private' # relative to the directory of the lambda function
     filename = 'auth_token_response.json'
 
     with open(f'{token_file_path}/config.json') as config_file:
