@@ -28,17 +28,14 @@ def refresh_token():
     """
     token_file_path = 'app/private' # relative to the directory of the lambda function
     filename = 'auth_token_response.json'
+    config_file_name = 'config.json' # Original
 
-    with open(f'{token_file_path}/config.json') as config_file:
+    with open(f'{token_file_path}/{config_file_name}') as config_file:
         appConfig = json.load(config_file)
-    try:
-        with open(f'{token_file_path}/{filename}', 'r') as token_file:
-            tokens = json.load(token_file)
-    except:
-        # Load JSON from S3
-        s3 = boto3.client('s3')
-        response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
-        tokens = json.loads(response['Body'].read().decode('utf-8'))
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
+    tokens = json.loads(response['Body'].read().decode('utf-8'))
+    print(f'Tokens retrieved from S3.')
     if 'SamLab' in tokens:
         sam_lab_token = tokens['SamLab']
     else:
@@ -67,22 +64,19 @@ def refresh_token():
     if response.status_code == 200:
         tokens['SamLab'] = response.json()
         try:
-            with open(f'{token_file_path}/{filename}', 'w') as token_file:
-                json.dump(tokens, token_file)
-        except:
-            try:
-                # Save tokens to S3
-                s3 = boto3.client('s3')
-                s3.put_object(
-                    Body=json.dumps(tokens), 
-                    Bucket='ownitfit-silvhua', Key=filename
-                    )
-            except Exception as error:
-                exc_type, exc_obj, tb = sys.exc_info()
-                f = tb.tb_frame
-                lineno = tb.tb_lineno
-                filename = f.f_code.co_filename
-                print(f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}")
+            # Save tokens to S3
+            s3 = boto3.client('s3')
+            s3.put_object(
+                Body=json.dumps(tokens), 
+                Bucket='ownitfit-silvhua', Key=filename
+                )
+            print(f'Tokens saved to S3.')
+        except Exception as error:
+            exc_type, exc_obj, tb = sys.exc_info()
+            f = tb.tb_frame
+            lineno = tb.tb_lineno
+            filename = f.f_code.co_filename
+            print(f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}")
         return {
             'statusCode': 200,
             'body': json.dumps(response.json())
@@ -96,7 +90,7 @@ def refresh_token():
 
 def ghl_request(
         contactId, endpoint='createTask', text=None, payload=None, location='SamLab',
-        auth_token_path='private/auth_token_response.json'
+        auth_token_path='app/private/auth_token_response.json'
         ):
     """
     Send a message to a contact in GoHighLevel or retrieve email history.
@@ -162,20 +156,17 @@ def ghl_request(
 
         url = f'{url_root}{endpoint_url}'
         try:
-            with open(auth_token_path) as token_file:
-                token = json.load(token_file)[location]
-        except:
-            try:
-                s3 = boto3.client('s3')
-                response = s3.get_object(Bucket='ownitfit-silvhua', Key='auth_token_response.json')
-                token = json.loads(response['Body'].read().decode('utf-8'))[location]
-            except Exception as error:
-                exc_type, exc_obj, tb = sys.exc_info()
-                f = tb.tb_frame
-                lineno = tb.tb_lineno
-                filename = f.f_code.co_filename
-                print(f'Error in line {lineno} of {filename}: {str(error)}')
-                return None
+            s3 = boto3.client('s3')
+            response = s3.get_object(Bucket='ownitfit-silvhua', Key='auth_token_response.json')
+            token = json.loads(response['Body'].read().decode('utf-8'))[location]
+        except Exception as error:
+            exc_type, exc_obj, tb = sys.exc_info()
+            f = tb.tb_frame
+            lineno = tb.tb_lineno
+            filename = f.f_code.co_filename
+            message = f'Error in line {lineno} of {filename}: {str(error)}'
+            print(message)
+            return message
 
         headers = {
             "Authorization": f"Bearer {token['access_token']}",
