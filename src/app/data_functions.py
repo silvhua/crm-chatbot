@@ -33,7 +33,7 @@ def query_dynamodb_table(
         KeyConditionExpression = Key(partition_key).eq(partition_key_value) & Key(sort_key).eq(sort_key_value)
     else:
         KeyConditionExpression = Key(partition_key).eq(partition_key_value)
-    print(f'KeyConditionExpression: {KeyConditionExpression}')
+    # print(f'KeyConditionExpression: {KeyConditionExpression}')
     response = table.query(
         KeyConditionExpression=KeyConditionExpression,
     )
