@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 app = Flask(__name__)
 
+config_file_path = 'private/config_2023-12-12.json' # Original
 
 # initiate.js equivalent
 @app.route('/initiate')
@@ -12,7 +13,9 @@ def initiate_auth():
     """
     Create access token for SAM lab.
     """
-    with open ('private/config.json') as config_file:
+    # import sys
+    # print(f'System path:{sys.path}')
+    with open (config_file_path) as config_file:
         appConfig = json.load(config_file)
 
     options = {
@@ -83,7 +86,7 @@ def refresh():
 # callback.js equivalent
 @app.route('/oauth/callback')
 def oauth_callback():
-    with open ('private/config.json') as config_file:
+    with open (config_file_path) as config_file:
         appConfig = json.load(config_file)
         print('Config.json loaded')
 
