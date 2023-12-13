@@ -17,13 +17,12 @@ def lambda_handler(event, context):
         # contactId = "C3a796qLEF4HtDjvKJ1K"
         InboundMessage = payload.get('body')
         locationId = payload.get('locationId', 'SAMLab')
-        location = os.getenv(locationId)
+        location = os.getenv(locationId, 'SamLab')
         print(f'location: {location}')
 
         system_message_dict = dict()
         conversation_dict = dict()
         conversation_id = 1
-
         tools = [
             Tool(
                 name=f"foo-{i}",
@@ -39,11 +38,8 @@ def lambda_handler(event, context):
                 'SAM_Lab_doc.md' # RAG doc
                 )
         }
-
         try:
             if payload.get("noReply", False) == False:
-                refresh_token_response = refresh_token()
-                # print(f'Refresh token response: {refresh_token_response}')
 
                 system_message_dict[conversation_id] = create_system_message(
                     'SAM_Lab', business_dict, prompts_filepath='prompts',
@@ -69,6 +65,7 @@ def lambda_handler(event, context):
                 payload=None, 
                 location=location
             )
+            print(f'GHL API response: {ghl_api_response}')
             if ghl_api_response['status_code'] // 100 == 2:
                 message = f'Created task for contactId {contactId}: \n{ghl_api_response}\n'
             else:
