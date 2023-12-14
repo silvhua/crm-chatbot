@@ -89,20 +89,20 @@ def refresh_token():
         }
 
 def ghl_request(
-        contactId, endpoint='createTask', text=None, payload=None, location='SamLab',
-        auth_token_path='app/private/auth_token_response.json'
+        contactId, endpoint='createTask', text=None, payload=None, location='SamLab', 
+        path_param=None
         ):
     """
     Send a message to a contact in GoHighLevel or retrieve email history.
 
     Parameters:
-    - contactId (str): Contact ID.
-    - endpoint (str): API endpoint. Valid values are 'createTask', 'createNote', 'send_message', and 'getEmailHistory'.
+    - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
+    - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
+    'createNote', 'send_message', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
-    - auth_token_path (str): Local path to the JSON file containing the authentication token.
-        Default value works if script is run from project root folder.If running from notebook directory, use '../src/private/auth_token_response.json'
+    - path_param (str): Additional path parameter for the request.
 
     Example payload for sendMessage endpoint:
         
@@ -134,6 +134,15 @@ def ghl_request(
                 payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
             payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
+        elif endpoint == 'workflow':
+            endpoint_url = f'contacts/{contactId}/workflow/{path_param}'
+            request_type = 'POST'
+            payload = {}
+            payload['eventStartTime'] = (datetime.utcnow() + timedelta(minutes=random.randint(2, 10))).strftime('%Y-%m-%dT%H:%M:%S+00:00')
+        elif endpoint == 'getWorkflow':
+            endpoint_url = r'workflows/'
+            request_type = 'GET'
+            params = {'locationId': contactId}
         elif endpoint == 'createNote':
             endpoint_url = f'contacts/{contactId}/notes'
             request_type = 'POST'
@@ -184,7 +193,8 @@ def ghl_request(
         elif request_type == 'GET':
             response = requests.get(
                 url, headers=headers, 
-                json=payload if payload else None
+                json=payload if payload else None,
+                params=params if params else None
             )
         else:
             raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
