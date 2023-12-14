@@ -28,7 +28,8 @@ def initiate_auth():
             "users.readonly",
             "conversations.readonly",
             "contacts.write",
-            "contacts.readonly"
+            "contacts.readonly",
+            "workflows.readonly"
         ]
     }
 
