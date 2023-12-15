@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 from urllib.parse import urlencode
 import boto3
-
+# from pprint import pprint
 
 def refresh_token(token_file_path = 'app/private'):
     """
@@ -65,7 +65,7 @@ def refresh_token(token_file_path = 'app/private'):
 
     if response.status_code == 200:
         tokens['SamLab'] = response.json()
-        print(f'Tokens: {tokens["SamLab"]}')
+        # pprint(f'Tokens: {tokens["SamLab"]}')
         try:
             # Save tokens to S3
             s3 = boto3.client('s3')
