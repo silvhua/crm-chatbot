@@ -65,12 +65,25 @@ def lambda_handler(event, context):
                 payload=None, 
                 location=location
             )
-            print(f'GHL API response: {ghl_api_response}')
+            print(f'GHL createTask response: {ghl_api_response}')
             if ghl_api_response['status_code'] // 100 == 2:
                 message = f'Created task for contactId {contactId}: \n{ghl_api_response}\n'
             else:
                 message = f'Failed to create task for contactId {contactId}: \n{ghl_api_response}\n'
                 message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
+
+            workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
+            workflowName = 'chatbot:_1-day_follow_up'
+            ghl_workflow_response = ghl_request(
+                contactId, 'workflow', path_param=workflowId
+            )
+
+            print(f'GHL workflow response: {ghl_workflow_response}')
+            if ghl_workflow_response['status_code'] // 100 == 2:
+                message += f'\nAdded contactId {contactId} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+            else:
+                message += f'\nFailed to add contactId {contactId} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
             print(message)
             return {
                 'statusCode': 200,
