@@ -7,9 +7,11 @@ from urllib.parse import urlencode
 import boto3
 
 
-def refresh_token():
+def refresh_token(token_file_path = 'app/private'):
     """
     Refreshes the authentication token. 
+    Parameters:
+    token_file_path (str): The path to the token file relative to the directory of the lambda function
 
     This function does the following:
     1. Reads the application configuration from a local file.
@@ -26,7 +28,7 @@ def refresh_token():
     Returns:
         dict: A dictionary with 'statusCode', 'body', and optionally 'response' keys. 'statusCode' is 200 if the token refresh request is successful, and 500 otherwise. 'body' contains the response of the token refresh request if it is successful, and an error message otherwise. 'response' is present only if the token refresh request fails, and contains the response of the failed request.
     """
-    token_file_path = 'app/private' # relative to the directory of the lambda function
+
     filename = 'auth_token_response.json'
     config_file_name = 'config.json' # Original
 
@@ -36,6 +38,7 @@ def refresh_token():
     response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
     tokens = json.loads(response['Body'].read().decode('utf-8'))
     print(f'Tokens retrieved from S3.')
+    print(f'Retrieved refresh_token from S3: {sam_lab_token["refresh_token"]}')
     if 'SamLab' in tokens:
         sam_lab_token = tokens['SamLab']
     else:
