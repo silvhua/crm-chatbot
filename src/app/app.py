@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 
 app = Flask(__name__)
 
-config_file_path = 'private/config_2023-12-12.json' # Original
+config_file_path = 'private/config.json' # Original
 
 # initiate.js equivalent
 @app.route('/initiate')
@@ -46,7 +46,7 @@ def refresh():
     """
     token_file_path = 'private/auth_token_response.json'
 
-    with open('private/config.json') as config_file:
+    with open(config_file_path) as config_file:
         appConfig = json.load(config_file)
 
     # Read the existing tokens from the token_file
