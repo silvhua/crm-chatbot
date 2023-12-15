@@ -38,7 +38,6 @@ def refresh_token(token_file_path = 'app/private'):
     response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
     tokens = json.loads(response['Body'].read().decode('utf-8'))
     print(f'Tokens retrieved from S3.')
-    print(f'Retrieved refresh_token from S3: {sam_lab_token["refresh_token"]}')
     if 'SamLab' in tokens:
         sam_lab_token = tokens['SamLab']
     else:
