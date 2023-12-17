@@ -85,6 +85,13 @@ Resources:
   #     RestApiId: !Ref WebhooksApi
   #     DeploymentId: !Ref WebhooksApiDeployment
   
+
+  LambdaLayer:
+    Type: 'AWS::Serverless::LayerVersion'
+    Properties:
+      LayerName: GhlChatLayer
+      Description: Dependencies installed 2023-12-17
+      ContentUri: s3://ownitfit-silvhua/layers/ghl_chat_packages.zip
   
   WebhooksLambda:
     Type: AWS::Serverless::Function
@@ -96,9 +103,8 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - arn:aws:s3:::ownitfit-silvhua/layers/ghl_chat_packages.zip
+        - !GetAtt LambdaLayer.Arn
         # - ${{ secrets.S3_GHL_LAYER_ARN }}
-
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -125,8 +131,6 @@ Resources:
       #     Type: Lambda
       #     Properties:
       #       FunctionName: !Ref WebhooksLambda
-
-  
 
   # OifBucket:
   #   Type: AWS::S3::Bucket
