@@ -97,6 +97,7 @@ Resources:
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
         - ${{ secrets.S3_GHL_LAYER_ARN }}
+        
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
