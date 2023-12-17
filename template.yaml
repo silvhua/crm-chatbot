@@ -11,6 +11,13 @@ Resources:
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
+  
+  # ApiGatewayMethod:
+  #   Type: AWS::ApiGateway::Method
+  #   Properties:
+  #     HttpMethod: POST
+  #     ResourceId: !Ref WebhooksApi
+  #     RestApiId: !Ref WebhooksApi
 
   WebhooksLambda:
     Type: AWS::Serverless::Function
