@@ -137,10 +137,10 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  WebhooksApi:
-    Description: "API Gateway endpoint URL for WebhooksLambda"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/cicd_ghl_webhook/"
-    # Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/ghl_webhook/"
+  # WebhooksApi:
+  #   Description: "API Gateway endpoint URL for WebhooksLambda"
+  #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/cicd_ghl_webhook/"
+  #   # Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/ghl_webhook/"
   WebhooksLambdFunction:
     Description: "WebhooksLambda ARN"
     Value: !GetAtt WebhooksLambda.Arn
