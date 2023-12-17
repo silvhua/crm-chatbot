@@ -70,8 +70,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - lambda:InvokeFunction
-                  - dynamodb:PutItem
-                  - dynamodb:GetItem
+                  - dynamodb:*
                 Resource: '*'
   ReplyLambdaFunctionRole:
     Type: AWS::IAM::Role
@@ -98,8 +97,7 @@ Resources:
                   - logs:PutLogEvents
                   - lambda:InvokeFunction
                   - lambda:InvokeFunction
-                  - dynamodb:PutItem
-                  - dynamodb:GetItem
+                  - dynamodb:*
                 Resource: '*'
   
 
