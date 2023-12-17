@@ -20,6 +20,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
+      Role: !GetAtt WebhooksLambdaFunctionIamRole.Arn
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -40,6 +41,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
+      Role: !GetAtt ReplyLambdaFunctionIamRole.Arn
       # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
       #   WebhooksLambdaEvent:
       #     Type: Lambda
