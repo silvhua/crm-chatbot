@@ -56,7 +56,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Role: !GetAtt ApiRole.Arn
+      # Role: !GetAtt ApiRole.Arn
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
