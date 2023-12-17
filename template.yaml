@@ -61,15 +61,15 @@ Resources:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
       AccessLogSetting:
+        DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
 
-  WebhooksApiDeployment:
-    Type: AWS::ApiGateway::Deployment
-    Properties:
-      RestApiId: !Ref WebhooksApi
-      AccessLogSetting:
-        DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
-        Format: "$context.requestId $context.identity.sourceIp $context.authorizer.principalId $context.requestTime $context.responseLength $context.status"
+  # WebhooksApiDeployment:
+  #   Type: AWS::ApiGateway::Deployment
+  #   Properties:
+  #     RestApiId: !Ref WebhooksApi
+      # AccessLogSetting:
+      #   Format: "$context.requestId $context.identity.sourceIp $context.authorizer.principalId $context.requestTime $context.responseLength $context.status"
 
   # WebhooksApiStage:
   #   Type: AWS::ApiGateway::Stage
