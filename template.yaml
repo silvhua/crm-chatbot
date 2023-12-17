@@ -30,27 +30,27 @@ Resources:
                   - lambda:InvokeFunction
                   - dynamodb:*
                 Resource: '*'
-  # ApiRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: '2012-10-17'
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Service: lambda.amazonaws.com
-  #           Action: sts:AssumeRole
-  #     Policies:
-  #       - PolicyName: ApiPolicy
-  #         PolicyDocument:
-  #           Version: '2012-10-17'
-  #           Statement:
-  #             - Effect: Allow
-  #               Action:
-  #                 - logs:CreateLogGroup
-  #                 - logs:CreateLogStream
-  #                 - logs:PutLogEvents
-  #               Resource: '*'
+  ApiRole:
+    Type: AWS::IAM::Role # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html#cfn-iam-role-managedpolicyarns
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
 
   WebhooksApi:
     Type: AWS::Serverless::Api
@@ -61,7 +61,7 @@ Resources:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
       AccessLogSetting:
-        DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
+        # DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
 
   # WebhooksApiDeployment:
@@ -157,6 +157,6 @@ Outputs:
   LambdaIamRole:
     Description: "Implicit IAM Role created for Lambda"
     Value: !GetAtt LambdaFunctionRole.Arn
-  # ApiRoleIamRole:
-  #   Description: "Implicit IAM Role created for API"
-  #   Value: !GetAtt ApiRole.Arn
+  ApiRoleIamRole:
+    Description: "Implicit IAM Role created for API"
+    Value: !GetAtt ApiRole.Arn
