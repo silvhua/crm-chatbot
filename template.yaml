@@ -17,12 +17,15 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
-      Events:
+      Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApi:
-          Type: Api
+          Type: HttpApi
+          # Type: Api
           Properties:
-            Path: /cicd_ghl_webhook
+            # Path: /cicd_ghl_webhook
+            Path: /ghl_webhook
             Method: ANY
+            ApiId: ${{ secrest.HTTP_API_ID }}
 
   ReplyLambda:
     Type: AWS::Serverless::Function
@@ -120,7 +123,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   WebhooksApi:
     Description: "API Gateway endpoint URL for WebhooksLambda"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/cicd_ghl_webhook/"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/ghl_webhook/"
   WebhooksLambdFunction:
     Description: "WebhooksLambda ARN"
     Value: !GetAtt WebhooksLambda.Arn
