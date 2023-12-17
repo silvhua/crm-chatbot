@@ -57,7 +57,7 @@ Resources:
                   - lambda:InvokeFunction
                   - dynamodb:*
                 Resource: '*'
-                
+
   WebhooksApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -65,6 +65,9 @@ Resources:
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
+      AccessLogSetting:
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
+        CloudWatchMetricsEnabled: true
 
   WebhooksLambda:
     Type: AWS::Serverless::Function
@@ -74,7 +77,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
-      Role: !GetAtt WebhooksLambdaFunctionIamRole.Arn
+      Role: !GetAtt WebhooksLambdaFunctionRole.Arn
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -95,7 +98,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
-      Role: !GetAtt ReplyLambdaFunctionIamRole.Arn
+      Role: !GetAtt ReplyLambdaFunctionRole.Arn
       # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
       #   WebhooksLambdaEvent:
       #     Type: Lambda
