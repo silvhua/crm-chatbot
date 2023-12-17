@@ -61,7 +61,7 @@ Resources:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
       AccessLogSetting:
-        DestinationArn: !GetAtt ApiLogGroup.Arn
+        # DestinationArn: !GetAtt ApiLogGroup.Arn
         # DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
   ApiLogGroup:
@@ -95,6 +95,7 @@ Resources:
       CodeUri: src
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
+      Layers: ${{ secrets.S3_GHL_LAYER_ARN}}
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -103,7 +104,7 @@ Resources:
             Path: /cicd_ghl_webhook
             # Path: /ghl_webhook
             Method: ANY
-            # ApiId: ${{ secrest.HTTP_API_ID }}
+            # ApiId: ${{ secrets.HTTP_API_ID }}
             RestApiId:
               Ref: WebhooksApi
 
