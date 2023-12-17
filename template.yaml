@@ -4,7 +4,7 @@ Description: >
   ghl-chat
 
 Resources:
-  WebhooksLambdaFunctionRole:
+  LambdaFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -15,7 +15,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: WebhooksLambdaPolicy
+        - PolicyName: LambdaPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -30,7 +30,7 @@ Resources:
                   - lambda:InvokeFunction
                   - dynamodb:*
                 Resource: '*'
-  ReplyLambdaFunctionRole:
+  ApiRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -41,27 +41,22 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: ReplyLambdaPolicy
+        - PolicyName: ApiPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:DeleteObject
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                  - lambda:InvokeFunction
-                  - lambda:InvokeFunction
-                  - dynamodb:*
                 Resource: '*'
 
   WebhooksApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      Role: !GetAtt ApiRole.Arn
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
@@ -76,7 +71,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
-      Role: !GetAtt WebhooksLambdaFunctionRole.Arn
+      Role: !GetAtt LambdaFunctionRole.Arn
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -97,7 +92,7 @@ Resources:
       Runtime: python3.11
       CodeUri: src
       Timeout: 300
-      Role: !GetAtt ReplyLambdaFunctionRole.Arn
+      Role: !GetAtt LambdaFunctionRole.Arn
       # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
       #   WebhooksLambdaEvent:
       #     Type: Lambda
@@ -143,9 +138,9 @@ Outputs:
   ReplyLambdaFunction:
     Description: "ReplyLambda ARN"
     Value: !GetAtt ReplyLambda.Arn
-  WebhooksLambdaIamRole:
-    Description: "Implicit IAM Role created for WebhooksLambda"
-    Value: !GetAtt WebhooksLambdaFunctionRole.Arn
-  ReplyLambdaFunctionIamRole:
+  LambdaIamRole:
+    Description: "Implicit IAM Role created for Lambda"
+    Value: !GetAtt LambdaFunctionRole.Arn
+  ApiRoleIamRole:
     Description: "Implicit IAM Role created for ReplyLambda"
-    Value: !GetAtt ReplyLambdaFunctionRole.Arn
+    Value: !GetAtt ApiRoleRole.Arn
