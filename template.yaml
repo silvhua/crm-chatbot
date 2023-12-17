@@ -146,7 +146,7 @@ Outputs:
     Value: !GetAtt ReplyLambda.Arn
   WebhooksLambdaIamRole:
     Description: "Implicit IAM Role created for WebhooksLambda"
-    Value: !GetAtt WebhooksLambdaRole.Arn
+    Value: !GetAtt WebhooksLambdaFunctionRole.Arn
   ReplyLambdaFunctionIamRole:
     Description: "Implicit IAM Role created for ReplyLambda"
     Value: !GetAtt ReplyLambdaFunctionRole.Arn
