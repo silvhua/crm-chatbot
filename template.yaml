@@ -103,7 +103,8 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - !GetAtt LambdaLayer.Arn
+        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${YourLambdaLayer}"
+        # - !GetAtt LambdaLayer.Arn
         # - ${{ secrets.S3_GHL_LAYER_ARN }}
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
@@ -163,7 +164,7 @@ Outputs:
   #   Description: "API Gateway endpoint URL for WebhooksLambda"
   #   Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/cicd_ghl_webhook/"
   #   # Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/ghl_webhook/"
-  WebhooksLambdFunction:
+  WebhooksLambdaFunction:
     Description: "WebhooksLambda ARN"
     Value: !GetAtt WebhooksLambda.Arn
   ReplyLambdaFunction:
@@ -175,3 +176,6 @@ Outputs:
   ApiRoleIamRole:
     Description: "Implicit IAM Role created for API"
     Value: !GetAtt ApiRole.Arn
+  LambdaLayer:
+    Description: "Lambda Layer version ARN"
+    Value: !Ref LambdaLayer
