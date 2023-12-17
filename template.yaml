@@ -69,7 +69,7 @@ Resources:
     Properties:
       LogGroupName: !Join
         - '-'
-        - - !Ref WebhooksAPI
+        - - !Ref WebhooksApi
           - access-logs
   # WebhooksApiDeployment:
   #   Type: AWS::ApiGateway::Deployment
