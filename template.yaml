@@ -52,7 +52,7 @@ Resources:
                   - logs:PutLogEvents
                 Resource: '*'
 
-  WebhooksApi:
+  WebhooksApi: # https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html?icmpid=apigateway_console_help
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
@@ -61,9 +61,16 @@ Resources:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
       AccessLogSetting:
+        DestinationArn: !GetAtt ApiLogGroup.Arn
         # DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
-
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join
+        - '-'
+        - - !Ref WebhooksAPI
+          - access-logs
   # WebhooksApiDeployment:
   #   Type: AWS::ApiGateway::Deployment
   #   Properties:
@@ -71,7 +78,7 @@ Resources:
       # AccessLogSetting:
       #   Format: "$context.requestId $context.identity.sourceIp $context.authorizer.principalId $context.requestTime $context.responseLength $context.status"
 
-  # WebhooksApiStage:
+  # WebhooksApiStage: # https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html?icmpid=apigateway_console_help
   #   Type: AWS::ApiGateway::Stage
   #   Properties:
   #     StageName: Prod
