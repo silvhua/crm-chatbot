@@ -67,16 +67,16 @@ Resources:
     Type: AWS::ApiGateway::Deployment
     Properties:
       RestApiId: !Ref WebhooksApi
-
-  WebhooksApiStage:
-    Type: AWS::ApiGateway::Stage
-    Properties:
-      StageName: Prod
-      RestApiId: !Ref WebhooksApi
-      DeploymentId: !Ref WebhooksApiDeployment
       AccessLogSetting:
         DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: "$context.requestId $context.identity.sourceIp $context.authorizer.principalId $context.requestTime $context.responseLength $context.status"
+
+  # WebhooksApiStage:
+  #   Type: AWS::ApiGateway::Stage
+  #   Properties:
+  #     StageName: Prod
+  #     RestApiId: !Ref WebhooksApi
+  #     DeploymentId: !Ref WebhooksApiDeployment
   
   
   WebhooksLambda:
