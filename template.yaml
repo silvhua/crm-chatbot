@@ -12,7 +12,7 @@ Resources:
   WebhooksLambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: cicd_ghl_webhooks
+      # FunctionName: cicd_ghl_webhooks
       Handler: ghl_chat_history_lambda.lambda_handler
       Runtime: python3.11
       CodeUri: src
@@ -27,7 +27,7 @@ Resources:
   ReplyLambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: cicd_ghl_reply
+      # FunctionName: cicd_ghl_reply
       Handler: ghl_reply_lambda.lambda_handler
       Runtime: python3.11
       CodeUri: src
