@@ -103,7 +103,8 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
+        - !Sub ${LambdaLayerVersion}
+        # - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
         # - !GetAtt LambdaLayer.Arn
         # - ${{ secrets.S3_GHL_LAYER_ARN }}
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
@@ -176,6 +177,6 @@ Outputs:
   ApiRoleIamRole:
     Description: "Implicit IAM Role created for API"
     Value: !GetAtt ApiRole.Arn
-  LambdaLayer:
+  LambdaLayerVersion:
     Description: "Lambda Layer version ARN"
     Value: !Ref LambdaLayer
