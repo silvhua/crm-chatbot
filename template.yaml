@@ -10,7 +10,7 @@ Resources:
       StageName: Prod
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
-          HttpMethod: ANY
+          HttpMethod: POST
   
   # ApiGatewayMethod:
   #   Type: AWS::ApiGateway::Method
