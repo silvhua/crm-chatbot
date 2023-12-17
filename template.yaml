@@ -10,7 +10,7 @@ Resources:
       StageName: Prod
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
-          HttpMethod: POST
+          HttpMethod: ANY
   
   # ApiGatewayMethod:
   #   Type: AWS::ApiGateway::Method
@@ -28,7 +28,7 @@ Resources:
       CodeUri: src
       Timeout: 300
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
-        WebhooksApi:
+        WebhooksApiEvent:
           # Type: HttpApi
           Type: Api
           Properties:
@@ -36,6 +36,8 @@ Resources:
             # Path: /ghl_webhook
             Method: ANY
             # ApiId: ${{ secrest.HTTP_API_ID }}
+            RestApiId:
+              Ref: WebhooksApi
 
   ReplyLambda:
     Type: AWS::Serverless::Function
