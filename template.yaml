@@ -179,4 +179,4 @@ Outputs:
     Value: !GetAtt ApiRole.Arn
   LambdaLayerVersion:
     Description: "Lambda Layer version ARN"
-    Value: !Ref LambdaLayer
+    Value: !GetAtt LambdaLayer.Arn
