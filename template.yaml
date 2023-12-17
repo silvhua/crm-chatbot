@@ -4,10 +4,13 @@ Description: >
   ghl-chat
 
 Resources:
-  # WebhooksApi:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     StageName: $default
+  WebhooksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      AccessLogSetting:
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
+        CloudWatchMetricsEnabled: true
 
   WebhooksLambda:
     Type: AWS::Serverless::Function
@@ -65,6 +68,8 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - lambda:InvokeFunction
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
                 Resource: '*'
   ReplyLambdaFunctionRole:
     Type: AWS::IAM::Role
@@ -90,8 +95,10 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                   - lambda:InvokeFunction
+                  - lambda:InvokeFunction
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
                 Resource: '*'
-    
   
 
   # OifBucket:
