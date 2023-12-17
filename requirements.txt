@@ -1,4 +1,2 @@
-langchain==0.0.339rc1
-requests
 langchain==0.0.349
 requests
