@@ -4,50 +4,6 @@ Description: >
   ghl-chat
 
 Resources:
-  WebhooksApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      MethodSettings:
-        - ResourcePath: /cicd_ghl_webhook
-          HttpMethod: ANY
-
-  WebhooksLambda:
-    Type: AWS::Serverless::Function
-    Properties:
-      # FunctionName: cicd_ghl_webhooks
-      Handler: ghl_chat_history_lambda.lambda_handler
-      Runtime: python3.11
-      CodeUri: src
-      Timeout: 300
-      Role: !GetAtt WebhooksLambdaFunctionIamRole.Arn
-      Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
-        WebhooksApiEvent:
-          # Type: HttpApi
-          Type: Api
-          Properties:
-            Path: /cicd_ghl_webhook
-            # Path: /ghl_webhook
-            Method: ANY
-            # ApiId: ${{ secrest.HTTP_API_ID }}
-            RestApiId:
-              Ref: WebhooksApi
-
-  ReplyLambda:
-    Type: AWS::Serverless::Function
-    Properties:
-      # FunctionName: cicd_ghl_reply
-      Handler: ghl_reply_lambda.lambda_handler
-      Runtime: python3.11
-      CodeUri: src
-      Timeout: 300
-      Role: !GetAtt ReplyLambdaFunctionIamRole.Arn
-      # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
-      #   WebhooksLambdaEvent:
-      #     Type: Lambda
-      #     Properties:
-      #       FunctionName: !Ref WebhooksLambda
-
   WebhooksLambdaFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -101,6 +57,51 @@ Resources:
                   - lambda:InvokeFunction
                   - dynamodb:*
                 Resource: '*'
+                
+  WebhooksApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      MethodSettings:
+        - ResourcePath: /cicd_ghl_webhook
+          HttpMethod: ANY
+
+  WebhooksLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      # FunctionName: cicd_ghl_webhooks
+      Handler: ghl_chat_history_lambda.lambda_handler
+      Runtime: python3.11
+      CodeUri: src
+      Timeout: 300
+      Role: !GetAtt WebhooksLambdaFunctionIamRole.Arn
+      Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
+        WebhooksApiEvent:
+          # Type: HttpApi
+          Type: Api
+          Properties:
+            Path: /cicd_ghl_webhook
+            # Path: /ghl_webhook
+            Method: ANY
+            # ApiId: ${{ secrest.HTTP_API_ID }}
+            RestApiId:
+              Ref: WebhooksApi
+
+  ReplyLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      # FunctionName: cicd_ghl_reply
+      Handler: ghl_reply_lambda.lambda_handler
+      Runtime: python3.11
+      CodeUri: src
+      Timeout: 300
+      Role: !GetAtt ReplyLambdaFunctionIamRole.Arn
+      # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
+      #   WebhooksLambdaEvent:
+      #     Type: Lambda
+      #     Properties:
+      #       FunctionName: !Ref WebhooksLambda
+
   
 
   # OifBucket:
