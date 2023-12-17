@@ -96,8 +96,9 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - ${{ secrets.S3_GHL_LAYER_ARN }}
-        
+        - arn:aws:s3:::ownitfit-silvhua/layers/ghl_chat_packages.zip
+        # - ${{ secrets.S3_GHL_LAYER_ARN }}
+
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
