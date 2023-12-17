@@ -142,5 +142,5 @@ Outputs:
     Description: "Implicit IAM Role created for Lambda"
     Value: !GetAtt LambdaFunctionRole.Arn
   ApiRoleIamRole:
-    Description: "Implicit IAM Role created for ReplyLambda"
-    Value: !GetAtt ApiRoleRole.Arn
+    Description: "Implicit IAM Role created for API"
+    Value: !GetAtt ApiRole.Arn
