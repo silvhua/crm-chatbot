@@ -182,6 +182,6 @@ Outputs:
   ApiRoleIamRole:
     Description: "Implicit IAM Role created for API"
     Value: !GetAtt ApiRole.Arn
-  LambdaLayerVersion:
-    Description: "Lambda Layer version ARN"
-    Value: !GetAtt LambdaLayer.Arn
+  # LambdaLayerVersion:
+  #   Description: "Lambda Layer version ARN"
+  #   Value: !GetAtt LambdaLayer.Arn
