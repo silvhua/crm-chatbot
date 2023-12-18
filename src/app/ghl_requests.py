@@ -30,8 +30,10 @@ def refresh_token(token_file_path = 'app/private'):
         dict: A dictionary with 'statusCode', 'body', and optionally 'response' keys. 'statusCode' is 200 if the token refresh request is successful, and 500 otherwise. 'body' contains the response of the token refresh request if it is successful, and an error message otherwise. 'response' is present only if the token refresh request fails, and contains the response of the failed request.
     """
 
-    filename = 'auth_token_response.json'
-    config_file_name = 'config.json' # Original
+    filename = 'auth_token_response_cicd.json'
+    # filename = 'auth_token_response.json' # Original
+    # config_file_name = 'config.json'
+    config_file_name = 'config_cicid_app.json' # cicd
 
     with open(f'{token_file_path}/{config_file_name}') as config_file:
         appConfig = json.load(config_file)
