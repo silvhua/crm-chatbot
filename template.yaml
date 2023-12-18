@@ -103,15 +103,9 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - Ref: LambdaLayer
-        # - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
-        # - !Sub ${LambdaLayer.LayerName}
-        # - !Ref GhlChatLayer
-        # - !Ref LambdaLayer
-        # - !Sub ${LambdaLayer}
-        # - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
-        # - !GetAtt LambdaLayer.Arn
-        # - ${{ secrets.S3_GHL_LAYER_ARN }}
+        - arn:aws:lambda:us-west-2:661497771663:layer:requests_langchain:1
+        # - Ref: LambdaLayer
+        
       Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html
         WebhooksApiEvent:
           # Type: HttpApi
@@ -182,6 +176,3 @@ Outputs:
   ApiRoleIamRole:
     Description: "Implicit IAM Role created for API"
     Value: !GetAtt ApiRole.Arn
-  # LambdaLayerVersion:
-  #   Description: "Lambda Layer version ARN"
-  #   Value: !GetAtt LambdaLayer.Arn
