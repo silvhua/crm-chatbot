@@ -9,7 +9,6 @@ def lambda_handler(event, context):
     """
     Add GHL message events to dynamodb table as chat history.
     """
-    print(f'System paths: {sys.path}')
     table_name = 'SessionTable' ############
     try:
         if type(event["body"]) == str:
