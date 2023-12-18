@@ -103,7 +103,9 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - !Sub ${LambdaLayer.LayerName}
+        - Ref: LambdaLayer
+        # - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
+        # - !Sub ${LambdaLayer.LayerName}
         # - !Ref GhlChatLayer
         # - !Ref LambdaLayer
         # - !Sub ${LambdaLayer}
