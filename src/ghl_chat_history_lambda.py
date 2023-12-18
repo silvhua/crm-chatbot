@@ -20,7 +20,7 @@ def lambda_handler(event, context):
         message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
         print(f'Payload: {payload}')
-        dynamodb = boto3.client('dynamodb', region=region) # Initialize DynamoDB client
+        dynamodb = boto3.client('dynamodb', region_name=region) # Initialize DynamoDB client
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
@@ -62,7 +62,7 @@ def lambda_handler(event, context):
                                         new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
                                         # Invoke another Lambda function
                                         if payload.get("noReply", False) == False:
-                                            lambda_client = boto3.client('lambda', region=region)  # Initialize Lambda client
+                                            lambda_client = boto3.client('lambda', region_name=region)  # Initialize Lambda client
                                             lambda_client.invoke(
                                                 FunctionName='ghl_reply',
                                                 InvocationType='Event',
