@@ -126,7 +126,8 @@ Resources:
             # Path: /ghl_webhook
             Method: ANY
             # ApiId: ${{ secrets.HTTP_API_ID }}
-            RestApiId:
+            # RestApiId:
+            ApiId:
               Ref: WebhooksApi
 
   ReplyLambda:
