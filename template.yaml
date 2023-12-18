@@ -103,7 +103,8 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - !Sub ${LambdaLayer}
+        - !Ref LambdaLayer
+        # - !Sub ${LambdaLayer}
         # - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:LambdaLayer:${LambdaLayer}"
         # - !GetAtt LambdaLayer.Arn
         # - ${{ secrets.S3_GHL_LAYER_ARN }}
