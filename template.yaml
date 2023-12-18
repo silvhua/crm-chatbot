@@ -60,12 +60,12 @@ Resources:
       MethodSettings:
         - ResourcePath: /cicd_ghl_webhook
           HttpMethod: ANY
-      AccessLogSetting:
-        # DestinationArn: !GetAtt ApiLogGroup.Arn
+      AccessLogSetting: # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-stage-accesslogsetting.html
+        DestinationArn: !GetAtt ApiLogGroup.Arn
         # DestinationArn: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/api-gateway/${WebhooksApi}/access-log"
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
   ApiLogGroup:
-    Type: AWS::Logs::LogGroup
+    Type: AWS::Logs::LogGroup # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html
     Properties:
       LogGroupName: !Join
         - '-'
