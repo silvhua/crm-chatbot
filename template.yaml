@@ -52,7 +52,7 @@ Resources:
                   - logs:PutLogEvents
                 Resource: '*'
 
-  WebhooksApi: 
+  WebhooksHttpApi: 
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
@@ -128,7 +128,8 @@ Resources:
             # ApiId: ${{ secrets.HTTP_API_ID }}
             # RestApiId:
             ApiId:
-              Ref: WebhooksApi
+              Ref: WebhooksHttpApi
+              # Ref: WebhooksApi
 
   ReplyLambda:
     Type: AWS::Serverless::Function
