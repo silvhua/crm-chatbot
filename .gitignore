@@ -15,3 +15,4 @@ src/mypy_extensions.py
 src/jsonpointer.py
 src/typing_extensions.py
 src/typing_inspect.py
+events/__pycache__
