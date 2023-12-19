@@ -11,6 +11,8 @@ def lambda_handler(event, context):
     Add GHL message events to dynamodb table as chat history.
     """
     table_name = 'SessionTable' ############
+    region = os.environ.get('AWS_REGION')
+    print(f'Region: {region}')
     try:
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
