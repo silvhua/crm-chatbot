@@ -39,8 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set environmental variables
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       - run: |
-          echo 'Unit unit tests'
+          echo 'Integration tests'
           pip3 install pytest pytest-mock boto3
           cd events
           python3 -m pytest unit_test.py
