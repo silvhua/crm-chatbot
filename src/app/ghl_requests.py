@@ -200,7 +200,7 @@ def ghl_request(
             response = requests.get(
                 url, headers=headers, 
                 json=payload if payload else None,
-                params=params if params else None
+                # params=params if params else None
             )
         else:
             raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
