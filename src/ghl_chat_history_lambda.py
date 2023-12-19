@@ -23,12 +23,13 @@ def lambda_handler(event, context):
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         except:
-            access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-            secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+            aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+            aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
             region = os.environ.get('AWS_REGION')
             dynamodb = boto3.client(
-                'dynamodb', 
-                access_key_id=access_key_id, secret_access_key=secret_access_key, region_name=region
+                'dynamodb', region_name=region, 
+                aws_access_key_id=aws_access_key_id, 
+                aws_secret_access_key=aws_secret_access_key
                 )
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
@@ -74,12 +75,13 @@ def lambda_handler(event, context):
                                             try:
                                                 lambda_client = boto3.client('lambda')  # Initialize Lambda client
                                             except:
-                                                access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
                                                 region = os.environ.get('AWS_REGION')
                                                 lambda_client = boto3.client(
-                                                    'lambda', 
-                                                    access_key_id=access_key_id, secret_access_key=secret_access_key, region_name=region
+                                                    'lambda', region_name=region, 
+                                                    aws_access_key_id=aws_access_key_id, 
+                                                    aws_secret_access_key=aws_secret_access_key
                                                     )
                                             lambda_client.invoke(
                                                 FunctionName='ghl_reply',
