@@ -4,7 +4,7 @@ import boto3
 from datetime import datetime, timezone
 from app.data_functions import *
 from app.ghl_requests import *
-region = 'us-west-2'
+import os
 
 def lambda_handler(event, context):
     """
@@ -20,7 +20,16 @@ def lambda_handler(event, context):
         message_events = ['InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
         print(f'Payload: {payload}')
-        dynamodb = boto3.client('dynamodb', region_name=region) # Initialize DynamoDB client
+        try:
+            dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
+        except:
+            access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+            secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+            region = os.environ.get('AWS_REGION')
+            dynamodb = boto3.client(
+                'dynamodb', 
+                access_key_id=access_key_id, secret_access_key=secret_access_key, region_name=region
+                )
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
@@ -62,7 +71,16 @@ def lambda_handler(event, context):
                                         new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
                                         # Invoke another Lambda function
                                         if payload.get("noReply", False) == False:
-                                            lambda_client = boto3.client('lambda', region_name=region)  # Initialize Lambda client
+                                            try:
+                                                lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                            except:
+                                                access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                region = os.environ.get('AWS_REGION')
+                                                lambda_client = boto3.client(
+                                                    'lambda', 
+                                                    access_key_id=access_key_id, secret_access_key=secret_access_key, region_name=region
+                                                    )
                                             lambda_client.invoke(
                                                 FunctionName='ghl_reply',
                                                 InvocationType='Event',
