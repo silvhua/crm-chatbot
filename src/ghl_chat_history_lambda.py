@@ -84,7 +84,7 @@ def lambda_handler(event, context):
                                                     aws_secret_access_key=aws_secret_access_key
                                                     )
                                             lambda_client.invoke(
-                                                FunctionName='ghl_reply',
+                                                FunctionName=os.environ.get('ghl_reply_lambda','ghl_reply'),
                                                 InvocationType='Event',
                                                 Payload=json.dumps(new_payload)
                                             )
