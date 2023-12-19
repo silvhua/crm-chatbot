@@ -7,7 +7,6 @@ prompts
 **private**.ipynb
 src/aws_requests.py
 src/app/__pycache__
-events/InboundMessageTest.json
 src/*/**
 !src/app/
 src/jsonpatch.py

@@ -1,0 +1,16 @@
+{
+  "body": {
+    "type": "InboundMessage",
+    "locationId": "QSZ6lvarPNxtmTFl84W8",
+    "attachments": [],
+    "body": "This is a test inbound message",
+    "contactId": "C3a796qLEF4HtDjvKJ1K",
+    "contentType": "text/plain",
+    "conversationId": "fcanlLgpbQgQhderivVs",
+    "dateAdded": "2023-12-10T20:45:00.000Z",
+    "direction": "inbound",
+    "messageType": "SMS",
+    "userId": "80pzXdC3MCqKRpzrteuj",
+    "noReply": "1"
+  }
+}
