@@ -6,6 +6,7 @@ sys.path.append('../src/app')
 from src import ghl_chat_history_lambda
 import pytest
 from app import data_functions
+from datetime import datetime, timezone
 
 def load_json(filename, filepath):
     """
@@ -20,10 +21,12 @@ def load_json(filename, filepath):
     with open(filename) as file:
         return json.load(file)
 
-
 @pytest.fixture()
 def apigw_event():
-    return load_json('OutboundMessageTest.json', '.')
+    result =  load_json('ContactCreateTest.json', '.')
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    result['dateAdded'] = timestamp
+    return result
 
 def test_lambda_handler(apigw_event):
 
