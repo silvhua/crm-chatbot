@@ -44,8 +44,9 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          JOB_NAME: 'test'
         run: |
-          echo 'Integration tests'
+          echo 'Initial test'
           pip3 install pytest pytest-mock boto3
           cd events
           python3 -m pytest unit_test.py
@@ -204,8 +205,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          # trigger the integration tests here
+      - name: Run python script
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          JOB_NAME: 'integration-test'
+        run: |
+          echo 'Integration tests'
+          pip3 install pytest pytest-mock boto3
+          cd events
+          python3 -m pytest unit_test.py
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'

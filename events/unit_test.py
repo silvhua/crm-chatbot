@@ -7,6 +7,7 @@ from src import ghl_chat_history_lambda
 import pytest
 from app import data_functions
 from datetime import datetime, timezone
+import os
 
 def load_json(filename, filepath):
     """
@@ -23,7 +24,12 @@ def load_json(filename, filepath):
 
 @pytest.fixture()
 def apigw_event():
-    result =  load_json('ContactCreateTest.json', '.')
+    job = os.environ.get('JOB_NAME')
+    if job == 'test':
+        test = 'ContactCreateTest.json'
+    else:
+        test = 'InboundMessageTest.json'
+    result =  load_json(test, '.')
     timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     result['dateAdded'] = timestamp
     return result
