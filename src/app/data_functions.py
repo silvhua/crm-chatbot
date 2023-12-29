@@ -70,14 +70,18 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
                 else:
                     print(f'Unable to save payload item {key} of type {type(value)}')
         try:
-            location_id = payload['locationId']
+            if payload['type'] == 'WorkflowInboundMessage':
+                location_id = payload['location']['id']
+            else:
+                location_id = payload['locationId']
             item_attributes['business'] = {"S": os.getenv(location_id, 'Not available')}
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            print("An error occurred on line", lineno, "in", filename, ":", error)
+            message = f"Error in line {lineno} of {filename}: {str(error)}"
+            return message
         if payload_type in contact_events:
             timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
             item_attributes['dateAdded'] = {'S': timestamp}
