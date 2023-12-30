@@ -28,7 +28,7 @@ def apigw_event():
     if job == 'test':
         test = 'ContactCreateTest.json'
     else:
-        test = 'InboundMessageTest.json'
+        test = 'CustomInboundMessageTest.json'
     result =  load_json(test, '.')
     timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     result['dateAdded'] = timestamp
