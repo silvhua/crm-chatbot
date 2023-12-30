@@ -16,10 +16,14 @@ def lambda_handler(event, context):
             payload = json.loads(event["body"])
         else:
             payload = event["body"]
-            
+
         message_events = ['WorkflowInboundMessage', 'InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
-        print(f'Payload: {payload}')
+        print(f'Original payload: {payload}')
+
+        if payload.get('workflow').get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65":
+            payload = transform_webhook(payload)
+            print(f'Processed payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         except:
@@ -31,13 +35,6 @@ def lambda_handler(event, context):
                 aws_access_key_id=aws_access_key_id, 
                 aws_secret_access_key=aws_secret_access_key
                 )
-        if payload.get('type') == None:
-            if payload.get('message').get('direction') == 'inbound':
-                payload['type'] = 'WorkflowInboundMessage'
-            elif payload.get('message').get('direction') == 'outbound':
-                payload['type'] = 'OutboundMessage'
-            else:
-                payload['type'] = 'unknownPayloadType'
         
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
@@ -45,12 +42,7 @@ def lambda_handler(event, context):
                 )
         elif payload['type'] in message_events + contact_update_events:
             # Only save message_events data if contact exists in database so only data from new leads are saved.
-            if payload['type'] == 'WorkflowInboundMessage':
-                contact_id_key = 'contact_id'
-            elif payload['type'] in message_events + ['TaskCreate']:
-                contact_id_key = 'contactId'
-            else:
-                contact_id_key = 'id'
+            contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
             contact_id = payload[contact_id_key]
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'

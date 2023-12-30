@@ -39,6 +39,39 @@ def query_dynamodb_table(
     )
     return response
 
+def transform_webhook(payload):
+    """
+    Generate the processed webhook from the given payload so it works with `add_webhook_data_to_dynamodb` function.
+
+    Args:
+        payload (dict): The payload received from the webhook.
+
+    Returns:
+        dict: The processed webhook dictionary.
+
+    Raises:
+        None
+    """
+    processed_webhook = dict()
+    processed_webhook['locationId'] = payload['location']['id']
+    if payload.get('message'):
+        message_dict = payload['message']
+        if message_dict.get('direction') == 'inbound':
+            processed_webhook['type'] = 'InboundMessage'
+            processed_webhook['messageType'] = str(message_dict.get('type'))
+        processed_webhook['direction'] = message_dict.get('direction')
+        processed_webhook['body'] = message_dict.get('body')
+
+    else:
+        processed_webhook['type'] = 'OtherCustomWebhook'
+
+    processed_webhook['contactId'] = payload.get('contact_id', 'no contact id')
+    if payload.get('date_created'):
+        processed_webhook['dateAdded'] = payload['date_created']
+    if payload.get('noReply'):
+        processed_webhook['noReply'] = payload['noReply']
+    return processed_webhook
+
 def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
     """
     Taken from ghl_webhook_lambda.py
@@ -70,10 +103,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
                 else:
                     print(f'Unable to save payload item {key} of type {type(value)}')
         try:
-            if payload['type'] == 'WorkflowInboundMessage':
-                location_id = payload['location']['id']
-            else:
-                location_id = payload['locationId']
+            location_id = payload['locationId']
             item_attributes['business'] = {"S": os.getenv(location_id, 'Not available')}
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
