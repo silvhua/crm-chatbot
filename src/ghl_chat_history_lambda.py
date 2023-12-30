@@ -55,11 +55,11 @@ def lambda_handler(event, context):
                         )
                 else:
                     message = 'Testing data not added to DynamoDB.'
-                # try:
-                #     if payload['type'] in message_events:
-                #         print(f'Webhook type: {payload["type"]}')
-                #         message2 = add_to_chat_history(payload)
-                #         message = f'{message}\n{message2}'
+                try:
+                    if payload['type'] in message_events:
+                        print(f'Webhook type: {payload["type"]}')
+                        message2 = add_to_chat_history(payload)
+                        message = f'{message}\n{message2}'
                         # if payload['type'] == 'InboundMessage':
                         #     location =  os.getenv(payload['locationId'])
                         #     print(f'Location: {location}') 
@@ -103,13 +103,13 @@ def lambda_handler(event, context):
                         #         except:
                         #             print(f'Error getting contact details.')
 
-                # except Exception as error:
-                #     exc_type, exc_obj, tb = sys.exc_info()
-                #     f = tb.tb_frame
-                #     lineno = tb.tb_lineno
-                #     filename = f.f_code.co_filename
-                #     message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
-                #     message = f'{message}\n{message2}'
+                except Exception as error:
+                    exc_type, exc_obj, tb = sys.exc_info()
+                    f = tb.tb_frame
+                    lineno = tb.tb_lineno
+                    filename = f.f_code.co_filename
+                    message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
+                    message = f'{message}\n{message2}'
             else:
                 message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
             print(message)
