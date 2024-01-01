@@ -32,8 +32,8 @@ def refresh_token(token_file_path = 'app/private'):
 
     filename = 'auth_token_response_cicd.json'
     # filename = 'auth_token_response.json' # Original
-    # config_file_name = 'config.json'
-    config_file_name = 'config_cicid_app.json' # cicd
+    config_file_name = 'config.json'
+    # config_file_name = 'config_cicid_app.json' # cicd
 
     with open(f'{token_file_path}/{config_file_name}') as config_file:
         appConfig = json.load(config_file)
