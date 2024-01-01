@@ -9,6 +9,7 @@ src/aws_requests.py
 src/app/__pycache__
 src/*/**
 !src/app/
+!src/app/auth_app.py
 src/jsonpatch.py
 src/mypy_extensions.py
 src/jsonpointer.py
