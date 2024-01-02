@@ -8,11 +8,12 @@ import boto3
 import random
 # from pprint import pprint
 
-def refresh_token(token_file_path = 'app/private'):
+def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
     """
     Refreshes the authentication token. 
     Parameters:
-    token_file_path (str): The path to the token file relative to the directory of the lambda function
+    - location (str): The location of the business in Pascal case, i.e. 'SamLab' or 'CoachMcloone'.
+    - token_file_path (str): The path to the token file relative to the directory of the lambda function
 
     This function does the following:
     1. Reads the application configuration from a local file.
@@ -40,9 +41,9 @@ def refresh_token(token_file_path = 'app/private'):
     s3 = boto3.client('s3')
     response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
     tokens = json.loads(response['Body'].read().decode('utf-8'))
-    print(f'Tokens retrieved from S3.')
-    if 'SamLab' in tokens:
-        sam_lab_token = tokens['SamLab']
+    if location in tokens:
+        previous_token = tokens[location]
+        print(f'Tokens retrieved from S3 for {location}.')
     else:
         return {
             'statusCode': 500,
@@ -53,7 +54,7 @@ def refresh_token(token_file_path = 'app/private'):
         'client_id': appConfig["clientId"],
         'client_secret': appConfig["clientSecret"],
         'grant_type': 'refresh_token',
-        'refresh_token': sam_lab_token["refresh_token"],
+        'refresh_token': previous_token["refresh_token"],
         'user_type': 'Location',
         # 'redirect_uri': 'https://6r8pb7q836.execute-api.us-west-2.amazonaws.com/oauth/callback',
         'redirect_uri': 'http://localhost:3000/oauth/callback'
@@ -67,7 +68,7 @@ def refresh_token(token_file_path = 'app/private'):
     response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=urlencode(data), headers=headers)
 
     if response.status_code == 200:
-        tokens['SamLab'] = response.json()
+        tokens[location] = response.json()
         # pprint(f'Tokens: {tokens["SamLab"]}')
         try:
             # Save tokens to S3
@@ -76,7 +77,7 @@ def refresh_token(token_file_path = 'app/private'):
                 Body=json.dumps(tokens), 
                 Bucket='ownitfit-silvhua', Key=filename
                 )
-            print(f'Tokens saved to S3.')
+            print(f'Tokens saved to S3 {location}.')
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
             f = tb.tb_frame
@@ -96,7 +97,7 @@ def refresh_token(token_file_path = 'app/private'):
 
 def ghl_request(
         contactId, endpoint='createTask', text=None, payload=None, location='SamLab', 
-        path_param=None
+        path_param=None, locationId=None
         ):
     """
     Send a message to a contact in GoHighLevel or retrieve email history.
@@ -109,6 +110,7 @@ def ghl_request(
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
     - path_param (str): Additional path parameter for the request.
+    - locationId: locationId for getContacts endpoint.
 
     Example payload for sendMessage endpoint:
         
@@ -145,10 +147,10 @@ def ghl_request(
             request_type = 'POST'
             payload = {}
             payload['eventStartTime'] = (datetime.utcnow() + timedelta(minutes=random.randint(2, 10))).strftime('%Y-%m-%dT%H:%M:%S+00:00')
-        elif endpoint == 'getWorkflow':
+        elif endpoint == 'getWorkflow': ### 
             endpoint_url = r'workflows/'
             request_type = 'GET'
-            params = {'locationId': contactId}
+            params = {'locationId': contactId if contactId else locationId}
         elif endpoint == 'createNote':
             endpoint_url = f'contacts/{contactId}/notes'
             request_type = 'POST'
@@ -166,13 +168,22 @@ def ghl_request(
             endpoint_url = f'conversations/search?contactId={contactId}'
             request_type = 'GET'
             payload = None
+        elif endpoint == 'getContacts':  
+            endpoint_url = f'contacts/'
+            request_type = 'GET'
+            payload = None
+            params = {
+                'locationId': locationId,
+                'query': contactId
+            }
         else:
             raise ValueError("Invalid endpoint value. Valid values are 'createTask', 'createNote', 'sendMessage', and 'getEmailHistory'.")
 
         url = f'{url_root}{endpoint_url}'
+        token_filename = 'auth_token_response_cicd.json'
         try:
             s3 = boto3.client('s3')
-            response = s3.get_object(Bucket='ownitfit-silvhua', Key='auth_token_response.json')
+            response = s3.get_object(Bucket='ownitfit-silvhua', Key=token_filename)
             token = json.loads(response['Body'].read().decode('utf-8'))[location]
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
@@ -185,7 +196,7 @@ def ghl_request(
 
         headers = {
             "Authorization": f"Bearer {token['access_token']}",
-            "Version": "2021-04-15",
+            "Version": "2021-07-28",
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
@@ -200,7 +211,7 @@ def ghl_request(
             response = requests.get(
                 url, headers=headers, 
                 json=payload if payload else None,
-                # params=params if params else None
+                params=params if params else None
             )
         else:
             raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
@@ -233,3 +244,10 @@ def ghl_request(
         filename = f.f_code.co_filename
         print(f'Error in line {lineno} of {filename}: {str(error)}')
         return '[Chatbot response]'
+    
+def process_leads_csv(csv_filename, csv_path):
+    df = load_csv(csv_filename, csv_path)
+    # Update the index to start at 2 instead of zero
+    df.index = df.index + 2
+    print(f'Index updated to start at 2 isntead of 0.')
+    return df
