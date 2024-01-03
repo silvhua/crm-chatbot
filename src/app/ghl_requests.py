@@ -128,6 +128,7 @@ def ghl_request(
     url_root = 'https://services.leadconnectorhq.com/'
     if payload:
         print(f'input payload: {payload}')
+    params = None
     try:
         if endpoint == 'getContact':
             endpoint_url = f'contacts/{contactId}'
@@ -179,6 +180,9 @@ def ghl_request(
                     'locationId': locationId,
                     'query': contactId
                 }
+        elif endpoint == 'getConversation':
+            endpoint_url = f'conversations/{contactId if contactId else path_param}'
+            request_type = 'GET'
         else:
             raise ValueError("Invalid endpoint value. Valid values are 'createTask', 'createNote', 'sendMessage', and 'getEmailHistory'.")
 
