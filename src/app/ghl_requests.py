@@ -251,6 +251,44 @@ def ghl_request(
         filename = f.f_code.co_filename
         print(f'Error in line {lineno} of {filename}: {str(error)}')
         return '[Chatbot response]'
+
+def parse_result_id(response, result_type):
+    """
+    Parse the GHL API response and return the `id` of the first result.
+    
+    Parameters:
+    - response (dict): GHL API response.
+    - result_type (str): Value is dependent on the GHL API endpoint:
+        - 'searchConversations' endpoint --> result_type='conversations
+        - 'getContacts' endpoint --> result_type='contacts'
+
+    Returns: `id` of the first result    
+    """
+    first_result = response[result_type][0]
+    return first_result.get('id', 'Unable to parse id')
+
+def search_and_get_conversation(query_string, **kwargs):
+    """
+    Search for a conversation with a specified query string (e.g. contact name) and retrieve the conversation.
+
+    Parameters:
+        contact_name (str): The name of the contact to search for.
+        **kwargs: Additional keyword arguments that can be passed to the ghl_request function.
+
+    Returns:
+        dict: The conversation response if the search is successful, otherwise the search response.
+    """
+    search_response = ghl_request(
+        contactId=query_string, endpoint='searchConversations', **kwargs
+    )
+    if search_response['status_code'] != 200:
+        return search_response
+    else:
+        conversationId = parse_result_id(search_response, 'conversations')
+        conversation_response = ghl_request(
+            contactId=conversationId, endpoint='getConversation', **kwargs
+        )
+        return conversation_response
     
 def process_leads_csv(csv_filename, csv_path):
     df = load_csv(csv_filename, csv_path)
