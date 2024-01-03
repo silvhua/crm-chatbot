@@ -97,7 +97,7 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
 
 def ghl_request(
         contactId, endpoint='createTask', text=None, payload=None, location='SamLab', 
-        path_param=None, locationId=None
+        path_param=None, locationId=None, params_dict=None
         ):
     """
     Send a message to a contact in GoHighLevel or retrieve email history.
@@ -105,7 +105,7 @@ def ghl_request(
     Parameters:
     - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
-    'createNote', 'send_message', and 'getEmailHistory'.
+    'createNote', 'send_message', 'getContacts', 'searchConversations', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
@@ -168,14 +168,17 @@ def ghl_request(
             endpoint_url = f'conversations/search?contactId={contactId}'
             request_type = 'GET'
             payload = None
-        elif endpoint == 'getContacts':  
-            endpoint_url = f'contacts/'
+        elif (endpoint == 'getContacts') | (endpoint == 'searchConversations'):  
+            endpoint_url = f'conversations/search' if endpoint=='searchConversations' else f'contacts/' 
             request_type = 'GET'
             payload = None
-            params = {
-                'locationId': locationId,
-                'query': contactId
-            }
+            if params_dict:
+                params = params_dict
+            else:
+                params = {
+                    'locationId': locationId,
+                    'query': contactId
+                }
         else:
             raise ValueError("Invalid endpoint value. Valid values are 'createTask', 'createNote', 'sendMessage', and 'getEmailHistory'.")
 
