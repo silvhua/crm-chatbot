@@ -269,6 +269,8 @@ def parse_result_id(response, result_type):
 
 def search_and_get_conversation(query_string, **kwargs):
     """
+    [Not useful; use `ghl_request` with `endpoint='searchConversations'` instead. 
+    Likely can modify this to use for sending messages.]
     Search for a conversation with a specified query string (e.g. contact name) and retrieve the conversation.
 
     Parameters:
