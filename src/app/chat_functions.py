@@ -32,35 +32,36 @@ def load_txt(filename, filepath, encoding='utf-8'):
     return text
 
 def create_system_message(
-        business_name, business_dict, prompts_filepath='../prompts',
+        business_name, prompts_filepath='../prompts',
         examples_filepath='../data/chat_examples', doc_filepath='../data/rag_docs'
         ):
-    instructions = load_txt(business_dict[business_name][0], prompts_filepath)
-    examples = load_txt(business_dict[business_name][1], examples_filepath)
-    document = load_txt(business_dict[business_name][2], doc_filepath)
+    
+    instructions = load_txt(f'{business_name}.md', prompts_filepath)
+    examples = load_txt(f'{business_name}.txt', examples_filepath)
+    document = load_txt(f'{business_name}_doc.md', doc_filepath)
 
     system_message = f"""# Stage 1
 
-    {instructions}
+{instructions}
 
-    ## Examples
+## Examples
 
-    {examples}
+{examples}
 
-    ## Relevant documentation
+## Relevant documentation
 
-    {document}
+{document}
 
-    # Stage 2
+# Stage 2
 
-    Review your response from stage 1. 
-    Revise your response if needed to make sure you followed the instructions.
-    Make sure that if the question cannot be answered through the documentation, 
-    you return "[ALERT HUMAN]".
-    
-    # Stage 3
+Review your response from stage 1. 
+Revise your response if needed to make sure you followed the instructions.
+Make sure that if the question cannot be answered through the documentation, 
+you return "[ALERT HUMAN]".
 
-    Review your response from stage 2 to ensure your response is concise.
+# Stage 3
+
+Review your response from stage 2 to ensure your response is concise.
     """
 
     prompt = """
@@ -77,7 +78,7 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
         openai_organization=os.environ['openai_organization'],
         openai_api_key=os.environ['openai_api_key'],
         model=model, 
-        model_kwargs={"response_format": {"type": "json_object"}} # https://platform.openai.com/docs/guides/text-generation/json-mode  # https://api.python.langchain.com/en/latest/chat_models/langchain_community.chat_models.openai.ChatOpenAI.html?highlight=chatopenai#
+        # model_kwargs={"response_format": {"type": "json_object"}} # https://platform.openai.com/docs/guides/text-generation/json-mode  # https://api.python.langchain.com/en/latest/chat_models/langchain_community.chat_models.openai.ChatOpenAI.html?highlight=chatopenai#
         )
     message_history = DynamoDBChatMessageHistory(
         table_name="SessionTable", session_id=contactId,
@@ -86,10 +87,6 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
             "type": 'ChatHistory',
             }
         )
-    # memory = ConversationBufferMemory(
-    #     memory_key="ChatHistory", chat_memory=message_history, return_messages=True, 
-    #     input_key='input', output_key="output" # Required to avoid `ValueError: One output key expected, got dict_keys(['output', 'intermediate_steps'])`; https://github.com/langchain-ai/langchain/issues/2068
-    # )
     system_message = SystemMessage(
         content=(system_message),
         input_variables=['InboundMessage']
@@ -105,7 +102,6 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
     agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
     agent_executor = AgentExecutor(
         agent=agent, tools=tools, 
-        # memory=memory, 
         verbose=verbose, return_intermediate_steps=True
         )
     agent_info = {
