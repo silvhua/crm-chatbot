@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 import sys
 import os
 
+def parse_json_string(json_string):
+    return json.loads(json_string)
+
 def query_dynamodb_table(
     table_name, partition_key_value, sort_key_value='', partition_key='SessionId', sort_key=None, 
     profile=None, region_name="us-west-2"
