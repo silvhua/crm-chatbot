@@ -56,7 +56,7 @@ def create_system_message(
     Review your response from stage 1. 
     Revise your response if needed to make sure you followed the instructions.
     Make sure that if the question cannot be answered through the documentation, 
-    you return 'flag'.
+    you return "[ALERT HUMAN]".
     
     # Stage 3
 
@@ -76,7 +76,8 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", 
         temperature = 0,
         openai_organization=os.environ['openai_organization'],
         openai_api_key=os.environ['openai_api_key'],
-        model=model
+        model=model, 
+        model_kwargs={"response_format": {"type": "json_object"}} # https://platform.openai.com/docs/guides/text-generation/json-mode  # https://api.python.langchain.com/en/latest/chat_models/langchain_community.chat_models.openai.ChatOpenAI.html?highlight=chatopenai#
         )
     message_history = DynamoDBChatMessageHistory(
         table_name="SessionTable", session_id=contactId,
