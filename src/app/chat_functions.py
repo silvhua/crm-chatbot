@@ -44,7 +44,14 @@ def create_system_message(
 
 {instructions}
 
+Return your response on a JSON format with the following keys:
+- "response" (string): The response to the InboundMessage.
+- "alert_human" (True or False): Whether or not to alert a human to review the response.
+
 ## Examples
+
+Below are example conversations with leads. Each lead as a unique contact ID.
+An InboundMessage is from the lead. An OutboundMessage is from you.
 
 {examples}
 
@@ -71,14 +78,14 @@ Review your response from stage 2 to ensure your response is concise.
     system_message = f'{system_message}{prompt}'
     return system_message
 
-def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-16k", verbose=True):
+def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
 
     llm = ChatOpenAI(
         temperature = 0,
         openai_organization=os.environ['openai_organization'],
         openai_api_key=os.environ['openai_api_key'],
         model=model, 
-        # model_kwargs={"response_format": {"type": "json_object"}} # https://platform.openai.com/docs/guides/text-generation/json-mode  # https://api.python.langchain.com/en/latest/chat_models/langchain_community.chat_models.openai.ChatOpenAI.html?highlight=chatopenai#
+        model_kwargs={"response_format": {"type": "json_object"}} # https://platform.openai.com/docs/guides/text-generation/json-mode  # https://api.python.langchain.com/en/latest/chat_models/langchain_community.chat_models.openai.ChatOpenAI.html?highlight=chatopenai#
         )
     message_history = DynamoDBChatMessageHistory(
         table_name="SessionTable", session_id=contactId,
