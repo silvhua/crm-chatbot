@@ -25,11 +25,10 @@ def lambda_handler(event, context):
         conversation_id = 1
         tools = [
             Tool(
-                name=f"foo-{i}",
-                func=fake_func,
-                description=f"a silly function that you can use to get more information about the number {i}",
+                name=f"placeholder_function",
+                func=placeholder_function,
+                description=f"This function does not do anything.",
             )
-            for i in range(2)
         ]
         business_dict = {
             'SAM_Lab': (

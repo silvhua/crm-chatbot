@@ -130,8 +130,8 @@ def chat_with_chatbot(user_input, agent_info):
     
     return result
 
-def fake_func(inp: str) -> str:
-    return "foo"
+def placeholder_function(str):
+    return None
 
 def openai_models(env="openai_api_key", query='gpt'):
     """
