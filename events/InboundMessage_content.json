@@ -1,0 +1,14 @@
+{
+    "alert": {
+        "1": "Can you give me an Olympic lifting program to improve my technique?",
+        "2": "I have a diagnosed eating disorder. Can you help me with that?",
+        "3": "What is the capital of Canada?",
+        "4": "Yes, let's book a call"
+    },
+    "no_alert": {
+        "1": "What does the program involve?",
+        "2": "What are your qualifications?",
+        "3": "I feel lost with my nutrition", 
+        "4": "Is this a bot or human?"
+    }
+}
