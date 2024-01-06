@@ -22,7 +22,9 @@ def lambda_handler(event, context):
 
         system_message_dict = dict()
         conversation_dict = dict()
+        reply_dict = dict()
         conversation_id = 1
+        question_id = 1
         tools = [
             Tool(
                 name=f"placeholder_function",
@@ -30,30 +32,23 @@ def lambda_handler(event, context):
                 description=f"This function does not do anything.",
             )
         ]
-        business_dict = {
-            'SAM_Lab': (
-                'SAM_Lab.txt', # business-specific system message
-                'SAM_Lab_examples.txt', # Examples 
-                'SAM_Lab_doc.md' # RAG doc
-                )
-        }
         try:
             if payload.get("noReply", False) == False:
 
                 system_message_dict[conversation_id] = create_system_message(
-                    'SAM_Lab', business_dict, prompts_filepath='prompts',
-                    examples_filepath='chat_examples', doc_filepath='rag_docs'
+                    'CoachMcloone', 
+                    prompts_filepath='../private/prompts',
+                    examples_filepath='../private/data/chat_examples', doc_filepath='../private/data/rag_docs'
                 )
                 conversation_dict[conversation_id] = create_chatbot(
                     contactId, system_message_dict[conversation_id], tools=tools,
                     # model='gpt-4-32k'
                     )
 
-                reply = chat_with_chatbot(
+                reply_dict[conversation_id][question_id] = chat_with_chatbot(
                     InboundMessage, conversation_dict[conversation_id]
                 )
-                print(f'Reply from `chat_with_chatbot`: {reply}')
-                reply_text = reply['output']
+                reply_text = reply_dict[conversation_id][question_id]["output"]
             else:
                 reply_text = 'No AI reply generated for test event.'
                 print(f'{reply_text}')
@@ -71,18 +66,19 @@ def lambda_handler(event, context):
                 message = f'Failed to create task for contactId {contactId}: \n{ghl_api_response}\n'
                 message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
 
-            workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
-            workflowName = 'chatbot:_1-day_follow_up'
-            ghl_workflow_response = ghl_request(
-                contactId, 'workflow', path_param=workflowId
-            )
+            # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
+            # workflowName = 'chatbot:_1-day_follow_up'
+            # ghl_workflow_response = ghl_request(
+            #     contactId, 'workflow', path_param=workflowId
+            # )
 
-            print(f'GHL workflow response: {ghl_workflow_response}')
-            if ghl_workflow_response['status_code'] // 100 == 2:
-                message += f'\nAdded contactId {contactId} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
-            else:
-                message += f'\nFailed to add contactId {contactId} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
-                message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
+            # print(f'GHL workflow response: {ghl_workflow_response}')
+            # if ghl_workflow_response['status_code'] // 100 == 2:
+            #     message += f'\nAdded contactId {contactId} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+            # else:
+            #     message += f'\nFailed to add contactId {contactId} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+            #     message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
+            
             print(message)
             return {
                 'statusCode': 200,

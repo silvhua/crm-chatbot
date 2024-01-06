@@ -20,7 +20,7 @@
         },
         "message": {
             "type": 11,
-            "body": "testing webhooks Lambda function",
+            "body": "Is this a bot or human?",
             "direction": "inbound",
             "status": "delivered"
         },
