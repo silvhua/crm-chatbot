@@ -15,6 +15,9 @@ from langchain.prompts import MessagesPlaceholder
 
 from langchain.agents import AgentExecutor
 
+from langchain.output_parsers.json import SimpleJsonOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field
+
 def load_txt(filename, filepath, encoding='utf-8'):
     """
     Load a text file as a string using the specified file path copied from Windows file explorer.
@@ -31,21 +34,36 @@ def load_txt(filename, filepath, encoding='utf-8'):
         text = file.read()
     return text
 
+class Chatbot_Response(BaseModel):
+    response: str = Field(description="The response to the InboundMessage.")
+    alert_human: bool = Field(description="Whether or not to alert a human to review the response.")
+
 def create_system_message(
-        business_name, prompts_filepath='../prompts',
-        examples_filepath='../data/chat_examples', doc_filepath='../data/rag_docs'
+        business_name, 
+        prompts_filepath='../private/prompts',
+        examples_filepath='../private/data/chat_examples', doc_filepath='../private/data/rag_docs'
         ):
     
     instructions = load_txt(f'{business_name}.md', prompts_filepath)
     examples = load_txt(f'{business_name}.txt', examples_filepath)
     document = load_txt(f'{business_name}_doc.md', doc_filepath)
 
-    system_message = f"""# Stage 1
+    system_message = f"""{instructions}
 
-{instructions}
+## Other Messages
+
+Only repond to inbound messages that can be answered by the message templates or provided 
+documenation. Otherwise, return "[ALERT HUMAN]". 
+The "[ALERT HUMAN]" message will trigger a human staff member to review the messages to write a response. 
+It is better to err on the side of caution and flag a staff rather than give a wrong response.
+    
+# Stage 1
+
+Determine if you should generate a response to the inbound message. If so, generate the response and proceed 
+to Stage 2. Otherwise, return "[ALERT HUMAN]".
 
 Return your response on a JSON format with the following keys:
-- "response" (string): The response to the InboundMessage.
+- "response" (string): The response to the InboundMessage, if applicable. If a human is to be alerted, the value will be [ALERT HUMAN]
 - "alert_human" (True or False): Whether or not to alert a human to review the response.
 
 ## Examples
@@ -63,12 +81,12 @@ An InboundMessage is from the lead. An OutboundMessage is from you.
 
 Review your response from stage 1. 
 Revise your response if needed to make sure you followed the instructions.
-Make sure that if the question cannot be answered through the documentation, 
+Make sure that if the question cannot be answered through the message templates or documentation, 
 you return "[ALERT HUMAN]".
 
 # Stage 3
 
-Review your response from stage 2 to ensure your response is concise.
+Review your response from stage 2 to revise as needed to make it concise.
     """
 
     prompt = """
@@ -98,7 +116,7 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106",
         content=(system_message),
         input_variables=['InboundMessage']
     )
-    
+
     prompt = OpenAIFunctionsAgent.create_prompt(
         system_message=system_message,
         extra_prompt_messages=[
@@ -106,10 +124,12 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106",
             ]
     )
 
+    parser = SimpleJsonOutputParser(pydantic_object=Chatbot_Response)
     agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt)
-    agent_executor = AgentExecutor(
+    agent_executor = AgentExecutor( # Example of creating a custom agent: https://python.langchain.com/docs/modules/agents/how_to/custom_agent
         agent=agent, tools=tools, 
-        verbose=verbose, return_intermediate_steps=True
+        verbose=verbose, return_intermediate_steps=True,
+        parser=parser  # Add the parser instance to the agent_executor
         )
     agent_info = {
         'agent': agent,
@@ -123,9 +143,9 @@ def chat_with_chatbot(user_input, agent_info):
     print(f'Chat history length: {len(agent_info["chat_history"])}')
     chat_history = agent_info['chat_history']
     result = agent_info['agent_executor']({
-        "input": user_input,
-        "chat_history": chat_history
-        })
+            "input": user_input,
+            "chat_history": chat_history
+        })  
     print(f'Response time: {time() - start_time} seconds')
     
     return result
