@@ -128,7 +128,6 @@ def ghl_request(
     url_root = 'https://services.leadconnectorhq.com/'
     if payload:
         print(f'input payload: {payload}')
-    params = None
     try:
         if endpoint == 'getContact':
             endpoint_url = f'contacts/{contactId}'
@@ -207,7 +206,6 @@ def ghl_request(
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
-
 
         if request_type == 'POST':
             response = requests.post(

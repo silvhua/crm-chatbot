@@ -40,8 +40,8 @@ class Chatbot_Response(BaseModel):
 
 def create_system_message(
         business_name, 
-        prompts_filepath='../private/prompts',
-        examples_filepath='../private/data/chat_examples', doc_filepath='../private/data/rag_docs'
+        prompts_filepath='app/private/prompts',
+        examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
         ):
     
     instructions = load_txt(f'{business_name}.md', prompts_filepath)

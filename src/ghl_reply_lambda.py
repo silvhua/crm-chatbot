@@ -11,12 +11,15 @@ def lambda_handler(event, context):
     response = refresh_token()
     if response['statusCode'] // 100 == 2:
         # Extract the payload from the event
-        payload = event
+        print(f"direct local invoke: {event.get('direct_local_invoke', False)}")
+        if event.get('direct_local_invoke', None):
+            payload = event['body']
+        else:
+            payload = event
         print(f'Payload: {payload}')
         contactId = payload.get('contactId')
-        # contactId = "C3a796qLEF4HtDjvKJ1K"
         InboundMessage = payload.get('body')
-        locationId = payload.get('locationId', 'SAMLab')
+        locationId = payload['location'].get('id', 'CoachMcloone')
         location = os.getenv(locationId, 'SamLab')
         print(f'location: {location}')
 
@@ -37,8 +40,8 @@ def lambda_handler(event, context):
 
                 system_message_dict[conversation_id] = create_system_message(
                     'CoachMcloone', 
-                    prompts_filepath='../private/prompts',
-                    examples_filepath='../private/data/chat_examples', doc_filepath='../private/data/rag_docs'
+                    prompts_filepath='app/private/prompts',
+                    examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
                 )
                 conversation_dict[conversation_id] = create_chatbot(
                     contactId, system_message_dict[conversation_id], tools=tools,
