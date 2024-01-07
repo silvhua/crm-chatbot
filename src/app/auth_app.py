@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 app = Flask(__name__)
 
 config_file_path = 'private/config.json' # Original
+token_file_path = 'private/auth_token_response_cicd.json'
 # config_file_path = 'private/config_cicd_app.json' # cicd project
 
 # initiate.js equivalent
@@ -24,13 +25,15 @@ def initiate_auth():
         "redirectUri": "http://localhost:3000/oauth/callback",
         "clientId": appConfig["clientId"],
         "scopes": [
-            "conversations/message.readonly",
-            "conversations/message.write",
+            "conversations/message.readonly","conversations/message.write",
             "users.readonly",
-            "conversations.readonly",
-            "contacts.write",
-            "contacts.readonly",
-            "workflows.readonly"
+            "conversations.readonly", "contacts.write","contacts.readonly",
+            "workflows.readonly",
+            "calendars/events.readonly", "calendars/events.write", "calendars.write",
+            "calendars/groups.readonly", "calendars/groups.write", "conversations.write",
+            "forms.readonly", "forms.write", "links.readonly", "locations/tasks.write", "locations/tasks.readonly",
+            "locations/tags.write", "locations/tags.readonly", "businesses.readonly", "calendars.readonly", 
+            "opportunities.readonly", "opportunities.write", "surveys.readonly", "users.write"
         ]
     }
 
@@ -45,7 +48,6 @@ def refresh():
     """
     Refresh access token for SAM lab.
     """
-    token_file_path = 'private/auth_token_response.json'
 
     with open(config_file_path) as config_file:
         appConfig = json.load(config_file)
@@ -93,7 +95,6 @@ def oauth_callback():
         print('Config.json loaded')
 
     # Read the existing tokens from the token_file
-    token_file_path = 'private/auth_token_response.json'
     with open(token_file_path, 'r') as token_file:
         tokens = json.load(token_file)
 
@@ -116,7 +117,7 @@ def oauth_callback():
     if response.status_code == 200:
         # Save the response.json() to a file
         tokens['SamLab'] = response.json()
-        with open('private/auth_token_response.json', 'w') as token_file:
+        with open(token_file_path, 'w') as token_file:
             json.dump(tokens, token_file)
         return jsonify(response.json())
     else:
