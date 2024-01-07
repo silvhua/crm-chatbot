@@ -5,6 +5,8 @@ notebooks/2023-10-21 get FAQ.ipynb
 **private**.ipynb
 src/aws_requests.py
 src/app/__pycache__
+events/__pycache__
+events/InboundMessageTest.json
 src/*/**
 !src/app/
 !src/app/auth_app.py
