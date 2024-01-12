@@ -73,8 +73,9 @@ def lambda_handler(event, context):
                                     contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                     print(f'Contact tags: \n{contact_tags}')
 
-                                    if 'sam lab members' not in contact_tags:
-                                        new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
+                                    if 'client' not in contact_tags:
+                                        # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
+                                        new_payload = payload
                                         # Invoke another Lambda function
                                         if payload.get("noReply", False) == False:
                                             try:
