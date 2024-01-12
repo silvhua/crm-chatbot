@@ -133,6 +133,7 @@ def ghl_request(
             endpoint_url = f'contacts/{contactId}'
             request_type = 'GET'
             payload = None
+            params = None
         elif endpoint == 'createTask':
             endpoint_url = f'contacts/{contactId}/tasks'
             request_type = 'POST'
