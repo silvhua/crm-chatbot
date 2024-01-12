@@ -36,7 +36,8 @@ def lambda_handler(event, context):
                 aws_access_key_id=aws_access_key_id, 
                 aws_secret_access_key=aws_secret_access_key
                 )
-        payload['type'] = payload.get('type', 'WorkflowInboundMessage')
+        # payload['type'] = payload.get('type', 'WorkflowInboundMessage')
+        # print(f'Payload type: {payload["type"]}')
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
@@ -60,8 +61,11 @@ def lambda_handler(event, context):
                         print(f'Webhook type: {payload["type"]}')
                         message2 = add_to_chat_history(payload)
                         message = f'{message}\n{message2}'
-                        if payload['type'] == 'WorkflowInboundMessage':
-                            location =  os.getenv(payload['locationId'])
+                        if payload['type'] == 'InboundMessage':
+                            if event.get('direct_local_invoke', None):
+                                location = 'Coach Mcloone'
+                            else:
+                                location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
                             if location == 'Coach Mcloone': ## Update this later to include other businesses
                                 try:
@@ -101,8 +105,19 @@ def lambda_handler(event, context):
                                             message = f'{message}\n{message3}'
                                     else:
                                         print(f'Contact is a already member. No AI response required.')
-                                except:
-                                    print(f'Error getting contact details.')
+                                except Exception as error:
+                                    exc_type, exc_obj, tb = sys.exc_info()
+                                    f = tb.tb_frame
+                                    lineno = tb.tb_lineno
+                                    filename = f.f_code.co_filename
+                                    message3 = f'Error getting contact details. An error occurred on line {lineno} in {filename}: {error}.'
+                                    message = f'{message}\n{message3}'
+                            else:
+                                message4 = f'Not an inbound message; ghl_reply skipped.'
+                                message = f'{message}\n{message4}'
+                        else:
+                            message4 = f'No location found; ghl_reply skipped.'
+                            message = f'{message}\n{message4}'
 
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()
