@@ -17,10 +17,17 @@ def lambda_handler(event, context):
         else:
             payload = event
         print(f'Payload: {payload}')
-        contactId = payload.get('contactId')
+        contactId = payload.get('contact_id')
         InboundMessage = payload.get('body')
-        locationId = payload['location'].get('id', 'CoachMcloone')
-        location = os.getenv(locationId, 'SamLab')
+        locationId = payload['location'].get('id', None)
+        location = os.getenv(locationId, 'CoachMcloone')
+        if location == None:
+            message = f'No location found for locationId {locationId}'
+            print(message)
+            return {
+                'statusCode': 500,
+                'body': json.dumps(message)
+            }
         print(f'location: {location}')
 
         system_message_dict = dict()
