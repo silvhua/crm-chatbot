@@ -8,3 +8,5 @@ sam local invoke ReplyLambda --event events/InboundMessageTest.json --force-imag
 sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json
 sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json --force-image-build
 sam local invoke WebhooksLambda --event events/CustomInboundMessage.json
+sam local invoke WebhooksLambda --event events/CustomInboundMessageTest.json
+sam local invoke WebhooksLambda --event events/CustomInboundMessage.json
