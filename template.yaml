@@ -141,6 +141,8 @@ Resources:
       CodeUri: src
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
+      Layers: 
+        - arn:aws:lambda:us-west-2:661497771663:layer:requests_langchain:1
       # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
       #   WebhooksLambdaEvent:
       #     Type: Lambda
