@@ -296,3 +296,77 @@ def process_leads_csv(csv_filename, csv_path):
     df.index = df.index + 2
     print(f'Index updated to start at 2 isntead of 0.')
     return df
+
+class Ghl:
+    """
+    Class for retrieving and manually updating the S3 file storing GHL authentication information.
+    """
+
+    def __init__(self, location='CoachMcloone', token_file_path = 'app/private'):
+        """
+        Initializes the class with the specified location and configuration file path.
+
+        Parameters:
+            location (str): The location to be set. Defaults to 'CoachMcloone'.
+            token_file_path (str): The path to the token file. Defaults to 'app/private'.
+
+        Returns:
+            None
+        """
+        self.location = location
+        self.token_file_path = token_file_path
+        self.filename = 'auth_token_response_cicd.json'
+        self.config_file_name = 'config.json'
+
+    def get_token(self):
+        """
+        Retrieves the file storing the authentication tokens from S3.
+
+        Returns:
+            dict: A dictionary containing the retrieved authentication details for all locations.
+        """
+
+        with open(f'{self.token_file_path}/{self.config_file_name}') as config_file:
+            self.appConfig = json.load(config_file)
+        s3 = boto3.client('s3')
+        self.response = s3.get_object(Bucket='ownitfit-silvhua', Key=self.filename)
+        self.tokens = json.loads(self.response['Body'].read().decode('utf-8'))
+        return self.tokens
+
+    def update_token(self, new_tokens):
+        """
+        Updates S3 with the authentication information for the current location with the provided 
+        dictionary.
+
+        Parameters:
+            new_tokens (dict): The dictionary of the authentication information to update to S3. 
+                This should have the same structure as the dictionary returned by `get_token`.
+                The location specified in the class instance should be included as one the 
+                dictionary keys. e.g. if the `location` parameter is 'CoachMcloone', `new_tokens` 
+                should have a key 'CoachMcloone'.
+
+        Returns:
+            dict: The response from the PUT request to S3.
+        """
+        
+        self.tokens[self.location] = new_tokens[self.location] # Update tokens for the location
+        # pprint(f'Tokens: {tokens["SamLab"]}')
+        try:
+            # Save tokens to S3
+            s3 = boto3.client('s3')
+            self.update_response = s3.put_object(
+                Body=json.dumps(self.tokens), 
+                Bucket='ownitfit-silvhua', Key=self.filename
+                )
+            if self.update_response['ResponseMetadata']['HTTPStatusCode'] == 200:
+                message = f'Tokens saved to S3 {self.location}.'
+            else:
+                message = f'Failed to save tokens to S3 {self.location}.'
+        except Exception as error:
+            exc_type, exc_obj, tb = sys.exc_info()
+            f = tb.tb_frame
+            lineno = tb.tb_lineno
+            filename = f.f_code.co_filename
+            message = f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}"
+        print(message)
+        return self.update_response
