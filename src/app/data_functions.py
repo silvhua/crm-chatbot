@@ -4,9 +4,60 @@ import json
 from datetime import datetime, timezone
 import sys
 import os
+import re
 
-def parse_json_string(json_string):
-    return json.loads(json_string)
+def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
+    """
+    Parses the result from Open AI response and returns a dictionary that matches the specified dictionary keys.
+    
+    Parameters:
+        - json_string (str): The JSON string to parse.
+        - dict_keys (list): A list of dictionary keys that should be present in the parsed dictionary.
+    
+    Returns:
+        - dict: The parsed dictionary that matches the specified dictionary keys.
+    
+    Raises:
+        - Exception: If there is an error while parsing the JSON string.
+    """
+    try:
+        parsed_json = json.loads(json_string)
+        
+        if isinstance(parsed_json, list):
+            parsed_dict = {}
+            for item in reversed(parsed_json):
+                if isinstance(item, dict) and all(key in item for key in dict_keys):
+                    parsed_dict = item
+                    break
+            if parsed_dict:
+                return parsed_dict
+        
+        return parsed_json
+    
+    except Exception as error:
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        message = f" Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
+        print(message)
+        
+        # Extract substring matching the format of a json string
+        regex = r'({[^{}]+})'
+        matches = re.findall(regex, json_string)
+        
+        parsed_dict = {}
+        
+        for match in reversed(matches):
+            temp_dict = json.loads(match)
+            if all(key in temp_dict for key in dict_keys):
+                parsed_dict = temp_dict
+                break
+        
+        if parsed_dict:
+            return parsed_dict
+        
+        return {"response": None, "alert_human": True}
 
 def query_dynamodb_table(
     table_name, partition_key_value, sort_key_value='', partition_key='SessionId', sort_key=None, 
