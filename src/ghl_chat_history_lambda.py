@@ -36,7 +36,7 @@ def lambda_handler(event, context):
                 aws_access_key_id=aws_access_key_id, 
                 aws_secret_access_key=aws_secret_access_key
                 )
-        
+        payload['type'] = payload.get('type', 'WorkflowInboundMessage')
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
