@@ -64,7 +64,7 @@ def lambda_handler(event, context):
                         message = f'{message}\n{message2}'
                         if payload['type'] == 'InboundMessage':
                             if event.get('direct_local_invoke', None):
-                                location = 'Coach Mcloone'
+                                location = 'Coach McLoone'
                             else:
                                 location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
