@@ -20,9 +20,7 @@
         },
         "message": {
             "type": 11,
-            "body": "Is this a bot or human?",
-            "direction": "inbound",
-            "status": "delivered"
+            "body": "Is this a bot or human?"
         },
         "workflow": {
             "id": "d453e1aa-8b09-4a52-a105-c9389ab1aa65",

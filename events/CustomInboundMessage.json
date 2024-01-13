@@ -20,9 +20,7 @@
         },
         "message": {
             "type": 11,
-            "body": "testing webhooks Lambda function",
-            "direction": "inbound",
-            "status": "delivered"
+            "body": "testing webhooks Lambda function"
         },
         "workflow": {
             "id": "d453e1aa-8b09-4a52-a105-c9389ab1aa65",
