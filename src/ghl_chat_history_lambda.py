@@ -16,6 +16,7 @@ def lambda_handler(event, context):
     Add GHL message events to dynamodb table as chat history.
     """
     table_name = 'SessionTable' ############
+    message = ''
     try:
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
@@ -48,6 +49,8 @@ def lambda_handler(event, context):
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
                 )
+        elif (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & ("click here to unsubscribe" in payload.get('body', '').lower()):
+            message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}'
         elif payload['type'] in message_events + contact_update_events:
             # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
@@ -80,7 +83,7 @@ def lambda_handler(event, context):
                                     contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                     print(f'Contact tags: \n{contact_tags}')
 
-                                    if 'client' not in contact_tags:
+                                    if 'money_magnet_lead' in contact_tags:
                                         # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
                                         new_payload = payload
                                         # Invoke another Lambda function
@@ -107,7 +110,7 @@ def lambda_handler(event, context):
                                             message3 = f'`ghl_reply` function skipped because `noReply` is set.'
                                             message = f'{message}\n{message3}'
                                     else:
-                                        print(f'Contact is a already member. No AI response required.')
+                                        print(f'Contact is not a relevant lead. No AI response required.')
                                 except Exception as error:
                                     exc_type, exc_obj, tb = sys.exc_info()
                                     f = tb.tb_frame
@@ -134,7 +137,7 @@ def lambda_handler(event, context):
             print(message)
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
-            print(message)
+        print(message)
         return {
             "statusCode": 200,
             "body": json.dumps(message)
