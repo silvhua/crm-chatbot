@@ -68,7 +68,7 @@ def lambda_handler(event, context):
                             else:
                                 location =  os.getenv(payload['locationId'])
                             print(f'Location: {location}') 
-                            if location == 'Coach Mcloone': ## Update this later to include other businesses
+                            if location == 'Coach McLoone': ## Update this later to include other businesses
                                 try:
                                     contact_details = ghl_request(
                                         contact_id, endpoint='getContact', 
