@@ -11,5 +11,6 @@
     "direction": "inbound",
     "messageType": "SMS",
     "userId": "80pzXdC3MCqKRpzrteuj"
-  }
+  },
+  "direct_local_invoke": 1
 }
