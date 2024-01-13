@@ -3,11 +3,13 @@ import sys
 from app.chat_functions import *
 from app.ghl_requests import *
 from langchain.agents import Tool
+from app.data_functions import parse_json_string
+
 def lambda_handler(event, context):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
-
+    message = ''
     response = refresh_token()
     if response['statusCode'] // 100 == 2:
         # Extract the payload from the event
@@ -44,27 +46,36 @@ def lambda_handler(event, context):
         ]
         try:
             if payload.get("noReply", False) == False:
-
-                system_message_dict[conversation_id] = create_system_message(
-                    'CoachMcloone', 
-                    prompts_filepath='app/private/prompts',
-                    examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
-                )
-                conversation_dict[conversation_id] = create_chatbot(
-                    contactId, system_message_dict[conversation_id], tools=tools,
-                    # model='gpt-4-32k'
+                try:
+                    system_message_dict[conversation_id] = create_system_message(
+                        'CoachMcloone', 
+                        prompts_filepath='app/private/prompts',
+                        examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
                     )
+                    conversation_dict[conversation_id] = create_chatbot(
+                        contactId, system_message_dict[conversation_id], tools=tools,
+                        # model='gpt-4-32k'
+                        )
 
-                reply_dict[conversation_id][question_id] = chat_with_chatbot(
-                    InboundMessage, conversation_dict[conversation_id]
-                )
-                reply_text = reply_dict[conversation_id][question_id]["output"]
+                    reply_dict[conversation_id][question_id] = chat_with_chatbot(
+                        InboundMessage, conversation_dict[conversation_id]
+                    )
+                    chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
+                except Exception as error:
+                    exc_type, exc_obj, tb = sys.exc_info()
+                    f = tb.tb_frame
+                    lineno = tb.tb_lineno
+                    filename = f.f_code.co_filename
+                    message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}."
+                    print(message)
+                    chatbot_response = {"response": None, "alert_human": True}
             else:
-                reply_text = 'No AI reply generated for test event.'
-                print(f'{reply_text}')
+                chatbot_response = {"response": None, "alert_human": True}
+            task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: \n\n{chatbot_response["response"]}'
+            print(task_description)
             ghl_api_response = ghl_request(
                 contactId=contactId, 
-                text=reply_text,
+                text=task_description,
                 endpoint='createTask', 
                 payload=None, 
                 location=location
