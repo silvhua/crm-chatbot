@@ -1,0 +1,15 @@
+{
+  "body": {
+    "type": "InboundMessage",
+    "locationId": "fsdVH26v30hoBBQOBttG",
+    "attachments": [],
+    "body": "This is a test inbound message",
+    "contactId": "6kIAuqeiBUxJ3nWTwNVE",
+    "contentType": "text/plain",
+    "conversationId": "fcanlLgpbQgQhderivVs",
+    "dateAdded": "2024-01-13T05:15:00.000Z",
+    "direction": "inbound",
+    "messageType": "SMS",
+    "userId": "80pzXdC3MCqKRpzrteuj"
+  }
+}
