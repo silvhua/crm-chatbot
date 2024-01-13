@@ -4,6 +4,17 @@ from app.chat_functions import *
 from app.ghl_requests import *
 from langchain.agents import Tool
 from app.data_functions import parse_json_string
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception as error:
+    # exc_type, exc_obj, tb = sys.exc_info()
+    # f = tb.tb_frame
+    # lineno = tb.tb_lineno
+    # filename = f.f_code.co_filename
+    # message = f"Error in line {lineno} of {filename}: {str(error)}"
+    # print(message)
+    pass
 
 def lambda_handler(event, context):
     """
@@ -37,6 +48,7 @@ def lambda_handler(event, context):
         reply_dict = dict()
         conversation_id = 1
         question_id = 1
+        reply_dict[conversation_id] = dict()
         tools = [
             Tool(
                 name=f"placeholder_function",
@@ -71,12 +83,13 @@ def lambda_handler(event, context):
                     chatbot_response = {"response": None, "alert_human": True}
             else:
                 chatbot_response = {"response": None, "alert_human": True}
-            task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: \n\n{chatbot_response["response"]}'
-            print(task_description)
+            task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}'
+            print(f'Task description:{task_description}')
             ghl_api_response = ghl_request(
                 contactId=contactId, 
-                text=task_description,
+                # text=task_description,
                 endpoint='createTask', 
+                params_dict=chatbot_response,
                 payload=None, 
                 location=location
             )

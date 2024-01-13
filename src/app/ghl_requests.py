@@ -139,8 +139,13 @@ def ghl_request(
             request_type = 'POST'
             if payload == None:
                 payload = {}
-                payload['title'] = f'Send message to contact {contactId}'
-                payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
+                payload['title'] = ''
+                if params_dict:
+                    payload['title'] += f'{"Human attention needed: " if params_dict["alert_human"]==True else "Chatbot response: "}'
+                    payload['body'] = params_dict['response']
+                else:
+                    payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
+                payload['title'] += f'Send message to contact {contactId}'
             payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
         elif endpoint == 'workflow':

@@ -17,6 +17,11 @@ from langchain.agents import AgentExecutor
 
 from langchain.output_parsers.json import SimpleJsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except:
+    pass
 
 def load_txt(filename, filepath, encoding='utf-8'):
     """
