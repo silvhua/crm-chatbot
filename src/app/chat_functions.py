@@ -1,4 +1,5 @@
 # from openai import OpenAI
+import boto3
 import os
 from time import time
 
@@ -48,10 +49,24 @@ def create_system_message(
         prompts_filepath='app/private/prompts',
         examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
         ):
-    
-    instructions = load_txt(f'{business_name}.md', prompts_filepath)
-    examples = load_txt(f'{business_name}.txt', examples_filepath)
-    document = load_txt(f'{business_name}_doc.md', doc_filepath)
+    instructions_filename = f'{business_name}.md'
+    examples_filename = f'{business_name}.txt'
+    document_filename = f'{business_name}_doc.md'
+    try:
+        instructions = load_txt(instructions_filename, prompts_filepath)
+        examples = load_txt(examples_filename, examples_filepath)
+        document = load_txt(document_filename, doc_filepath)
+    except:
+        s3 = boto3.client('s3')
+        instructions = s3.get_object(
+            Bucket='ownitfit-silvhua', Key=instructions_filename
+            )['Body'].read().decode('utf-8')
+        examples = s3.get_object(
+            Bucket='ownitfit-silvhua', Key=examples_filename
+            )['Body'].read().decode('utf-8')
+        document = s3.get_object(
+            Bucket='ownitfit-silvhua', Key=document_filename
+            )['Body'].read().decode('utf-8')
 
     system_message = f"""{instructions}
 
