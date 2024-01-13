@@ -110,10 +110,10 @@ def transform_webhook(payload):
     processed_webhook['locationId'] = payload['location']['id']
     if payload.get('message'):
         message_dict = payload['message']
-        if message_dict.get('direction') == 'inbound':
-            processed_webhook['type'] = 'InboundMessage'
-            processed_webhook['messageType'] = str(message_dict.get('type'))
-        processed_webhook['direction'] = message_dict.get('direction')
+        # if message_dict.get('direction') == 'inbound':
+        #     processed_webhook['type'] = 'InboundMessage'
+        #     processed_webhook['messageType'] = str(message_dict.get('type'))
+        processed_webhook['direction'] = message_dict.get('direction', 'inbound')
         processed_webhook['body'] = message_dict.get('body')
 
     else:

@@ -24,6 +24,7 @@ def lambda_handler(event, context):
         if payload.get('workflow'):
             if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65":
                 payload = transform_webhook(payload)
+                payload['type'] = 'InboundMessage'
             print(f'Processed payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
