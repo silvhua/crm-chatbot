@@ -20,6 +20,11 @@ def lambda_handler(event, context):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
+    if event.get('direct_local_invoke', None):
+        payload = event['body']
+    else:
+        payload = event
+    print(f'Payload: {payload}')
     message = ''
     response = refresh_token()
     if response['statusCode'] // 100 == 2:
@@ -30,9 +35,9 @@ def lambda_handler(event, context):
         else:
             payload = event
         print(f'Payload: {payload}')
-        contactId = payload.get('contact_id')
+        contactId = payload.get('contactId')
         InboundMessage = payload.get('body')
-        locationId = payload['location'].get('id', None)
+        locationId = payload.get('locationId', None)
         location = os.getenv(locationId, 'CoachMcloone')
         if location == None:
             message = f'No location found for locationId {locationId}'
