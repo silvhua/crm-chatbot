@@ -142,7 +142,7 @@ Resources:
       Timeout: 300
       Role: !GetAtt LambdaFunctionRole.Arn
       Layers: 
-        - arn:aws:lambda:us-west-2:661497771663:layer:GhlChatLayer:8
+        - arn:aws:lambda:us-west-2:661497771663:layer:GhlChatLayer:9
         # - arn:aws:lambda:us-west-2:661497771663:layer:requests_langchain:1
         
       # Events: # https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-eventsource.html#sam-property-function-eventsource-properties
