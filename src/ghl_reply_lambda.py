@@ -34,7 +34,6 @@ def lambda_handler(event, context):
             payload = event['body']
         else:
             payload = event
-        print(f'Payload: {payload}')
         contactId = payload.get('contactId')
         InboundMessage = payload.get('body')
         locationId = payload.get('locationId', None)
