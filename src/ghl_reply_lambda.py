@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         payload = event['body']
     else:
         payload = event
-    print(f'Payload: {payload}')
+    print(f'Payload (line 27 of ghl_reply_lambda): {payload}')
     message = ''
     response = refresh_token()
     if response['statusCode'] // 100 == 2:
