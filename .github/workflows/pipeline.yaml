@@ -214,6 +214,7 @@ jobs:
         run: |
           echo 'Integration tests'
           pip3 install pytest pytest-mock boto3
+          pip3 install -r requirements.txt
           cd events
           python3 -m pytest integration_test.py
 
