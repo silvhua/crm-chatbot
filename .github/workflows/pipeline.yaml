@@ -210,6 +210,11 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          clientId: ${{ secrets.clientId }}
+          clientSecret: ${{ secrets.clientSecret }}
+          openai_organization_id: ${{ secrets.openai_organization }}
+          openai_api_key: ${{ secrets.openai_api_key }}
+          fsdVH26v30hoBBQOBttG: ${{ secrets.fsdVH26v30hoBBQOBttG }}
           JOB_NAME: 'integration-test'
         run: |
           echo 'Integration tests'

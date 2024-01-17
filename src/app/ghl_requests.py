@@ -42,12 +42,12 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
     # with open(f'{token_file_path}/{config_file_name}') as config_file:
     #     appConfig = json.load(config_file)
     appConfig = dict()
-    try:
-        appConfig["clientId"] = os.environ["clientId"]
-        appConfig["clientSecret"] = os.environ["clientSecret"]
-    except:
-        appConfig["clientId"] = os.environ["CLIENTID"]
-        appConfig["clientSecret"] = os.environ["CLIENTSECRET"]
+    # try:
+    appConfig["clientId"] = os.environ["clientId"]
+    appConfig["clientSecret"] = os.environ["clientSecret"]
+    # except:
+    #     appConfig["clientId"] = os.environ["CLIENTID"]
+    #     appConfig["clientSecret"] = os.environ["CLIENTSECRET"]
     
     s3 = boto3.client('s3')
     response = s3.get_object(Bucket='ownitfit-silvhua', Key=filename)
