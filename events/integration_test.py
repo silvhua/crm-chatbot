@@ -25,6 +25,7 @@ def load_json(filename, filepath):
 @pytest.fixture()
 def apigw_event():
     job = os.environ.get('JOB_NAME')
+    print(f'Running {job}')
     if job == 'test':
         test = 'ContactCreateTest.json'
     else:
