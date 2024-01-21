@@ -115,15 +115,21 @@ def transform_webhook(payload):
         #     processed_webhook['messageType'] = str(message_dict.get('type'))
         processed_webhook['direction'] = message_dict.get('direction', 'inbound')
         processed_webhook['body'] = message_dict.get('body')
-
-    else:
-        processed_webhook['type'] = 'OtherCustomWebhook'
+    elif payload.get('task'):
+        task_dict = payload['task']
+        processed_webhook['task'] = task_dict
 
     processed_webhook['contactId'] = payload.get('contact_id', 'no contact id')
-    if payload.get('date_created'):
-        processed_webhook['dateAdded'] = payload['date_created']
     if payload.get('noReply'):
         processed_webhook['noReply'] = payload['noReply']
+    if payload.get('customData'):
+        custom_data_dict = payload['customData']
+        if custom_data_dict.get('type'):
+            processed_webhook['type'] = custom_data_dict['type']
+        else:
+            processed_webhook['type'] = 'OtherCustomWebhook'
+            processed_webhook['customData'] = custom_data_dict
+    processed_webhook['dateAdded'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     return processed_webhook
 
 def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
