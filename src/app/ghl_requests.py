@@ -107,7 +107,7 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
         }
 
 def ghl_request(
-        contactId, endpoint='createTask', text=None, payload=None, location='SamLab', 
+        contactId, endpoint='createTask', text=None, payload=None, location='CoachMcloone', 
         path_param=None, locationId=None, params_dict=None
         ):
     """
