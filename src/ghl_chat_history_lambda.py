@@ -29,8 +29,8 @@ def lambda_handler(event, context):
 
         if payload.get('workflow'):
             print('Workflow detected')
-            if payload['workflow'].get('id', None) != None:
-            # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65":
+            if payload['workflow'].get('id', None) == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
+            # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65": # InboundMessages workflow webhook
                 payload = transform_webhook(payload)
                 payload['type'] = 'workflow'
             print(f'Processed payload: {payload}')
@@ -137,6 +137,9 @@ def lambda_handler(event, context):
             else:
                 message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
             print(message)
+        elif payload['type'] == "Workflow":
+            print()
+            pass
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
         print(message)
