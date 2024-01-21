@@ -17,3 +17,4 @@ src/typing_extensions.py
 src/typing_inspect.py
 events/__pycache__
 **.env
+events/followupWorkflowWebhook.json
