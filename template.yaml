@@ -197,6 +197,9 @@ Outputs:
   ReplyLambdaFunction:
     Description: "ReplyLambda ARN"
     Value: !GetAtt ReplyLambda.Arn
+  FollowupLambdaFunction:
+    Description: "FollowupLambda ARN"
+    Value: !GetAtt FollowupLambda.Arn
   LambdaIamRole:
     Description: "Implicit IAM Role created for Lambda"
     Value: !GetAtt LambdaFunctionRole.Arn
