@@ -27,8 +27,11 @@ def lambda_handler(event, context):
             payload = event['body']
         else:
             payload = event
-        contact_id = payload.get('contact_id')
-        print(f'contact_id: {contact_id}')
+        try:
+            contactId = payload.get('contactId')
+        except:
+            contactId = payload.get('contact_id')
+        print(f'contactId: {contactId}')
         try:
             workflow_id = payload.get('workflowId')
             workflow_name = payload.get('workflowName')
@@ -40,7 +43,7 @@ def lambda_handler(event, context):
             message_text = 'Hi!'
             query_dynamodb_response = query_dynamodb_table(
                 table_name='SessionTable', 
-                partition_key_value=contact_id, partition_key='SessionId',
+                partition_key_value=contactId, partition_key='SessionId',
                 sort_key_value='lastInboundMessage', sort_key='type'
             )
             print(f'query_dynamodb_response: {query_dynamodb_response}')
@@ -50,15 +53,15 @@ def lambda_handler(event, context):
                     'message': message_text
                 }
                 ghl_api_response = ghl_request(
-                    contactId=contact_id, 
+                    contactId=contactId, 
                     endpoint='sendMessage', 
                     payload=message_payload
                 )
                 print(f'GHL Add Contact to Workflow response: {ghl_api_response}')
                 if ghl_api_response['status_code'] // 100 == 2:
-                    message = f'Sent message to contactId {contact_id}: \n{message_text}\n'
+                    message = f'Sent message to contactId {contactId}: \n{message_text}\n'
                 else:
-                    message = f'Failed to send message to contactId {contact_id} to workflow: \n{ghl_api_response}\n'
+                    message = f'Failed to send message to contactId {contactId} to workflow: \n{ghl_api_response}\n'
                     message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
                 
                 print(message)
