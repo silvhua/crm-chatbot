@@ -3,11 +3,11 @@
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
     "attachments": [],
-    "body": "This is a test inbound message",
+    "body": "Hi",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
-    "dateAdded": "2024-01-13T05:15:00.000Z",
+    "dateAdded": "2024-01-21T20:26:00.000Z",
     "direction": "inbound",
     "messageType": "SMS",
     "userId": "80pzXdC3MCqKRpzrteuj"
