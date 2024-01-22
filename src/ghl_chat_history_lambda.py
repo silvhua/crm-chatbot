@@ -32,7 +32,6 @@ def lambda_handler(event, context):
             if payload['workflow'].get('id', None) == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
             # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65": # InboundMessages workflow webhook
                 payload = transform_webhook(payload)
-                payload['type'] = 'workflow'
             print(f'Processed payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
@@ -106,10 +105,10 @@ def lambda_handler(event, context):
                                                 InvocationType='Event',
                                                 Payload=json.dumps(new_payload)
                                             )
-                                            message3 = f'`ghl_reply` function invoked.'
+                                            message3 = f'`ghl_reply` Lambda function invoked.'
                                             message = f'{message}\n{message3}'
                                         else:
-                                            message3 = f'`ghl_reply` function skipped because `noReply` is set.'
+                                            message3 = f'`ghl_reply` Lambda function skipped because `noReply` is set.'
                                             message = f'{message}\n{message3}'
                                     else:
                                         print(f'Contact is not a relevant lead. No AI response required.')
@@ -138,23 +137,23 @@ def lambda_handler(event, context):
                 message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
             print(message)
         elif payload['type'] == "Workflow":
-            # try:
-            #     lambda_client = boto3.client('lambda')  # Initialize Lambda client
-            # except:
-            #     aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-            #     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-            #     region = os.environ.get('AWS_REGION')
-            #     lambda_client = boto3.client(
-            #         'lambda', region_name=region, 
-            #         aws_access_key_id=aws_access_key_id, 
-            #         aws_secret_access_key=aws_secret_access_key
-            #         )
-            # lambda_client.invoke(
-            #     FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-            #     InvocationType='Event',
-            #     Payload=json.dumps(new_payload)
-            # )
-            message += f'`ghl_followup` function invoked.'
+            try:
+                lambda_client = boto3.client('lambda')  # Initialize Lambda client
+            except:
+                aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                region = os.environ.get('AWS_REGION')
+                lambda_client = boto3.client(
+                    'lambda', region_name=region, 
+                    aws_access_key_id=aws_access_key_id, 
+                    aws_secret_access_key=aws_secret_access_key
+                    )
+            lambda_client.invoke(
+                FunctionName=os.environ.get('ghl_followup_lambda','ghl-chat-prod-FollowupLambda-EilvE9Mq3fKg'),
+                InvocationType='Event',
+                Payload=json.dumps(payload)
+            )
+            message += f'`ghl_followup` Lambda function invoked.'
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
         print(message)
