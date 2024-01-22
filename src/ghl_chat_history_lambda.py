@@ -138,8 +138,23 @@ def lambda_handler(event, context):
                 message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
             print(message)
         elif payload['type'] == "Workflow":
-            print()
-            pass
+            # try:
+            #     lambda_client = boto3.client('lambda')  # Initialize Lambda client
+            # except:
+            #     aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+            #     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+            #     region = os.environ.get('AWS_REGION')
+            #     lambda_client = boto3.client(
+            #         'lambda', region_name=region, 
+            #         aws_access_key_id=aws_access_key_id, 
+            #         aws_secret_access_key=aws_secret_access_key
+            #         )
+            # lambda_client.invoke(
+            #     FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+            #     InvocationType='Event',
+            #     Payload=json.dumps(new_payload)
+            # )
+            message += f'`ghl_followup` function invoked.'
         else:
             message = f'No need to save webhook data for {payload["type"]}.'
         print(message)
