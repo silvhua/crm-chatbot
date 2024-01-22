@@ -29,8 +29,12 @@ def lambda_handler(event, context):
             payload = event
         contact_id = payload.get('contact_id')
         print(f'contact_id: {contact_id}')
-        workflow_id = payload['workflow'].get('id')
-        workflow_name = payload['workflow'].get('name')
+        try:
+            workflow_id = payload.get('workflowId')
+            workflow_name = payload.get('workflowName')
+        except:
+            workflow_id = payload['workflow'].get('id')
+            workflow_name = payload['workflow'].get('name')
         print(f'workflow_id: {workflow_id}, workflow_name: {workflow_name}')
         if workflow_id == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
             message_text = 'Hi!'
