@@ -76,42 +76,48 @@ def lambda_handler(event, context):
                             print(f'Location: {location}') 
                             if location == 'CoachMcloone': ## Update this later to include other businesses
                                 try:
-                                    contact_details = ghl_request(
-                                        contact_id, endpoint='getContact', 
-                                        location=location 
-                                        )
-                                    contact_tags = contact_details['contact']['tags']
-                                    contact_tags = [tag.strip('"\'') for tag in contact_tags]
-                                    print(f'Contact tags: \n{contact_tags}')
+                                    refresh_token_response = refresh_token()
+                                    if refresh_token_response['statusCode'] == 200:
 
-                                    if 'money_magnet_lead' in contact_tags:
-                                        # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
-                                        new_payload = payload
-                                        # Invoke another Lambda function
-                                        if payload.get("noReply", False) == False:
-                                            try:
-                                                lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                            except:
-                                                aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                                                region = os.environ.get('AWS_REGION')
-                                                lambda_client = boto3.client(
-                                                    'lambda', region_name=region, 
-                                                    aws_access_key_id=aws_access_key_id, 
-                                                    aws_secret_access_key=aws_secret_access_key
-                                                    )
-                                            lambda_client.invoke(
-                                                FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-                                                InvocationType='Event',
-                                                Payload=json.dumps(new_payload)
+                                        contact_details = ghl_request(
+                                            contact_id, endpoint='getContact', 
+                                            location=location 
                                             )
-                                            message3 = f'`ghl_reply` Lambda function invoked.'
-                                            message = f'{message}\n{message3}'
+                                        contact_tags = contact_details['contact']['tags']
+                                        contact_tags = [tag.strip('"\'') for tag in contact_tags]
+                                        print(f'Contact tags: \n{contact_tags}')
+
+                                        if 'money_magnet_lead' in contact_tags:
+                                            # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
+                                            new_payload = payload
+                                            # Invoke another Lambda function
+                                            if payload.get("noReply", False) == False:
+                                                try:
+                                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                                except:
+                                                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                    region = os.environ.get('AWS_REGION')
+                                                    lambda_client = boto3.client(
+                                                        'lambda', region_name=region, 
+                                                        aws_access_key_id=aws_access_key_id, 
+                                                        aws_secret_access_key=aws_secret_access_key
+                                                        )
+                                                lambda_client.invoke(
+                                                    FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+                                                    InvocationType='Event',
+                                                    Payload=json.dumps(new_payload)
+                                                )
+                                                message3 = f'`ghl_reply` Lambda function invoked.'
+                                                message = f'{message}\n{message3}'
+                                            else:
+                                                message3 = f'`ghl_reply` Lambda function skipped because `noReply` is set.'
+                                                message = f'{message}\n{message3}'
                                         else:
-                                            message3 = f'`ghl_reply` Lambda function skipped because `noReply` is set.'
-                                            message = f'{message}\n{message3}'
+                                            print(f'Contact is not a relevant lead. No AI response required.')
                                     else:
-                                        print(f'Contact is not a relevant lead. No AI response required.')
+                                        message = f'{message}\n{refresh_token_response["body"]}'
+
                                 except Exception as error:
                                     exc_type, exc_obj, tb = sys.exc_info()
                                     f = tb.tb_frame
