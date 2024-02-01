@@ -9,8 +9,8 @@ sam local invoke WebhooksLambda --event events/EmailOutboundMessage.json
 
 sam local invoke ReplyLambda --event events/InboundMessageTest.json
 sam local invoke ReplyLambda --event events/InboundMessageTest.json --force-image-build
-sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json
-sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json --force-image-build
+@REM sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json
+@REM sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json --force-image-build
 
 
 sam local invoke FollowupLambda --event events/followupWorkflowWebhook.json

@@ -97,7 +97,7 @@ def lambda_handler(event, context):
                 payload=None, 
                 location=location
             )
-            print(f'GHL createTask response: {ghl_api_response}')
+            # print(f'GHL createTask response: {ghl_api_response}')
             if ghl_api_response['status_code'] // 100 == 2:
                 message = f'Created task for contactId {contactId}: \n{ghl_api_response}\n'
             else:
