@@ -3,10 +3,14 @@ import boto3
 import os
 from time import time
 
-from langchain_community.chat_models import ChatOpenAI
 
 # Create memory 
-from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
+try:
+    from langchain_community.chat_models import ChatOpenAI
+    from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
+except:
+    from langchain.chat_models import ChatOpenAI
+    from langchain.memory.chat_message_histories import DynamoDBChatMessageHistory
 
 from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
 from langchain.schema.messages import SystemMessage
