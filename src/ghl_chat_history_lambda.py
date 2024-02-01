@@ -87,7 +87,7 @@ def lambda_handler(event, context):
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'Contact tags: \n{contact_tags}')
 
-                                        if 'money_magnet_lead' in contact_tags:
+                                        if ('money_magnet_lead' in contact_tags) and ('money_magnet_schedule' not in contact_tags):
                                             # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
                                             new_payload = payload
                                             # Invoke another Lambda function
@@ -114,7 +114,7 @@ def lambda_handler(event, context):
                                                 message3 = f'`ghl_reply` Lambda function skipped because `noReply` is set.'
                                                 message = f'{message}\n{message3}'
                                         else:
-                                            print(f'Contact is not a relevant lead. No AI response required.')
+                                            message += f'\nContact is not a relevant lead. No AI response required.'
                                     else:
                                         message = f'{message}\n{refresh_token_response["body"]}'
 
