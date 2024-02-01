@@ -205,11 +205,8 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
 
 def add_to_chat_history(payload):
     try:
-        try:
-            from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
-        except:
-            from langchain.memory.chat_message_histories import DynamoDBChatMessageHistory
-
+        from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
+        # from langchain.memory.chat_message_histories import DynamoDBChatMessageHistory
         contactId = payload.get('contactId', 'no contact id')
 
         history = DynamoDBChatMessageHistory(
