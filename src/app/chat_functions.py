@@ -3,10 +3,10 @@ import boto3
 import os
 from time import time
 
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 
 # Create memory 
-from langchain.memory.chat_message_histories import DynamoDBChatMessageHistory
+from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
 from langchain.memory import ConversationBufferMemory
 
 from langchain.agents.openai_functions_agent.base import OpenAIFunctionsAgent
