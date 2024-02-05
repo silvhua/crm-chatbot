@@ -156,7 +156,9 @@ def ghl_request(
                     payload['body'] = params_dict['response']
                 else:
                     payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
-                payload['title'] += f'Send message to contact {contactId}'
+                payload['title'] += f'Send message to contact {contactId}.'
+                if params_dict.get('phone_number') != None:
+                    payload['title'] += f' Phone number: {params_dict["phone_number"]}'
             payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
         elif endpoint == 'workflow':
