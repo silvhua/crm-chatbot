@@ -65,6 +65,7 @@ def create_system_message(
         document = s3.get_object(
             Bucket='ownitfit-silvhua', Key=document_filename
             )['Body'].read().decode('utf-8')
+    print(f'**Instructions component of system message**: \n{instructions}\n')
 
     system_message = f"""{instructions}
 
