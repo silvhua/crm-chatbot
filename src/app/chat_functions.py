@@ -1,4 +1,4 @@
-# from openai import OpenAI
+from openai import OpenAI
 import boto3
 import os
 from time import time
@@ -170,7 +170,7 @@ def chat_with_chatbot(user_input, agent_info):
 def placeholder_function(str):
     return None
 
-def openai_models(env="openai_api_key", query='gpt'):
+def openai_models(env="openai_api_key", organization_key='openai_organization', query='gpt'):
     """
     List the availabel OpenAI models.
     Parameters:
@@ -178,7 +178,8 @@ def openai_models(env="openai_api_key", query='gpt'):
         - query (str): Search term for filtering models.
     """
     client = OpenAI(
-        organization=os.environ['openai_organization']
+        api_key=os.environ[env],
+        organization=os.environ[organization_key]
     )
     # openai.api_key = os.getenv(env)
     response = client.models.list()
