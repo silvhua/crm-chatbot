@@ -56,8 +56,9 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
         
         if parsed_dict:
             return parsed_dict
-        
-        return {"response": None, "alert_human": True}
+        else:
+            print(f'Unparsed JSON string: \n{json_string}')
+            return {"response": None, "alert_human": True}
 
 def query_dynamodb_table(
     table_name, partition_key_value, sort_key_value='', partition_key='SessionId', sort_key=None, 
