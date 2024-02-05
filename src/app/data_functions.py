@@ -6,7 +6,7 @@ import sys
 import os
 import re
 
-def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
+def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_number']):
     """
     Parses the result from Open AI response and returns a dictionary that matches the specified dictionary keys.
     

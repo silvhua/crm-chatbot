@@ -84,10 +84,10 @@ def lambda_handler(event, context):
                 filename = f.f_code.co_filename
                 message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}."
                 print(message)
-                chatbot_response = {"response": None, "alert_human": True}
+                chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
         else:
-            chatbot_response = {"response": None, "alert_human": True}
-        task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}'
+            chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
+        task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
         print(f'Task description:{task_description}')
         ghl_api_response = ghl_request(
             contactId=contactId, 

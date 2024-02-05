@@ -40,6 +40,7 @@ def load_txt(filename, filepath, encoding='utf-8'):
 class Chatbot_Response(BaseModel):
     response: str = Field(description="The response to the InboundMessage.")
     alert_human: bool = Field(description="Whether or not to alert a human to review the response.")
+    phone_number: str = Field(description="The phone number of the contact.")
 
 def create_system_message(
         business_name, 
@@ -82,6 +83,7 @@ to Stage 2. Otherwise, return "[ALERT HUMAN]".
 Return your response on a JSON format with the following keys:
 - "response" (string): The response to the InboundMessage, if applicable. If a human is to be alerted, the value will be [ALERT HUMAN]
 - "alert_human" (True or False): Whether or not to alert a human to review the response.
+- "phone_number" (string or None): The phone number of the contact, if available.
 
 ## Examples
 
@@ -111,6 +113,7 @@ Review your response from stage 2 to revise as needed to make it concise.
     which is delimited by triple backticks: ```{InboundMessage}```
     """
     system_message = f'{system_message}{prompt}'
+    # print(f'\n**System_message**: {system_message}\n\n')
     return system_message
 
 def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
