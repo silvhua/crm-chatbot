@@ -3,7 +3,7 @@ import sys
 from app.chat_functions import *
 from app.ghl_requests import *
 from langchain.agents import Tool
-from app.data_functions import parse_json_string
+from app.data_functions import parse_json_string, format_irish_mobile_number
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -77,6 +77,8 @@ def lambda_handler(event, context):
                     InboundMessage, conversation_dict[conversation_id]
                 )
                 chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
+                if chatbot_response['phone_number']:
+                    chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             except Exception as error:
                 exc_type, exc_obj, tb = sys.exc_info()
                 f = tb.tb_frame

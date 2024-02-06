@@ -234,6 +234,22 @@ def add_to_chat_history(payload):
         message = f'An error occurred on line {lineno} in {filename}: {error}.'
     return message
 
+def format_irish_mobile_number(phone_number):
+    # Remove non-digit characters from the input string
+    cleaned_number = re.sub(r'\D', '', phone_number)
+    pattern = r"^(?:\+?353)?(?:08|8)\d{8}$"
+    irish_number = re.search(pattern, cleaned_number)
+    if irish_number:
+        cleaned_number = irish_number.group(0)[-9:]
+        cleaned_number = f'{cleaned_number[:2]} {cleaned_number[2:5]} {cleaned_number[5:]}'
+        formatted_number = f'+353 {cleaned_number}'
+        print(f"\n{phone_number} -> Formatted Irish Mobile Number: {formatted_number}\n")
+        return formatted_number
+    else:
+        # If the input does not match the expected mobile number format, return None
+        print(f"\n{phone_number} -> Invalid or non-Irish mobile number format.\n")
+        return phone_number
+
 def convert_to_pascal_case(text):
     words = text.split()
     words = [w.title() for w in words]
