@@ -7,6 +7,7 @@ sam local invoke WebhooksLambda --event events/InboundMessageTest.json --force-i
 sam local invoke WebhooksLambda --event events/EmailOutboundMessage.json
 
 
+sam local invoke ReplyLambda --event events/InboundMessage.json
 sam local invoke ReplyLambda --event events/InboundMessageTest.json
 sam local invoke ReplyLambda --event events/InboundMessageTest.json --force-image-build
 @REM sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json
