@@ -235,6 +235,17 @@ def add_to_chat_history(payload):
     return message
 
 def format_irish_mobile_number(phone_number):
+    """
+	Formats an Irish mobile number to a standard format acceptable by GHL, 
+    i.e. with country code and spaces
+	
+    Params
+        - phone_number (str): The input phone number to be formatted
+	
+    returns 
+        - formatted_number(str): The formatted Irish mobile number if the input is a valid 
+        Irish mobile number, otherwise the original input
+	"""
     # Remove non-digit characters from the input string
     cleaned_number = re.sub(r'\D', '', phone_number)
     pattern = r"^(?:\+?353)?(?:08|8)\d{8}$"
@@ -246,7 +257,6 @@ def format_irish_mobile_number(phone_number):
         print(f"\n{phone_number} -> Formatted Irish Mobile Number: {formatted_number}\n")
         return formatted_number
     else:
-        # If the input does not match the expected mobile number format, return None
         print(f"\n{phone_number} -> Invalid or non-Irish mobile number format.\n")
         return phone_number
 
