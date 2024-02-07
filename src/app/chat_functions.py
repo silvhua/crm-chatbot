@@ -44,8 +44,9 @@ class Chatbot_Response(BaseModel):
 
 def create_system_message(
         business_name, 
-        prompts_filepath='app/private/prompts',
-        examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
+        prompts_filepath='/home/silvhua/repositories/GHL-chat/src/app/private/prompts',
+        examples_filepath='/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples', 
+        doc_filepath='/home/silvhua/repositories/GHL-chat/src/app/private/data/rag_docs'
         ):
     instructions_filename = f'{business_name}.md'
     examples_filename = f'{business_name}.txt'
@@ -54,7 +55,9 @@ def create_system_message(
         instructions = load_txt(instructions_filename, prompts_filepath)
         examples = load_txt(examples_filename, examples_filepath)
         document = load_txt(document_filename, doc_filepath)
-    except:
+    except Exception as error:
+        print(f'Error: {error}')
+        print('Loading prompt files from s3...')
         s3 = boto3.client('s3')
         instructions = s3.get_object(
             Bucket='ownitfit-silvhua', Key=instructions_filename

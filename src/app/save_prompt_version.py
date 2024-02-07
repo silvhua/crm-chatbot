@@ -10,9 +10,7 @@ if __name__ == "__main__":
     system_message_dict = dict()
     conversation_id = 1
     system_message_dict[conversation_id] = create_system_message(
-        'CoachMcloone', 
-        prompts_filepath='app/private/prompts',
-        examples_filepath='app/private/data/chat_examples', doc_filepath='app/private/data/rag_docs'
+        'CoachMcloone'
     )
     print(f'**System_message**: {system_message_dict[conversation_id]}')
     save_text(
