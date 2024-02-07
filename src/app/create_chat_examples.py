@@ -1,5 +1,8 @@
 import os
 import re
+import sys
+sys.path.append(r"/home/silvhua/custom_python")
+from silvhua import save_text
 
 # From 2024-01-02 notebook
 
@@ -35,4 +38,8 @@ def create_chat_examples(directory='/home/silvhua/repositories/GHL-chat/data/cha
     result = ''.join([f"{example}\n\n" for example in chat_examples])
     return result
     
-text_string = create_chat_examples()
+if __name__ == '__main__':
+    text_string = create_chat_examples()
+    save_text(
+        text_string, 'CoachMcloone', path='../data/chat_examples',append_version=True
+        )
