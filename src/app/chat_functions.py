@@ -18,6 +18,7 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 try:
     from dotenv import load_dotenv
     load_dotenv()
+    cloud = False
 except:
     cloud = True
 
