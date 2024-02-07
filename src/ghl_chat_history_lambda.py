@@ -9,7 +9,7 @@ try:
     from dotenv import load_dotenv
     load_dotenv()
 except Exception as error:
-    pass
+    print(f'Did not load .env file: {error}')
 
 def lambda_handler(event, context):
     """
@@ -18,10 +18,18 @@ def lambda_handler(event, context):
     table_name = 'SessionTable' ############
     message = ''
     try:
+
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
         else:
             payload = event["body"]
+        if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & ("click here to unsubscribe" in payload.get('body', '').lower()):
+            message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}'
+
+            return {
+                "statusCode": 200,
+                "body": json.dumps(message)
+            }
 
         message_events = ['WorkflowInboundMessage', 'InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
@@ -50,8 +58,6 @@ def lambda_handler(event, context):
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
                 )
-        elif (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & ("click here to unsubscribe" in payload.get('body', '').lower()):
-            message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}'
         elif payload['type'] in message_events + contact_update_events:
             # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
@@ -65,7 +71,7 @@ def lambda_handler(event, context):
                         payload, table_name, dynamodb
                         )
                 else:
-                    message = 'Testing data not added to DynamoDB.'
+                    message = 'Testing data not added as new DynamoDB record.'
                 try:
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
@@ -142,7 +148,7 @@ def lambda_handler(event, context):
                     message = f'{message}\n{message2}'
             else:
                 message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
-            print(message)
+
         elif payload['type'] == "Workflow":
             try:
                 lambda_client = boto3.client('lambda')  # Initialize Lambda client
@@ -162,7 +168,7 @@ def lambda_handler(event, context):
             )
             message += f'`ghl_followup` Lambda function invoked.'
         else:
-            message = f'No need to save webhook data for {payload["type"]}.'
+            message += f'No need to save webhook data for {payload["type"]}.'
         print(message)
         return {
             "statusCode": 200,
