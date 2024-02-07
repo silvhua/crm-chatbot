@@ -117,7 +117,7 @@ Review your response from stage 2 to revise as needed to make it concise.
     which is delimited by triple backticks: ```{InboundMessage}```
     """
     system_message = f'{system_message}{prompt}'
-    # print(f'\n**System_message**: {system_message}\n\n')
+    print(f'\n**System_message**: {system_message}\n\n')
     return system_message
 
 def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
