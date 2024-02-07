@@ -19,7 +19,7 @@ try:
     from dotenv import load_dotenv
     load_dotenv()
 except:
-    pass
+    cloud = True
 
 def load_txt(filename, filepath, encoding='utf-8'):
     """
@@ -56,8 +56,9 @@ def create_system_message(
         examples = load_txt(examples_filename, examples_filepath)
         document = load_txt(document_filename, doc_filepath)
     except Exception as error:
-        print(f'Error: {error}')
-        print('Loading prompt files from s3...')
+        if cloud == True:
+            print(f'Error: {error}')
+            print('Loading prompt files from s3...')
         s3 = boto3.client('s3')
         instructions = s3.get_object(
             Bucket='ownitfit-silvhua', Key=instructions_filename
@@ -117,7 +118,8 @@ Review your response from stage 2 to revise as needed to make it concise.
     which is delimited by triple backticks: ```{InboundMessage}```
     """
     system_message = f'{system_message}{prompt}'
-    print(f'\n**System_message**: {system_message}\n\n')
+    ###
+    # print(f'\n**System_message**: {system_message}\n\n')
     return system_message
 
 def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
