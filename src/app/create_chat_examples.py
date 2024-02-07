@@ -5,8 +5,8 @@ sys.path.append(r"/home/silvhua/custom_python")
 from silvhua import save_text
 
 # From 2024-01-02 notebook
-
-def load_conversation(contact_id, filepath='/home/silvhua/repositories/GHL-chat/data/chat_examples/Coach_Mcloone/alert'):
+examples_filepath = '/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples/Coach_Mcloone/alert'
+def load_conversation(contact_id, filepath=examples_filepath):
     
     filename = f'{filepath}/'.replace('\\','/') + f'{contact_id}.txt'
     with open(filename, 'r', encoding='utf-8') as file:
@@ -16,11 +16,12 @@ def load_conversation(contact_id, filepath='/home/silvhua/repositories/GHL-chat/
 def annotate_conversation(contact_id, filepath):
     text = load_conversation(contact_id, filepath)
     text = f'Contact ID {contact_id}:\n\t' + re.sub(r'\n', r'\n\t', text)
-    text = re.sub(r'\d\d:\d\d\n\t\?', 'OutboundMessage:', text)
+    text = re.sub(r'\d\d:\d\d\n\t(\?|AM)', 'OutboundMessage:', text)
+    text = re.sub(r'\d\d:\d\d\n\t\[A-Z]{2}', 'InboundMessage:', text)
     text = re.sub(r'\d\d:\d\d\n+', 'InboundMessage:', text)
     return text
 
-def create_chat_examples(directory='/home/silvhua/repositories/GHL-chat/data/chat_examples/Coach_Mcloone/alert'):
+def create_chat_examples(directory=examples_filepath):
     """
     Iterate through all .txt files in a directory to create a list of the 
     results of the annotate_conversation function. Each result is appended 
@@ -41,5 +42,6 @@ def create_chat_examples(directory='/home/silvhua/repositories/GHL-chat/data/cha
 if __name__ == '__main__':
     text_string = create_chat_examples()
     save_text(
-        text_string, 'CoachMcloone', path='../data/chat_examples',append_version=True
-        )
+        text_string, 'CoachMcloone_chat_examples', path='/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples',
+        append_version=True
+    )
