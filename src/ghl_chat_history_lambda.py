@@ -25,6 +25,7 @@ def lambda_handler(event, context):
             payload = event["body"]
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & ("click here to unsubscribe" in payload.get('body', '').lower()):
             message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}'
+            print(message)
 
             return {
                 "statusCode": 200,
