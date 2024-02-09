@@ -39,7 +39,7 @@ def lambda_handler(event, context):
     locationId = payload.get('locationId', None)
     location = os.getenv(locationId, 'CoachMcloone')
     if location == None:
-        message = f'No location found for locationId {locationId}'
+        message += f'No location found for locationId {locationId}'
         print(message)
         return {
             'statusCode': 500,
@@ -85,26 +85,44 @@ def lambda_handler(event, context):
                 lineno = tb.tb_lineno
                 filename = f.f_code.co_filename
                 message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}."
-                print(message)
                 chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
         else:
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
-        task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
-        print(f'Task description:{task_description}')
-        ghl_api_response = ghl_request(
-            contactId=contactId, 
-            # text=task_description,
-            endpoint='createTask', 
-            params_dict=chatbot_response,
-            payload=None, 
-            location=location
-        )
-        # print(f'GHL createTask response: {ghl_api_response}')
-        if ghl_api_response['status_code'] // 100 == 2:
-            message = f'Created task for contactId {contactId}: \n{ghl_api_response}\n'
-        else:
-            message = f'Failed to create task for contactId {contactId}: \n{ghl_api_response}\n'
-            message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
+        print(f'\nChatbot response: {chatbot_response}\n')
+        if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
+            message_payload = {
+                "type": payload['messageType'],
+                "message": chatbot_response['response']
+            }
+            ghl_api_response = ghl_request(
+                contactId=contactId,
+                endpoint='sendMessage',
+                payload=message_payload, 
+                location=location                
+            )
+            print(f'GHL createTask response: {ghl_api_response}')
+            if ghl_api_response['status_code'] // 100 == 2:
+                message += f'Message sent contactId {contactId}: \n{ghl_api_response}\n'
+            else:
+                message += f'Failed to send message for contactId {contactId}: \n{ghl_api_response}\n'
+                message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
+            
+        if chatbot_response.get('phone_number') != None:
+            task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
+            print(f'Task description:{task_description}')
+            ghl_createTask_response = ghl_request(
+                contactId=contactId, 
+                endpoint='createTask', 
+                params_dict=chatbot_response,
+                payload=None, 
+                location=location
+            )
+            # print(f'GHL createTask response: {ghl_createTask_response}')
+            if ghl_createTask_response['status_code'] // 100 == 2:
+                message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
+            else:
+                message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
+                message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
 
         # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
         # workflowName = 'chatbot:_1-day_follow_up'
@@ -129,7 +147,7 @@ def lambda_handler(event, context):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message = f"Error in line {lineno} of {filename}: {str(error)}"
+        message += f"Error in line {lineno} of {filename}: {str(error)}"
         print(message)
         return {
             'statusCode': 500,
