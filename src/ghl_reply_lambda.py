@@ -4,6 +4,9 @@ from app.chat_functions import *
 from app.ghl_requests import *
 from langchain.agents import Tool
 from app.data_functions import parse_json_string, format_irish_mobile_number
+import time
+import random
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -39,7 +42,7 @@ def lambda_handler(event, context):
     locationId = payload.get('locationId', None)
     location = os.getenv(locationId, 'CoachMcloone')
     if location == None:
-        message += f'No location found for locationId {locationId}'
+        message += f'No location found for locationId {locationId}. \n'
         print(message)
         return {
             'statusCode': 500,
@@ -94,6 +97,9 @@ def lambda_handler(event, context):
                 "type": payload['messageType'],
                 "message": chatbot_response['response']
             }
+            random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
+            print(f'Waiting for {random_waiting_period} seconds')
+            time.sleep(random_waiting_period)
             ghl_api_response = ghl_request(
                 contactId=contactId,
                 endpoint='sendMessage',
