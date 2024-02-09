@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         else:
             payload = event["body"]
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & ("click here to unsubscribe" in payload.get('body', '').lower()):
-            message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}'
+            message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}. \n'
             print(message)
 
             return {
@@ -71,13 +71,13 @@ def lambda_handler(event, context):
                 if payload.get("noReply", False) == False:
                     message += add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
-                        )
+                        ) + '. \n'
                 else:
                     message += 'Testing data not added as new DynamoDB record. \n'
                 try:
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
-                        message += add_to_chat_history(payload)
+                        message += add_to_chat_history(payload) + '. \n'
                         if payload['type'] == 'InboundMessage':
                             # Ignore messages handled by ManyChat workflow
                             messages_to_ignore = [
