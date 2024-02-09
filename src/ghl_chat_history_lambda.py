@@ -58,8 +58,9 @@ def lambda_handler(event, context):
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
-                )
+                ) + '. \n'
         elif payload['type'] in message_events + contact_update_events:
+
             # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
             contact_id = payload[contact_id_key]
@@ -68,19 +69,29 @@ def lambda_handler(event, context):
                 )['Items']
             if contact_data: 
                 if payload.get("noReply", False) == False:
-                    message = add_webhook_data_to_dynamodb(
+                    message += add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
                         )
                 else:
-                    message = 'Testing data not added as new DynamoDB record.'
+                    message += 'Testing data not added as new DynamoDB record. \n'
                 try:
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
-                        message2 = add_to_chat_history(payload)
-                        message = f'{message}\n{message2}'
+                        message += add_to_chat_history(payload)
                         if payload['type'] == 'InboundMessage':
-                            location =  os.getenv(payload['locationId'])
-                            print(f'Location: {location}') 
+                            # Ignore messages handled by ManyChat workflow
+                            messages_to_ignore = [
+                                'GET STARTED', '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
+                            ]
+                            inbound_content = payload.get('body')
+                            if inbound_content in messages_to_ignore:
+                                message += 'Inbound message handled by ManyChat workflow. \n'
+                                location = None
+                                actual_location = os.getenv(payload['locationId'])
+                            else:
+                                location =  os.getenv(payload['locationId'])
+                                actual_location = location
+                            print(f'Location: {actual_location}') 
                             if location == 'CoachMcloone': ## Update this later to include other businesses
                                 try:
                                     refresh_token_response = refresh_token()
@@ -116,30 +127,24 @@ def lambda_handler(event, context):
                                                     InvocationType='Event',
                                                     Payload=json.dumps(new_payload)
                                                 )
-                                                message3 = f'`ghl_reply` Lambda function invoked.'
-                                                message = f'{message}\n{message3}'
+                                                message += f'`ghl_reply` Lambda function invoked. \n'
                                             else:
-                                                message3 = f'`ghl_reply` Lambda function skipped because `noReply` is set.'
-                                                message = f'{message}\n{message3}'
+                                                message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                         else:
-                                            message += f'\nContact is not a relevant lead. No AI response required.'
+                                            message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
-                                        message = f'{message}\n{refresh_token_response["body"]}'
+                                        message += f'{message}\n{refresh_token_response["body"]}. \n'
 
                                 except Exception as error:
                                     exc_type, exc_obj, tb = sys.exc_info()
                                     f = tb.tb_frame
                                     lineno = tb.tb_lineno
                                     filename = f.f_code.co_filename
-                                    message3 = f'Error getting contact details. An error occurred on line {lineno} in {filename}: {error}.'
-                                    message = f'{message}\n{message3}'
+                                    message += f'Error getting contact details. An error occurred on line {lineno} in {filename}: {error}. \n'
                             else:
-                                message4 = f'Not an inbound message; ghl_reply skipped.'
-                                message = f'{message}\n{message4}'
+                                message += f'Location set to {location}; ghl_reply skipped. \n'
                         else:
-                            message4 = f'No location found; ghl_reply skipped.'
-                            message = f'{message}\n{message4}'
-
+                            message += f'Not an inbound message; ghl_reply skipped. \n'
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()
                     f = tb.tb_frame
@@ -148,7 +153,7 @@ def lambda_handler(event, context):
                     message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
                     message = f'{message}\n{message2}'
             else:
-                message = f'Contact not in database. No need to save for webhook type {payload["type"]}.'
+                message = f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 
         elif payload['type'] == "Workflow":
             try:
@@ -167,9 +172,9 @@ def lambda_handler(event, context):
                 InvocationType='Event',
                 Payload=json.dumps(payload)
             )
-            message += f'`ghl_followup` Lambda function invoked.'
+            message += f'`ghl_followup` Lambda function invoked. \n'
         else:
-            message += f'No need to save webhook data for {payload["type"]}.'
+            message += f'No need to save webhook data for {payload["type"]}. \n'
         print(message)
         return {
             "statusCode": 200,
