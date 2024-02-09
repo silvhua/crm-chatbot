@@ -106,10 +106,13 @@ def lambda_handler(event, context):
             else:
                 message += f'Failed to send message for contactId {contactId}: \n{ghl_api_response}\n'
                 message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
+        else:
+            message += f'No message sent for contactId {contactId}. \n'
+            create_task = True
             
-        if chatbot_response.get('phone_number') != None:
+        if (chatbot_response.get('phone_number') != None) | (create_task == True):
             task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
-            print(f'Task description:{task_description}')
+            print(f'Task description: {task_description}')
             ghl_createTask_response = ghl_request(
                 contactId=contactId, 
                 endpoint='createTask', 
