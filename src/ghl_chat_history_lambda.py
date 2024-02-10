@@ -108,7 +108,6 @@ def lambda_handler(event, context):
                                             'no chatbot',
                                             'money_magnet_schedule'
                                         ]
-
                                         if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
@@ -134,15 +133,15 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                             else:
-                                                task_dict = {
-                                                    'alert_human': True,
-                                                    'response': 'Contact tags: ' + ', '.join([tag for tag in contact_tags]),
-                                                    'phone_number': contact_details['contact'].get('phone', None)
-                                                }
+                                                task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
+                                                phone_number = contact_details['contact'].get('phone', None)
+                                                if phone_number:
+                                                    task_body += f'. Phone number: {phone_number}'
                                                 ghl_createTask_response = ghl_request(
                                                     contactId=contact_id, 
                                                     endpoint='createTask', 
-                                                    params_dict=task_dict,
+                                                    text=task_body, 
+                                                    params_dict=None,
                                                     payload=None, 
                                                     location=location
                                                 )
@@ -152,20 +151,6 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
-
-                                                
-                                                # workflowId = '8a832e45-7df1-4884-b4da-8f6aaaa58122' 
-                                                # workflowName = 'Silvia: chatbot alerting staff : 1707525867400'
-                                                # ghl_workflow_response = ghl_request(
-                                                #     contact_id, 'workflow', path_param=workflowId
-                                                # )
-
-                                                # print(f'GHL workflow response: {ghl_workflow_response}')
-                                                # if ghl_workflow_response['status_code'] // 100 == 2:
-                                                #     message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
-                                                # else:
-                                                #     message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
-                                                #     message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
