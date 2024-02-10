@@ -58,7 +58,7 @@ def lambda_handler(event, context):
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
-                ) + '. \n'
+                ) + ' \n'
         elif payload['type'] in message_events + contact_update_events:
 
             # Only save message_events data if contact exists in database so only data from new leads are saved.
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
                 if payload.get("noReply", False) == False:
                     message += add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
-                        ) + '. \n'
+                        ) + ' \n'
                 else:
                     message += 'Testing data not added as new DynamoDB record. \n'
                 try:
@@ -134,19 +134,38 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                             else:
-                                                
-                                                workflowId = '8a832e45-7df1-4884-b4da-8f6aaaa58122' 
-                                                workflowName = 'Silvia: chatbot alerting staff : 1707525867400'
-                                                ghl_workflow_response = ghl_request(
-                                                    contact_id, 'workflow', path_param=workflowId
+                                                task_dict = {
+                                                    'alert_human': True,
+                                                    'response': 'Contact tags: ' + ', '.join([tag for tag in contact_tags]),
+                                                    'phone_number': contact_details['contact'].get('phone', None)
+                                                }
+                                                ghl_createTask_response = ghl_request(
+                                                    contactId=contact_id, 
+                                                    endpoint='createTask', 
+                                                    params_dict=task_dict,
+                                                    payload=None, 
+                                                    location=location
                                                 )
-
-                                                print(f'GHL workflow response: {ghl_workflow_response}')
-                                                if ghl_workflow_response['status_code'] // 100 == 2:
-                                                    message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                                # print(f'GHL createTask response: {ghl_createTask_response}')
+                                                if ghl_createTask_response['status_code'] // 100 == 2:
+                                                    message += f'Created respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                                 else:
-                                                    message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
-                                                    message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
+                                                    message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                                    message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+
+                                                
+                                                # workflowId = '8a832e45-7df1-4884-b4da-8f6aaaa58122' 
+                                                # workflowName = 'Silvia: chatbot alerting staff : 1707525867400'
+                                                # ghl_workflow_response = ghl_request(
+                                                #     contact_id, 'workflow', path_param=workflowId
+                                                # )
+
+                                                # print(f'GHL workflow response: {ghl_workflow_response}')
+                                                # if ghl_workflow_response['status_code'] // 100 == 2:
+                                                #     message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                                # else:
+                                                #     message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                                #     message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
@@ -167,10 +186,9 @@ def lambda_handler(event, context):
                     f = tb.tb_frame
                     lineno = tb.tb_lineno
                     filename = f.f_code.co_filename
-                    message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
-                    message = f'{message}\n{message2}'
+                    message += f'An error occurred on line {lineno} in {filename}: {error}.'
             else:
-                message = f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
+                message += f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 
         elif payload['type'] == "Workflow":
             try:
