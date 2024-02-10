@@ -158,7 +158,7 @@ def ghl_request(
                 else:
                     payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} UTC time"
                 payload['title'] += f'Send message to contact {contactId}.'
-                payload['assignedTo'] = os.environ['userId']
+                payload['assignedTo'] = os.environ['user_id']
                 if params_dict:
                     if params_dict.get('phone_number') != None:
                         payload['title'] += f' Phone number: {params_dict["phone_number"]}'
