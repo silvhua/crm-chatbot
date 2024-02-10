@@ -58,7 +58,7 @@ def lambda_handler(event, context):
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
-                ) + '. \n'
+                ) + ' \n'
         elif payload['type'] in message_events + contact_update_events:
 
             # Only save message_events data if contact exists in database so only data from new leads are saved.
@@ -71,7 +71,7 @@ def lambda_handler(event, context):
                 if payload.get("noReply", False) == False:
                     message += add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
-                        ) + '. \n'
+                        ) + ' \n'
                 else:
                     message += 'Testing data not added as new DynamoDB record. \n'
                 try:
@@ -104,32 +104,50 @@ def lambda_handler(event, context):
                                         contact_tags = contact_details['contact']['tags']
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'Contact tags: \n{contact_tags}')
-
-                                        if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)) and ('money_magnet_schedule' not in contact_tags) \
-                                            and ('post comment' not in contact_tags):
-                                            # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
-                                            new_payload = payload
-                                            # Invoke another Lambda function
-                                            if payload.get("noReply", False) == False:
-                                                try:
-                                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                                except:
-                                                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                                                    region = os.environ.get('AWS_REGION')
-                                                    lambda_client = boto3.client(
-                                                        'lambda', region_name=region, 
-                                                        aws_access_key_id=aws_access_key_id, 
-                                                        aws_secret_access_key=aws_secret_access_key
-                                                        )
-                                                lambda_client.invoke(
-                                                    FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-                                                    InvocationType='Event',
-                                                    Payload=json.dumps(new_payload)
-                                                )
-                                                message += f'`ghl_reply` Lambda function invoked. \n'
+                                        tags_to_ignore = [ # If contact has any of these tags, ghl_reply Lambda wont' be invoked
+                                            'no chatbot',
+                                            'money_magnet_schedule'
+                                        ]
+                                        if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)):
+                                            if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
+                                                new_payload = payload
+                                                # Invoke another Lambda function
+                                                if payload.get("noReply", False) == False:
+                                                    try:
+                                                        lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                                    except:
+                                                        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                        region = os.environ.get('AWS_REGION')
+                                                        lambda_client = boto3.client(
+                                                            'lambda', region_name=region, 
+                                                            aws_access_key_id=aws_access_key_id, 
+                                                            aws_secret_access_key=aws_secret_access_key
+                                                            )
+                                                    lambda_client.invoke(
+                                                        FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+                                                        InvocationType='Event',
+                                                        Payload=json.dumps(new_payload)
+                                                    )
+                                                    message += f'`ghl_reply` Lambda function invoked. \n'
+                                                else:
+                                                    message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                             else:
-                                                message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
+                                                task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
+                                                ghl_createTask_response = ghl_request(
+                                                    contactId=contact_id, 
+                                                    endpoint='createTask', 
+                                                    text=task_body, 
+                                                    params_dict=None,
+                                                    payload=None, 
+                                                    location=location
+                                                )
+                                                # print(f'GHL createTask response: {ghl_createTask_response}')
+                                                if ghl_createTask_response['status_code'] // 100 == 2:
+                                                    message += f'Created respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                                else:
+                                                    message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                                    message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
@@ -150,10 +168,9 @@ def lambda_handler(event, context):
                     f = tb.tb_frame
                     lineno = tb.tb_lineno
                     filename = f.f_code.co_filename
-                    message2 = f'An error occurred on line {lineno} in {filename}: {error}.'
-                    message = f'{message}\n{message2}'
+                    message += f'An error occurred on line {lineno} in {filename}: {error}.'
             else:
-                message = f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
+                message += f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 
         elif payload['type'] == "Workflow":
             try:

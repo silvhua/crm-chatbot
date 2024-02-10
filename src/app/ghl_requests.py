@@ -116,7 +116,8 @@ def ghl_request(
     Parameters:
     - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
-    'createNote', 'send_message', 'getContacts', 'searchConversations', and 'getEmailHistory'.
+        'createNote', 'send_message', 'getContacts', 'searchConversations', 'searchUsers' \
+        'getLocation', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
@@ -155,10 +156,12 @@ def ghl_request(
                     payload['title'] += f'{"Human attention needed: " if params_dict["alert_human"]==True else "Chatbot response: "}'
                     payload['body'] = params_dict['response']
                 else:
-                    payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} Pacific time"
+                    payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} UTC time"
                 payload['title'] += f'Send message to contact {contactId}.'
-                if params_dict.get('phone_number') != None:
-                    payload['title'] += f' Phone number: {params_dict["phone_number"]}'
+                payload['assignedTo'] = os.environ['userId']
+                if params_dict:
+                    if params_dict.get('phone_number') != None:
+                        payload['title'] += f' Phone number: {params_dict["phone_number"]}'
             payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
             payload['completed'] = False
         elif endpoint == 'workflow':
@@ -187,8 +190,15 @@ def ghl_request(
             endpoint_url = f'conversations/search?contactId={contactId}'
             request_type = 'GET'
             payload = None
-        elif (endpoint == 'getContacts') | (endpoint == 'searchConversations'):  
-            endpoint_url = f'conversations/search' if endpoint=='searchConversations' else f'contacts/' 
+        elif (endpoint == 'getContacts') | (endpoint == 'searchConversations') | (endpoint == 'searchUsers') | (endpoint == 'getLocation'): 
+            if endpoint=='searchConversations':
+                endpoint_url = f'conversations/search'
+            elif endpoint == 'searchUsers':
+                endpoint_url = f'users/search'            
+            elif endpoint == 'getContacts':
+                endpoint_url = f'contacts/'
+            else:
+                endpoint_url = f'locations/{locationId}'
             request_type = 'GET'
             payload = None
             if params_dict:
