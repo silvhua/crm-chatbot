@@ -65,6 +65,10 @@ def lambda_handler(event, context):
     ]
     try:
         if payload.get("noReply", False) == False:
+            random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
+            print(f'Waiting for {random_waiting_period} seconds')
+            if event.get('direct_local_invoke', None) == None:
+                time.sleep(random_waiting_period)
             try:
                 system_message_dict[conversation_id] = create_system_message(
                     'CoachMcloone', 
@@ -97,10 +101,6 @@ def lambda_handler(event, context):
                 "type": payload['messageType'],
                 "message": chatbot_response['response']
             }
-            random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
-            print(f'Waiting for {random_waiting_period} seconds')
-            if event.get('direct_local_invoke', None):
-                time.sleep(random_waiting_period)
             ghl_api_response = ghl_request(
                 contactId=contactId,
                 endpoint='sendMessage',
