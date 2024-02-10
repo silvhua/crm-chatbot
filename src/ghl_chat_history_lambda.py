@@ -134,9 +134,6 @@ def lambda_handler(event, context):
                                                     message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                             else:
                                                 task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
-                                                phone_number = contact_details['contact'].get('phone', None)
-                                                if phone_number:
-                                                    task_body += f'. Phone number: {phone_number}'
                                                 ghl_createTask_response = ghl_request(
                                                     contactId=contact_id, 
                                                     endpoint='createTask', 
