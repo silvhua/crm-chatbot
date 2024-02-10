@@ -116,7 +116,7 @@ def lambda_handler(event, context):
             message += f'No message sent for contactId {contactId}. \n'
             create_task = True
             
-        if (chatbot_response.get('phone_number') != None) | (create_task == True):
+        if (create_task == True):
             task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
             print(f'Task description: {task_description}')
             ghl_createTask_response = ghl_request(
