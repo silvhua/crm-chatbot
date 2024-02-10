@@ -203,6 +203,8 @@ def lambda_handler(event, context):
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
         print("An error occurred on line", lineno, "in", filename, ":", error)
+        
+        print(f'\nOriginal payload: {payload}\n')
         return {
             "statusCode": 500,
             "body": json.dumps(f"Error in line {lineno} of {filename}: {str(error)}")
