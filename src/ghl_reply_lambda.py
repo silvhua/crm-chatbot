@@ -116,7 +116,7 @@ def lambda_handler(event, context):
             message += f'No message sent for contactId {contactId}. \n'
             create_task = True
             
-        if (chatbot_response.get('phone_number') != None) | (create_task == True):
+        if (create_task == True):
             task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
             print(f'Task description: {task_description}')
             ghl_createTask_response = ghl_request(
@@ -132,6 +132,18 @@ def lambda_handler(event, context):
             else:
                 message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                 message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+            tag_to_add = 'no chatbot'
+            ghl_addTag_response = ghl_request(
+                contactId=contactId, 
+                endpoint='addTag', 
+                text=tag_to_add,
+                location=location
+            )
+            if ghl_addTag_response['status_code'] // 100 == 2:
+                message += f'Added tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+            else:
+                message += f'Failed to add tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+                message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
 
         # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
         # workflowName = 'chatbot:_1-day_follow_up'
