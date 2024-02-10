@@ -216,6 +216,7 @@ jobs:
           openai_api_key: ${{ secrets.openai_api_key }}
           fsdVH26v30hoBBQOBttG: ${{ secrets.fsdVH26v30hoBBQOBttG }}
           JOB_NAME: 'integration-test'
+          user_id: ${{ secrets.USER_ID }}
         run: |
           echo 'Integration tests'
           pip3 install pytest pytest-mock boto3
