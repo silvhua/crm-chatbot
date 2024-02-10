@@ -116,7 +116,8 @@ def ghl_request(
     Parameters:
     - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
-    'createNote', 'send_message', 'getContacts', 'searchConversations', and 'getEmailHistory'.
+        'createNote', 'send_message', 'getContacts', 'searchConversations', 'searchUsers' \
+        'getLocation', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
