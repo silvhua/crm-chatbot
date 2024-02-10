@@ -78,6 +78,8 @@ def create_system_message(
 
 Only repond to inbound messages that can be answered by the message templates or provided 
 documenation. Otherwise, return "[ALERT HUMAN]". 
+If the message indicates the contact has an eating disorder, suicidal ideation, or other serious mental health 
+conditions, return "[ALERT HUMAN]". 
 The "[ALERT HUMAN]" message will trigger a human staff member to review the messages to write a response. 
 It is better to err on the side of caution and flag a staff rather than give a wrong response.
     
