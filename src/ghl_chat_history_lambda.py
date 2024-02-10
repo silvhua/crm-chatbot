@@ -104,32 +104,49 @@ def lambda_handler(event, context):
                                         contact_tags = contact_details['contact']['tags']
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'Contact tags: \n{contact_tags}')
+                                        tags_to_ignore = [ # If contact has any of these tags, ghl_reply Lambda wont' be invoked
+                                            'no chatbot',
+                                            'money_magnet_schedule'
+                                        ]
 
-                                        if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)) and ('money_magnet_schedule' not in contact_tags) \
-                                            and ('post comment' not in contact_tags):
-                                            # new_payload = {key: payload[key] for key in ['contactId', 'userId', 'body', 'locationId', 'noReply'] if key in payload}
-                                            new_payload = payload
-                                            # Invoke another Lambda function
-                                            if payload.get("noReply", False) == False:
-                                                try:
-                                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                                except:
-                                                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                                                    region = os.environ.get('AWS_REGION')
-                                                    lambda_client = boto3.client(
-                                                        'lambda', region_name=region, 
-                                                        aws_access_key_id=aws_access_key_id, 
-                                                        aws_secret_access_key=aws_secret_access_key
-                                                        )
-                                                lambda_client.invoke(
-                                                    FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-                                                    InvocationType='Event',
-                                                    Payload=json.dumps(new_payload)
-                                                )
-                                                message += f'`ghl_reply` Lambda function invoked. \n'
+                                        if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)):
+                                            if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
+                                                new_payload = payload
+                                                # Invoke another Lambda function
+                                                if payload.get("noReply", False) == False:
+                                                    try:
+                                                        lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                                    except:
+                                                        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                        region = os.environ.get('AWS_REGION')
+                                                        lambda_client = boto3.client(
+                                                            'lambda', region_name=region, 
+                                                            aws_access_key_id=aws_access_key_id, 
+                                                            aws_secret_access_key=aws_secret_access_key
+                                                            )
+                                                    lambda_client.invoke(
+                                                        FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+                                                        InvocationType='Event',
+                                                        Payload=json.dumps(new_payload)
+                                                    )
+                                                    message += f'`ghl_reply` Lambda function invoked. \n'
+                                                else:
+                                                    message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                             else:
-                                                message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
+                                                
+                                                workflowId = '8a832e45-7df1-4884-b4da-8f6aaaa58122' 
+                                                workflowName = 'Silvia: chatbot alerting staff : 1707525867400'
+                                                ghl_workflow_response = ghl_request(
+                                                    contact_id, 'workflow', path_param=workflowId
+                                                )
+
+                                                print(f'GHL workflow response: {ghl_workflow_response}')
+                                                if ghl_workflow_response['status_code'] // 100 == 2:
+                                                    message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                                else:
+                                                    message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                                    message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
