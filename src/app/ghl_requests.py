@@ -117,7 +117,7 @@ def ghl_request(
     - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
         'createNote', 'send_message', 'getContacts', 'searchConversations', 'searchUsers' \
-        'getLocation', and 'getEmailHistory'.
+        'getLocation', 'addTag', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
@@ -207,6 +207,14 @@ def ghl_request(
                 params = {
                     'locationId': locationId,
                     'query': contactId
+                }
+        elif endpoint == 'addTag':
+            endpoint_url = f'contacts/{contactId}/tags'
+            request_type = 'POST'
+            if payload == None:
+                tags = text if type(text) == list else [text] 
+                payload = {
+                    "tags": tags
                 }
         elif endpoint == 'getConversation':
             endpoint_url = f'conversations/{contactId if contactId else path_param}'
