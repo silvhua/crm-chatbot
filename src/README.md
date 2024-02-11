@@ -10,4 +10,5 @@ Version | Description | Date | Commit
 1.1.2 | Updated the system_message | 2024-02-10 13:51 | 5b840cdef0c8a27913631c48fb640123211491ab
 1.1.3 | Updated the system_message and prompt. Avoid creating tasks if I am testing the chatbot. | 2024-02-10 16:47 | 57933487c59d8ac769e241cef329e2be2c83bd8d
 1.1.4 | If contact does not reply to the ManyChat message asking for height and weight, they will be put into this a GHL workflow which sends a follow up Facebook message. If they still don’t respond after 5 minutes, an email notification will be sent via the other workflow ("chatbot alerting staff”). | 2024-02-10 19:05 | n/a
-1.1.5 | Commented out lines that tag contact; use ghl workflow instead | 2024-02-11 11:12 | 
+1.1.5 | Commented out lines that tag contact; use ghl workflow instead | 2024-02-11 11:12 | e3456f67330db7e360553d3db9f7e41784fc20d8
+1.1.6 | Prompt update: Remove new line characters between lines in first message of script. | 2024-02-11 12:12 | 
