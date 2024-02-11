@@ -93,6 +93,7 @@ def lambda_handler(event, context):
                 filename = f.f_code.co_filename
                 message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}."
                 chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
+                create_task = True
         else:
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
         print(f'\nChatbot response: {chatbot_response}\n')
