@@ -119,6 +119,7 @@ def lambda_handler(event, context):
             message += f'No message sent for contactId {contactId}. \n'
             if contactId != os.environ.get('my_contact_id'):
                 create_task = True
+                message += f'Skip task creation and adding tag for inbound message from testing account. '
             else:
                 create_task = False
             
