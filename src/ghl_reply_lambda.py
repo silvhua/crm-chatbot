@@ -113,10 +113,13 @@ def lambda_handler(event, context):
             else:
                 message += f'Failed to send message for contactId {contactId}: \n{ghl_api_response}\n'
                 message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
+                create_task = False
         else:
             message += f'No message sent for contactId {contactId}. \n'
             if contactId != os.environ.get('my_contact_id'):
                 create_task = True
+            else:
+                create_task = False
             
         if (create_task == True):
             task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
