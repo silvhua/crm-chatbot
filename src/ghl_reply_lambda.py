@@ -84,7 +84,7 @@ def lambda_handler(event, context):
                     InboundMessage, conversation_dict[conversation_id]
                 )
                 chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
-                if chatbot_response['phone_number']:
+                if chatbot_response.get('phone_number'):
                     chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             except Exception as error:
                 exc_type, exc_obj, tb = sys.exc_info()
