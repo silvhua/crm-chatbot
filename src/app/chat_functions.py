@@ -171,6 +171,9 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106",
 def chat_with_chatbot(user_input, agent_info):
     start_time = time()
     print(f'Chat history length: {len(agent_info["chat_history"])}')
+    print(f'\nChat history:')
+    for item in agent_info["chat_history"]:
+        print(f'**{item.type.upper()}**: {item.content}')
     chat_history = agent_info['chat_history']
     result = agent_info['agent_executor']({
             "input": user_input,
@@ -179,7 +182,6 @@ def chat_with_chatbot(user_input, agent_info):
     print(f'Response time: {time() - start_time} seconds')
     
     return result
-
 def placeholder_function(str):
     return None
 

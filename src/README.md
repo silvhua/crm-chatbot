@@ -12,3 +12,4 @@ Version | Description | Date | Commit
 1.1.4 | If contact does not reply to the ManyChat message asking for height and weight, they will be put into this a GHL workflow which sends a follow up Facebook message. If they still don’t respond after 5 minutes, an email notification will be sent via the other workflow ("chatbot alerting staff”). | 2024-02-10 19:05 | n/a
 1.1.5 | Commented out lines that tag contact; use ghl workflow instead | 2024-02-11 11:12 | e3456f67330db7e360553d3db9f7e41784fc20d8
 1.1.6 | Prompt update: Remove new line characters between lines in first message of script. | 2024-02-11 12:12 | 
+1.1.7 | Print chat history in Reply Lambda | 2024-02-11 12:53
