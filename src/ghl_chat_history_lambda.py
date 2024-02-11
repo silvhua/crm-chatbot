@@ -36,12 +36,14 @@ def lambda_handler(event, context):
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
         print(f'Original payload: {payload}')
 
-        if payload.get('workflow'):
-            print('Workflow detected')
-            if payload['workflow'].get('id', None) == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
-            # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65": # InboundMessages workflow webhook
-                payload = transform_webhook(payload)
-            print(f'Processed payload: {payload}')
+        # if payload.get('workflow'):
+        #     print('Workflow detected')
+        #     if payload['workflow'].get('id', None): 
+        #     # if payload['workflow'].get('id', None) == 'f6072b18-9c34-4a36-9683-f77c9a0fd401': # "No height and weight" workflow webhook
+        #     # if payload['workflow'].get('id', None) == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
+        #     # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65": # InboundMessages workflow webhook
+        #         payload = transform_webhook(payload)
+        #     print(f'Processed payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         except:
