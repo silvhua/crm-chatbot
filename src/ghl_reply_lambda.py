@@ -29,9 +29,6 @@ def lambda_handler(event, context):
         payload = event
     print(f'Payload (line 27 of ghl_reply_lambda): {payload}')
     message = ''
-    # response = refresh_token()
-    # if response['statusCode'] // 100 == 2:
-    # Extract the payload from the event
     print(f"direct local invoke: {event.get('direct_local_invoke', False)}")
     if event.get('direct_local_invoke', None):
         payload = event['body']
@@ -86,6 +83,7 @@ def lambda_handler(event, context):
                 chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
                 if chatbot_response.get('phone_number'):
                     chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
+                create_task = False
             except Exception as error:
                 exc_type, exc_obj, tb = sys.exc_info()
                 f = tb.tb_frame
@@ -139,18 +137,18 @@ def lambda_handler(event, context):
             else:
                 message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                 message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
-            tag_to_add = 'no chatbot'
-            ghl_addTag_response = ghl_request(
-                contactId=contactId, 
-                endpoint='addTag', 
-                text=tag_to_add,
-                location=location
-            )
-            if ghl_addTag_response['status_code'] // 100 == 2:
-                message += f'Added tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-            else:
-                message += f'Failed to add tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-                message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+            # tag_to_add = 'no chatbot'
+            # ghl_addTag_response = ghl_request(
+            #     contactId=contactId, 
+            #     endpoint='addTag', 
+            #     text=tag_to_add,
+            #     location=location
+            # )
+            # if ghl_addTag_response['status_code'] // 100 == 2:
+            #     message += f'Added tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+            # else:
+            #     message += f'Failed to add tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+            #     message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
 
         # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
         # workflowName = 'chatbot:_1-day_follow_up'
