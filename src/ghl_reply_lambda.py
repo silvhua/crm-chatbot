@@ -62,9 +62,9 @@ def lambda_handler(event, context):
     ]
     try:
         if payload.get("noReply", False) == False:
-            random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
-            print(f'Waiting for {random_waiting_period} seconds')
             if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
+                random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
+                print(f'Waiting for {random_waiting_period} seconds')
                 time.sleep(random_waiting_period)
             try:
                 system_message_dict[conversation_id] = create_system_message(
@@ -106,7 +106,7 @@ def lambda_handler(event, context):
                 payload=message_payload, 
                 location=location                
             )
-            print(f'GHL createTask response: {ghl_api_response}')
+            print(f'GHL sendMessage response: {ghl_api_response}')
             if ghl_api_response['status_code'] // 100 == 2:
                 message += f'Message sent contactId {contactId}: \n{ghl_api_response}\n'
             else:
