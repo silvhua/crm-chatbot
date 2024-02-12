@@ -17,4 +17,6 @@ Version | Description | Date | Commit
 1.1.9 | Removed waiting period if InboundMessage is sent by me. | 2024-02-11 23:30 | 824587766e6d9c4bf71f178bea148eab544d18d9
 1.1.10 | Update step 4 of business-specific script to avoid redundancy. Updated print statements. | 2024-02-11 11:59 | 3c390090494110f61e0f9ada2c2df2119f6f86c4
 1.1.11 | Add messages to chat history with using `sam local invoke ReplyLambda` | 2024-02-12 00:33 | c69ed7de213e02f6d03f847053911b9e9f7d1b95
-1.1.12 | Avoid creating GHL requests if running with `"noReply": "1"` in payload body | 2024-02-12 00:55 |
+1.1.12 | No GHL requests if running with `"noReply": "1"` in payload body | 2024-02-12 00:55 |
+1.1.13 | Updated prompt by adding a newline character in 2nd message template of step 1. | 2024-02-12 07:55 
+1.1.14 | Ignore an additional message that is handled by ManyChat | 2024-02-12 15:21 | 

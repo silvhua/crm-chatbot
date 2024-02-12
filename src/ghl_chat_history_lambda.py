@@ -83,7 +83,8 @@ def lambda_handler(event, context):
                         if payload['type'] == 'InboundMessage':
                             # Ignore messages handled by ManyChat workflow
                             messages_to_ignore = [
-                                'GET STARTED', '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
+                                'GET STARTED', 'Get Started', 
+                                '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
                             ]
                             inbound_content = payload.get('body')
                             if inbound_content in messages_to_ignore:
