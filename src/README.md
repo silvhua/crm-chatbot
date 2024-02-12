@@ -20,3 +20,4 @@ Version | Description | Date | Commit
 1.1.12 | No GHL requests if running with `"noReply": "1"` in payload body | 2024-02-12 00:55 |
 1.1.13 | Updated prompt by adding a newline character in 2nd message template of step 1. | 2024-02-12 07:55 
 1.1.14 | Ignore an additional message that is handled by ManyChat | 2024-02-12 15:21 | 
+1.1.15 | Modified the a chat example so it would not get used in a response. | 2024-02-12 15:34 |

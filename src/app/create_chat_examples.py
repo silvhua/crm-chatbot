@@ -42,6 +42,10 @@ def create_chat_examples(directory=examples_filepath):
 if __name__ == '__main__':
     text_string = create_chat_examples()
     save_text(
-        text_string, 'CoachMcloone_chat_examples', path='/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples',
+        text_string, 'CoachMcloone_chat_examples', path='/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples/Coach_Mcloone',
         append_version=True
+    )
+    save_text(
+        text_string, 'CoachMcloone', path='/home/silvhua/repositories/GHL-chat/src/app/private/data/chat_examples',
+        append_version=False
     )
