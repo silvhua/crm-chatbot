@@ -3,7 +3,7 @@ import sys
 from app.chat_functions import *
 from app.ghl_requests import *
 from langchain.agents import Tool
-from app.data_functions import parse_json_string, format_irish_mobile_number
+from app.data_functions import parse_json_string, format_irish_mobile_number, add_to_chat_history
 import time
 import random
 
@@ -66,6 +66,8 @@ def lambda_handler(event, context):
                 random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
                 print(f'Waiting for {random_waiting_period} seconds')
                 time.sleep(random_waiting_period)
+            elif event.get('direct_local_invoke', None) == 1:
+                message += add_to_chat_history(payload) + '. \n'
             try:
                 system_message_dict[conversation_id] = create_system_message(
                     'CoachMcloone', 
