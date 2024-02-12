@@ -64,7 +64,7 @@ def lambda_handler(event, context):
         if payload.get("noReply", False) == False:
             random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
             print(f'Waiting for {random_waiting_period} seconds')
-            if event.get('direct_local_invoke', None) == None:
+            if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
                 time.sleep(random_waiting_period)
             try:
                 system_message_dict[conversation_id] = create_system_message(
