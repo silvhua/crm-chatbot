@@ -111,6 +111,7 @@ Revise your response if needed to make sure you followed the instructions.
 Revise your response if needed to avoid asking questions that have already been answered in previous messages.
 Make sure that if the question cannot be answered through the message templates or documentation, 
 you return "[ALERT HUMAN]".
+If your response matches closely with a previous message in the conversation history, return "[ALERT HUMAN]".
 
 # Stage 3
 

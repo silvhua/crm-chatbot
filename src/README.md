@@ -13,3 +13,4 @@ Version | Description | Date | Commit
 1.1.5 | Commented out lines that tag contact; use ghl workflow instead | 2024-02-11 11:12 | e3456f67330db7e360553d3db9f7e41784fc20d8
 1.1.6 | Prompt update: Remove new line characters between lines in first message of script. | 2024-02-11 12:12 | 
 1.1.7 | Print chat history in Reply Lambda | 2024-02-11 12:53
+1.1.8 | Update prompt template to avoid redundant responses. Update step 1 of business-specific script. | 2024-02-11 23:11 |
