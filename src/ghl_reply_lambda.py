@@ -164,7 +164,13 @@ def lambda_handler(event, context):
             #     message += f'\nFailed to add contactId {contactId} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
             #     message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
         else:
-            message += f'No GHL requests made because payload noReply value set to {payload.get("noReply")} to test chat.'
+            message += f'No GHL requests made because payload noReply value set to {payload.get("noReply")} to test chat. '
+            reply_payload = {
+                'contactId': contactId,
+                'type': 'OutboundMessage', 
+                'body': chatbot_response["response"]
+            }
+            message += add_to_chat_history(reply_payload) + '. \n'
         print(message)
         return {
             'statusCode': 200,
