@@ -48,7 +48,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         
         parsed_dict = {}
         
-        for match in reversed(matches):
+        for match in matches:
             temp_dict = json.loads(match)
             if all(key in temp_dict for key in dict_keys):
                 parsed_dict = temp_dict
