@@ -24,3 +24,4 @@ Version | Description | Date | Commit
 1.1.15 | Added AI OutboundMessage to ChatHistory when testing locally | 2024-02-12 16:15 
 1.1.16 | Updated step 2 of business-specific script | 2024-02-12 16:24
 1.1.17 | If response is multiple JSON strings concatenated together, take the first valid JSON instead of the last | 2024-02-12 16:31
+1.2.0 | Check for back to back messages. Abort ReplyLambda if payload InboundMessage != latest message in chat history. | 2024-02-12 16:45

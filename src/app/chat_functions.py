@@ -176,8 +176,7 @@ def chat_with_chatbot(user_input, agent_info):
     for item in agent_info["chat_history"]:
         print(f'**{item.type.upper()}**: {item.content}')
     chat_history = agent_info['chat_history']
-    last_message = chat_history[-1].content        
-    last_message_type = chat_history[-1].type
+    last_message = chat_history[-1].content
     if (last_message == user_input): ## Check that the current user_input is the most recent message
         previous_message_type = chat_history[-2].type
         # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
@@ -189,7 +188,7 @@ def chat_with_chatbot(user_input, agent_info):
                     truncated_history = chat_history[:-1]
                 else:
                     break
-            last_inbound_messages = '\n'.join(reversed(last_inbound_messages_list))
+            last_inbound_messages = '\n\n'.join(reversed(last_inbound_messages_list))
             user_input = last_inbound_messages
             print(f'Joining previous messages as full user input: {user_input}')
             chat_history = truncated_history
@@ -202,7 +201,7 @@ def chat_with_chatbot(user_input, agent_info):
         print(f'Agent response time: {time() - start_time} seconds')
     else:
         result = dict()
-        result['output'] = '{"response": "Abort due to newer InboundMessage", "alert_human": false}'
+        result['output'] = '{"response": "Abort Lambda function", "alert_human": false}'
     return result
 def placeholder_function(str):
     return None
