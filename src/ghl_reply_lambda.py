@@ -62,7 +62,7 @@ def lambda_handler(event, context):
     ]
     try:
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
-            random_waiting_period = random.randint(30, 115)  # Generate a random waiting period between 30 and 115 seconds
+            random_waiting_period = random.randint(30, 55)  # Generate a random waiting period between 30 and 115 seconds
             print(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
         elif event.get('direct_local_invoke', None) == 1:
@@ -94,8 +94,15 @@ def lambda_handler(event, context):
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
         print(f'\nChatbot response: {chatbot_response}\n')
+        if chatbot_response.get('response') == 'Abort Lambda function':
+            message += f'Payload InboundMessage does not match the latest chat history message. End Lambda function. \n'
+            print(message)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(message)
+            }
         
-        if payload.get("noReply", False) == False:
+        elif payload.get("noReply", False) == False:
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
                 message_payload = {
                     "type": payload['messageType'],

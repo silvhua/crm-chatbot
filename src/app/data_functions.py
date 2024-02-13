@@ -185,16 +185,18 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
             Item=item_attributes
         )
         message = f'Data for {payload.get("type", "")} webhook saved to DynamoDB successfully.'
-        lastInboundMessage = dict()
-        lastInboundMessage['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
-        lastInboundMessage['type'] = {'S': 'lastInboundMessage'}
-        lastInboundMessage['messageType'] = {'S': payload.get('messageType', 'unknown')}
-        if payload_type == 'InboundMessage':
-            dynamodb.put_item(
-                TableName=table_name,
-                Item=lastInboundMessage
-            )
-        message += f' Last InboundMessage type saved to DynamoDB successfully.'
+        
+        # lastInboundMessage = dict()
+        # lastInboundMessage['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
+        # lastInboundMessage['type'] = {'S': 'lastInboundMessage'}
+        # lastInboundMessage['messageType'] = {'S': payload.get('messageType', 'unknown')}
+        # if payload_type == 'InboundMessage':
+        #     dynamodb.put_item(
+        #         TableName=table_name,
+        #         Item=lastInboundMessage
+        #     )
+        # message += f' Last InboundMessage type saved to DynamoDB successfully.'
+
         return message
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
