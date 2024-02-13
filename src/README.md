@@ -19,9 +19,11 @@ Version | Description | Date | Commit
 1.1.11 | Add messages to chat history with using `sam local invoke ReplyLambda` | 2024-02-12 00:33 | c69ed7de213e02f6d03f847053911b9e9f7d1b95
 1.1.12 | No GHL requests if running with `"noReply": "1"` in payload body | 2024-02-12 00:55 |
 1.1.13 | Updated prompt by adding a newline character in 2nd message template of step 1. | 2024-02-12 07:55 
-1.1.14 | Ignore an additional message that is handled by ManyChat | 2024-02-12 15:21 | 
+1.1.14 | Ignore an additional message that is handled by ManyChat. Turned off the Manychat workflow that adds the `chatgpt` tag. | 2024-02-12 15:21 | 
 1.1.15 | Modified the a chat example so it would not get used in a response. | 2024-02-12 15:34 |
-1.1.15 | Added AI OutboundMessage to ChatHistory when testing locally | 2024-02-12 16:15 
-1.1.16 | Updated step 2 of business-specific script | 2024-02-12 16:24
-1.1.17 | If response is multiple JSON strings concatenated together, take the first valid JSON instead of the last | 2024-02-12 16:31
+1.1.16 | Add AI OutboundMessage to ChatHistory when testing locally | 2024-02-12 16:15 
+1.1.17 | Added AI OutboundMessage to ChatHistory when testing locally | 2024-02-12 16:15 
+1.1.18 | Updated step 2 of business-specific script | 2024-02-12 16:24
+1.1.19 | If response is multiple JSON strings concatenated together, take the first valid JSON instead of the last | 2024-02-12 16:31
+1.1.20 | Account for another string in payload indicating a mass email. | 2024-02-12 21:37
 1.2.0 | Check for back to back messages. Abort ReplyLambda if payload InboundMessage != latest message in chat history. | 2024-02-12 16:45
