@@ -176,12 +176,33 @@ def chat_with_chatbot(user_input, agent_info):
     for item in agent_info["chat_history"]:
         print(f'**{item.type.upper()}**: {item.content}')
     chat_history = agent_info['chat_history']
-    result = agent_info['agent_executor']({
-            "input": user_input,
-            "chat_history": chat_history
-        })  
-    print(f'Response time: {time() - start_time} seconds')
-    
+    last_message = chat_history[-1].content        
+    last_message_type = chat_history[-1].type
+    if (last_message == user_input): ## Check that the current user_input is the most recent message
+        previous_message_type = chat_history[-2].type
+        # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
+        if previous_message_type == 'human': 
+            last_inbound_messages_list = []
+            for item in chat_history[-1:0:-1]:
+                if item.type.lower() == 'human':
+                    last_inbound_messages_list.append(item.content)
+                    truncated_history = chat_history[:-1]
+                else:
+                    break
+            last_inbound_messages = '\n'.join(reversed(last_inbound_messages_list))
+            user_input = last_inbound_messages
+            print(f'Joining previous messages as full user input: {user_input}')
+            chat_history = truncated_history
+        else:
+            chat_history = chat_history[:-1]
+        result = agent_info['agent_executor']({
+                "input": user_input,
+                "chat_history": chat_history
+            })  
+        print(f'Agent response time: {time() - start_time} seconds')
+    else:
+        result = dict()
+        result['output'] = '{"response": "Abort due to newer InboundMessage", "alert_human": false}'
     return result
 def placeholder_function(str):
     return None
