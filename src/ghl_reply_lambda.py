@@ -65,8 +65,12 @@ def lambda_handler(event, context):
             random_waiting_period = random.randint(30, 55)  # Generate a random waiting period between 30 and 115 seconds
             print(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
-        elif event.get('direct_local_invoke', None) == 1:
+        elif event.get('direct_local_invoke', None) == 1: 
             message += add_to_chat_history(payload) + '. \n'
+            ## Comment out as needed#
+            wait_time = 10
+            print(f'Waiting for {wait_time} seconds')
+            time.sleep(wait_time)
         try:
             system_message_dict[conversation_id] = create_system_message(
                 'CoachMcloone', 
