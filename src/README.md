@@ -26,4 +26,6 @@ Version | Description | Date | Commit
 1.1.18 | Updated step 2 of business-specific script | 2024-02-12 16:24
 1.1.19 | If response is multiple JSON strings concatenated together, take the first valid JSON instead of the last | 2024-02-12 16:31
 1.1.20 | Account for another string in payload indicating a mass email. | 2024-02-12 21:37
-1.2.0 | Check for back to back messages. Abort ReplyLambda if payload InboundMessage != latest message in chat history. | 2024-02-12 16:45
+1.2.0 | Check for back to back messages. Abort ReplyLambda if payload InboundMessage != latest message in chat history. | 2024-02-12 16:45 | c5a4ad61a0274f36d2a0dcd343cdb953a76916ea
+1.2.1 | Update ManyChat and GHL workflows to follow up with leads who don't complete ManyChat workflow | 2024-02-13 23:06
+1.2.2 | Account for case if chatbot response does not include a `phone_number` key. Corrected print statement. | 2024-02-13 23:44

@@ -125,12 +125,12 @@ def lambda_handler(event, context):
                 message += f'No message sent for contactId {contactId}. \n'
                 if contactId != os.environ.get('my_contact_id'):
                     create_task = True
-                    message += f'Skip task creation and adding tag for inbound message from testing account. '
                 else:
+                    message += f'Skip task creation and adding tag for inbound message from testing account. '
                     create_task = False
                 
             if (create_task == True):
-                task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response["phone_number"]}.'
+                task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response.get("phone_number", None)}.'
                 print(f'Task description: {task_description}')
                 ghl_createTask_response = ghl_request(
                     contactId=contactId, 
