@@ -177,8 +177,12 @@ def chat_with_chatbot(user_input, agent_info):
         print(f'**{item.type.upper()}**: {item.content}')
     chat_history = agent_info['chat_history']
     last_message = chat_history[-1].content
-    if (last_message == user_input): ## Check that the current user_input is the most recent message
-        previous_message_type = chat_history[-2].type
+    manychat_outbound_message_substrings = [
+        "I'll be in touch as soon as I'm online next!"
+    ]
+    previous_message_type = chat_history[-2].type
+    last_message_type = chat_history[-1].type
+    if (last_message == user_input): ## Check that the current user_input is the most recent message        
         # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
         if previous_message_type == 'human': 
             last_inbound_messages_list = []
@@ -194,6 +198,14 @@ def chat_with_chatbot(user_input, agent_info):
             chat_history = truncated_history
         else:
             chat_history = chat_history[:-1]
+
+        result = agent_info['agent_executor']({
+                "input": user_input,
+                "chat_history": chat_history
+            })  
+        print(f'Agent response time: {time() - start_time} seconds')
+
+    elif (last_message_type != 'human') & (any(substring in last_message for substring in manychat_outbound_message_substrings)):
         result = agent_info['agent_executor']({
                 "input": user_input,
                 "chat_history": chat_history
