@@ -30,5 +30,7 @@ Version | Description | Date | Commit
 1.2.1 | Update ManyChat and GHL workflows to follow up with leads who don't complete ManyChat workflow | 2024-02-13 23:06
 1.2.2 | Account for case if chatbot response does not include a `phone_number` key. Corrected print statement. | 2024-02-13 23:44
 1.2.3 | Chatbot generates response even if last message in chat history if outbound, as long as contains the specified substring. | 2024-02-14 11:45
-1.2.4 | Updated business-specific prompt and RAG doc. | 2024-02-15 12:21 |
-1.2.5 | Updated data_functions/parse_json_string function to handle Pythonic JSON strings which cause JSON decode error | 2024-02-15 12:50
+1.3.0 | Updated business-specific prompt and RAG doc. | 2024-02-15 12:21 |
+1.3.1 | Updated data_functions/parse_json_string function to handle Pythonic JSON strings which cause JSON decode error | 2024-02-15 12:50e
+1.3.2 | Updated business-specific prompt and RAG doc. | 2024-02-15 13:23
+1.3.3 | Updated stages 1+2 of system_message template; `placeholder_function`: no args; updated description. | 2024-02-15 14:37

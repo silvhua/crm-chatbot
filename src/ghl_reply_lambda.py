@@ -57,7 +57,7 @@ def lambda_handler(event, context):
         Tool(
             name=f"placeholder_function",
             func=placeholder_function,
-            description=f"This function does not do anything.",
+            description=f"Do not invoke this function.",
         )
     ]
     try:
@@ -181,7 +181,8 @@ def lambda_handler(event, context):
                 'type': 'OutboundMessage', 
                 'body': chatbot_response["response"]
             }
-            message += add_to_chat_history(reply_payload) + '. \n'
+            if chatbot_response["alert_human"] == False:
+                message += add_to_chat_history(reply_payload) + '. \n'
         print(message)
         return {
             'statusCode': 200,

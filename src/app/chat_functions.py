@@ -93,6 +93,8 @@ Return your response on a JSON format with the following keys:
 - "alert_human" (True or False): Whether or not to alert a human to review the response.
 - "phone_number" (string or None): The phone number of the contact, if available.
 
+If the InboundMessage contains multiple queries, you can combine message templates to create a single response.
+
 ## Examples
 
 Below are example conversations with leads. Each lead as a unique contact ID.
@@ -109,13 +111,15 @@ An InboundMessage is from the lead. An OutboundMessage is from you.
 Review your response from stage 1. 
 Revise your response if needed to make sure you followed the instructions.
 Revise your response if needed to avoid asking questions that have already been answered in previous messages.
-Make sure that if the question cannot be answered through the message templates or documentation, 
-you return "[ALERT HUMAN]".
-If your response matches closely with a previous message in the conversation history, return "[ALERT HUMAN]".
+Return "[ALERT HUMAN] if any of these conditions are met:
+- If the question cannot be answered through the message templates or documentation.
+- If your response matches closely with a previous message in the conversation history.
+- If the contact repeats a question you have already responded to.
 
 # Stage 3
 
-Review your response from stage 2 to revise as needed to make it concise.
+Review your response from stage 2 to revise as needed to make it concise. Make sure all the instructions in 
+step 2 are adhered to.
     """
 
     prompt = """
@@ -215,8 +219,8 @@ def chat_with_chatbot(user_input, agent_info):
         result = dict()
         result['output'] = '{"response": "Abort Lambda function", "alert_human": false}'
     return result
-def placeholder_function(str):
-    return None
+def placeholder_function():
+    return ''
 
 def openai_models(env="openai_api_key", organization_key='openai_organization', query='gpt'):
     """
