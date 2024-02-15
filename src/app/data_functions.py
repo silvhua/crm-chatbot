@@ -6,6 +6,8 @@ import sys
 import os
 import re
 
+import re
+
 def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_number']):
     """
     Parses the result from Open AI response and returns a dictionary that matches the specified dictionary keys.
@@ -21,6 +23,10 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         - Exception: If there is an error while parsing the JSON string.
     """
     try:
+        json_string = re.sub(r'(?<!["])\bFalse\b(?![":])', 'false', json_string)
+        json_string = re.sub(r'(?<!["])\bTrue\b(?![":])', 'true', json_string)
+        json_string = re.sub(r'(?<!["])\bNone\b(?![":])', 'null', json_string)
+        
         parsed_json = json.loads(json_string)
         
         if isinstance(parsed_json, list):
