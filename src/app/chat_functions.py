@@ -219,7 +219,7 @@ def chat_with_chatbot(user_input, agent_info):
         result = dict()
         result['output'] = '{"response": "Abort Lambda function", "alert_human": false}'
     return result
-def placeholder_function():
+def placeholder_function(str):
     return ''
 
 def openai_models(env="openai_api_key", organization_key='openai_organization', query='gpt'):

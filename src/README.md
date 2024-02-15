@@ -33,4 +33,4 @@ Version | Description | Date | Commit
 1.3.0 | Updated business-specific prompt and RAG doc. | 2024-02-15 12:21 |
 1.3.1 | Updated data_functions/parse_json_string function to handle Pythonic JSON strings which cause JSON decode error | 2024-02-15 12:50e
 1.3.2 | Updated business-specific prompt and RAG doc. | 2024-02-15 13:23
-1.3.3 | Updated stages 1+2 of system_message template; `placeholder_function`: no args; updated description. | 2024-02-15 14:37
+1.3.3 | Updated stages 1+2 of system_message template; `placeholder_function`: no args; updated description. Updated business-specific prompt. | 2024-02-15 14:37
