@@ -78,29 +78,16 @@ def lambda_handler(event, context):
                 else:
                     message += 'Testing data not added as new DynamoDB record. \n'
                 try:
-                    if payload['type'] in message_events:
-                        print(f'Webhook type: {payload["type"]}')
-                        message += add_to_chat_history(payload) + '. \n'
-                        if payload['type'] == 'InboundMessage':
-                            # Ignore messages handled by ManyChat workflow
-                            messages_to_ignore = [
-                                'GET STARTED', 'Get Started', 
-                                '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
-                            ]
-                            inbound_content = payload.get('body')
-                            if inbound_content in messages_to_ignore:
-                                message += 'Inbound message handled by ManyChat workflow. \n'
-                                location = None
-                                actual_location = os.getenv(payload['locationId'])
-                            else:
-                                location =  os.getenv(payload['locationId'])
-                                actual_location = location
-                            print(f'Location: {actual_location}') 
-                            if location == 'CoachMcloone': ## Update this later to include other businesses
+                    location = os.getenv(payload['locationId'])
+                    print(f'Location: {location}')
+                    if location == 'CoachMcloone': ## Update this later to include other businesses
+                        if payload['type'] in message_events:
+                            print(f'Webhook type: {payload["type"]}')
+                            message += add_to_chat_history(payload) + '. \n'
+                            if payload['type'] == 'InboundMessage':
                                 try:
                                     refresh_token_response = refresh_token()
                                     if refresh_token_response['statusCode'] == 200:
-
                                         contact_details = ghl_request(
                                             contact_id, endpoint='getContact', 
                                             location=location 
@@ -109,15 +96,43 @@ def lambda_handler(event, context):
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'GHL contact tags: \n{contact_tags}')
                                         contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
-                                        maneychat_contact_details = manychat_request(contact_fullname)
-                                        contact_manychat_tags = manychat_tags(maneychat_contact_details)
-                                        print(f'ManyChat contact tags: \n{contact_manychat_tags}')
-                                        tags_to_ignore = [ # If contact has any of these tags, ghl_reply Lambda wont' be invoked
-                                            'no chatbot',
-                                            'money_magnet_schedule'
+                                        try:
+                                            manychat_contact_details = manychat_request(contact_fullname)
+                                            contact_manychat_tags = manychat_tags(manychat_contact_details) # tags are listed in reverse chronological order of when they are added
+                                            print(f'ManyChat contact tags: \n{contact_manychat_tags}')
+                                            tags_to_ignore = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked
+                                                'no chatbot',
+                                                'money_magnet_schedule'
+                                            ]
+                                            all_follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHL workflow "silvia: manychat followup"
+                                            # follow_up_tags_present = list(set(contact_manychat_tags).intersection(set(all_follow_up_tags)))
+                                            follow_up_tags_present = [tag for tag in contact_manychat_tags if tag in all_follow_up_tags]
+                                        except:
+                                            contact_manychat_tags = []
+                                            follow_up_tags_present = []
+                                            print('Failed to get ManyChat contact details. \n')
+                                        messages_to_ignore = [ # messages handled by ManyChat workflow
+                                            'GET STARTED', 'Get Started', 
+                                            '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
                                         ]
-                                        follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHl workflow "silvia: manychat followup"
-                                        if ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
+                                        inbound_content = payload.get('body')
+                                        if inbound_content in messages_to_ignore:
+                                            message += 'Inbound message handled by ManyChat workflow. \n'
+                                            if len(follow_up_tags_present) > 0:
+                                                ghl_tag_to_add = follow_up_tags_present[0]
+                                                # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
+                                                ghl_addTag_response = ghl_request(
+                                                    contactId=contact_id, 
+                                                    endpoint='addTag', 
+                                                    text=ghl_tag_to_add,
+                                                    location=location
+                                                )
+                                                if ghl_addTag_response['status_code'] // 100 == 2:
+                                                    message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                                else:
+                                                    message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                                    message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+                                        elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
                                                 # Invoke another Lambda function
@@ -157,18 +172,6 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
-                                        elif (len(set(contact_manychat_tags).intersection(set(follow_up_tags))) > 0):                                            
-                                            workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401' # "silvia: manychat followup" workflow
-                                            workflowName = 'silvia: manychat followup'
-                                            ghl_workflow_response = ghl_request(
-                                                contact_id, 'workflow', path_param=workflowId
-                                            )
-                                            print(f'GHL workflow response: {ghl_workflow_response}')
-                                            if ghl_workflow_response['status_code'] // 100 == 2:
-                                                message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
-                                            else:
-                                                message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
-                                                message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
@@ -181,9 +184,9 @@ def lambda_handler(event, context):
                                     filename = f.f_code.co_filename
                                     message += f'Error getting contact details. An error occurred on line {lineno} in {filename}: {error}. \n'
                             else:
-                                message += f'Location set to {location}; ghl_reply skipped. \n'
-                        else:
-                            message += f'Not an inbound message; ghl_reply skipped. \n'
+                                message += f'Not an inbound message; ghl_reply skipped. \n'
+                    else:
+                        message += f'Location set to {location}; ghl_reply skipped. \n'
                 except Exception as error:
                     exc_type, exc_obj, tb = sys.exc_info()
                     f = tb.tb_frame

@@ -37,3 +37,5 @@ Version | Description | Date | Commit
 1.3.4 | Added back the parameter to `placeholder` function as it caused problems with response generation. | 2024-02-15 14:51 
 1.3.5 | Updated message template of step 2a of business-specific prompt. | 2024-02-16 11:38 
 1.3.6 | Updated message template to question about cost. | 2024-02-17 22:04
+1.4.0 | Updated `ghl_chat_history_lambda` to read the ManyChat tags so those who complete ManyChat worfklow are handled by the chatbot | 2024-02-17 22:45
+1.4.1 | Updated `ghl_chat_history_lambda` to add contact to the GHL follow up workflow if InboundMessage is from the ManyChat workflow GUI. GHL follow up workflow will send follow up message if no response after 5 minutes. | 2024-02-18 00:31
