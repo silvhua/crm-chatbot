@@ -4,6 +4,13 @@ sys.path.append(r'/home/silvhua/repositories/GHL-chat/src/')
 
 from  chat_functions import load_txt, create_system_message
 from silvhua import save_text
+    
+def process_leads_csv(csv_filename, csv_path):
+    df = load_csv(csv_filename, csv_path)
+    # Update the index to start at 2 instead of zero
+    df.index = df.index + 2
+    print(f'Index updated to start at 2 isntead of 0.')
+    return df
 
 if __name__ == "__main__":
     print('Saving prompt version...')

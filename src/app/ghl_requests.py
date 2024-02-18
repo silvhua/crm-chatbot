@@ -326,13 +326,6 @@ def search_and_get_conversation(query_string, **kwargs):
             contactId=conversationId, endpoint='getConversation', **kwargs
         )
         return conversation_response
-    
-def process_leads_csv(csv_filename, csv_path):
-    df = load_csv(csv_filename, csv_path)
-    # Update the index to start at 2 instead of zero
-    df.index = df.index + 2
-    print(f'Index updated to start at 2 isntead of 0.')
-    return df
 
 class Ghl:
     """
