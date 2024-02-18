@@ -116,6 +116,7 @@ def lambda_handler(event, context):
                                             'no chatbot',
                                             'money_magnet_schedule'
                                         ]
+                                        follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHl workflow "silvia: manychat followup"
                                         if ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
@@ -156,6 +157,18 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+                                        elif (len(set(contact_manychat_tags).intersection(set(follow_up_tags))) > 0):                                            
+                                            workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401' # "silvia: manychat followup" workflow
+                                            workflowName = 'silvia: manychat followup'
+                                            ghl_workflow_response = ghl_request(
+                                                contact_id, 'workflow', path_param=workflowId
+                                            )
+                                            print(f'GHL workflow response: {ghl_workflow_response}')
+                                            if ghl_workflow_response['status_code'] // 100 == 2:
+                                                message += f'\nAdded contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                            else:
+                                                message += f'\nFailed to add contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                                message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                     else:
