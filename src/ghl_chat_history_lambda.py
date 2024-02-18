@@ -107,12 +107,16 @@ def lambda_handler(event, context):
                                             )
                                         contact_tags = contact_details['contact']['tags']
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
-                                        print(f'Contact tags: \n{contact_tags}')
+                                        print(f'GHL contact tags: \n{contact_tags}')
+                                        contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
+                                        maneychat_contact_details = manychat_request(contact_fullname)
+                                        contact_manychat_tags = manychat_tags(maneychat_contact_details)
+                                        print(f'ManyChat contact tags: \n{contact_manychat_tags}')
                                         tags_to_ignore = [ # If contact has any of these tags, ghl_reply Lambda wont' be invoked
                                             'no chatbot',
                                             'money_magnet_schedule'
                                         ]
-                                        if (('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags)):
+                                        if ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
                                                 # Invoke another Lambda function

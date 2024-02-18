@@ -327,6 +327,54 @@ def search_and_get_conversation(query_string, **kwargs):
         )
         return conversation_response
 
+def manychat_request(
+        query, endpoint='findContact', location='CoachMcloone'
+        ):
+    """
+
+    """
+    url_root = 'https://api.manychat.com/'
+    try:
+        if (endpoint == 'findContact'): 
+            name = '%20'.join([word for word in query.split(' ')])
+            url = f'{url_root}fb/subscriber/findByName?name={name}'
+            print(f'request URL: {url}')
+            request_type = 'GET'
+        api_key = '778887688799919:94269d311a5af721b56a14e5039f4a34' ####
+        headers = {
+            "Authorization": f"Bearer Bearer {api_key}",
+            "accept": "application/json"
+        }
+
+        if request_type == 'POST':
+            response = requests.post(
+                url, headers=headers
+            )
+        elif request_type == 'GET':
+            response = requests.get(
+                url, headers=headers
+            )
+        else:
+            raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
+
+        print(f'Status code {response.status_code}: {response.reason}')
+        data = response.json()
+        data['status_code'] = response.status_code
+        data['response_reason'] = response.reason
+        return data
+    except Exception as error:
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        print(f'Error in line {lineno} of {filename}: {str(error)}')
+        
+        return {}
+
+def manychat_tags(manychat_data):
+    tags = [tag['name'] for tag in manychat_data['data'][0]['tags']]
+    return tags
+
 class Ghl:
     """
     Class for retrieving and manually updating the S3 file storing GHL authentication information.
