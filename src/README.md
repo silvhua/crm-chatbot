@@ -38,4 +38,6 @@ Version | Description | Date | Commit
 1.3.5 | Updated message template of step 2a of business-specific prompt. | 2024-02-16 11:38 
 1.3.6 | Updated message template to question about cost. | 2024-02-17 22:04
 1.4.0 | Updated `ghl_chat_history_lambda` to read the ManyChat tags so those who complete ManyChat worfklow are handled by the chatbot | 2024-02-17 22:45
-1.4.1 | Updated `ghl_chat_history_lambda` to add contact to the GHL follow up workflow if InboundMessage is from the ManyChat workflow GUI. GHL follow up workflow will send follow up message if no response after 5 minutes. | 2024-02-18 00:31
+1.4.1 | Updated `ghl_chat_history_lambda` to add contact to the GHL follow up workflow if InboundMessage is from the ManyChat workflow GUI. GHL follow up workflow will send follow up message if no response after 5 minutes. | 2024-02-18 00:38
+1.4.2 | Updated business-specific message templates. Last 2 steps had duplicated number (6) and were missing end quote. | 2024-02-18 23:40
+1.4.3 | Removed newline character in Step 4 message template. Turned steps 6-7 message templates to JSON format with `"alert_human": true`. | 2024-02-19 00:47
