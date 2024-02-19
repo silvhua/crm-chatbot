@@ -182,7 +182,8 @@ def chat_with_chatbot(user_input, agent_info):
     chat_history = agent_info['chat_history']
     last_message = chat_history[-1].content
     manychat_outbound_message_substrings = [
-        "I'll be in touch as soon as I'm online next!"
+        "I'll be in touch as soon as I'm online next!",
+        "I'll give you a personal message here shortly."
     ]
     previous_message_type = chat_history[-2].type
     last_message_type = chat_history[-1].type
