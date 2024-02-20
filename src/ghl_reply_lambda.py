@@ -111,8 +111,8 @@ def lambda_handler(event, context):
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
                 message_payload = {
                     "type": payload['messageType'],
-                    # "message": create_paragraphs(chatbot_response['response'])
-                    "message": chatbot_response['response']
+                    "message": create_paragraphs(chatbot_response['response'])
+                    # "message": chatbot_response['response']
                 }
                 ghl_api_response = ghl_request(
                     contactId=contactId,
