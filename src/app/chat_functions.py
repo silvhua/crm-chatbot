@@ -248,19 +248,28 @@ def create_paragraphs(input_string):
     Add 2 new lines every 2 sentences. Keep emojis at the end of the previous sentence. 
     Treat emojis as the end of the sentence if stand-alone.
     """
-    sentences = re.split(r'(?<=[a-zA-Z0-9][.!?]| [\u263a-\U0001f645])\s+', input_string)
+    urls = re.findall(r'http[s]?://\S+', input_string)
+    for url in urls:
+        input_string = input_string.replace(url, f'URL_{urls.index(url)}.')
+    sentences = re.split(r'(?<=[a-zA-Z0-9][.!?]|\s[\u263a-\U0001F917])\s*', input_string)
 
     result = ""
     for i, sentence in enumerate(sentences):
-        if ((i + 1) % 2 == 0) :
-            result += f'{sentence}'
-            if len(sentences[i+1]) == 1:
-                result += f' {sentences[i+1]}'
+        # print(f'sentence {i}: {sentence} ({len(sentence)})')
+        if (len(sentence) == 1) & (i != 0) & (i+1 != len(sentences)): # emojis
+            result += "\n\n"
+        elif ((i + 1) % 2 == 0) & (i + 1 != len(sentences)): # odd-number index
+            result += f'{sentence} '
+            if (i + 1 != len(sentences)) & (len(sentences[i+1]) == 1):
+                result += f'{sentences[i+1]}'
             else:                
                 result += "\n\n"
-        elif len(sentence) == 1:
-            result += "\n\n"
-        else:
+        elif i + 1 != len(sentences): # even-number index
             result += f'{sentence} '
-
-    return result
+            if (len(sentences[i+1]) == 1):
+                result += f' {sentences[i+1]} '
+    if len(urls) > 0:
+        for index, url in enumerate(urls):
+            # result = result.replace(f'___URL_{index}___', url)
+            result = result.replace(f'URL_{index}.', url)
+    return result.strip()
