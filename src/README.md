@@ -45,3 +45,4 @@ Version | Description | Date | Commit
 1.4.5 | Split mult-sentence essages into paragraphs | 2024-02-19 16:41
 1.4.6 | Account for URLs in outbound message when splitting into paragraphs. | 2024-02-19 18:06
 1.4.7 | Send long responses multiple messages. | 2024-02-19 21:23
+1.4.8 | Alert human if AI-generated response matches previous OutboundMessage. | 2024-02-19 22:46
