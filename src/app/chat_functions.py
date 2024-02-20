@@ -170,17 +170,17 @@ def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106",
     agent_info = {
         'agent': agent,
         'agent_executor': agent_executor,
-        'chat_history': message_history.messages
+        'chat_history': message_history
     }
     return agent_info
 
 def chat_with_chatbot(user_input, agent_info):
     start_time = time()
-    print(f'Chat history length: {len(agent_info["chat_history"])}')
+    chat_history = agent_info['chat_history'].messages
+    print(f'Chat history length: {len(chat_history)}')
     print(f'\nChat history:')
-    for item in agent_info["chat_history"]:
+    for item in chat_history:
         print(f'**{item.type.upper()}**: {item.content}')
-    chat_history = agent_info['chat_history']
     last_message = chat_history[-1].content
     manychat_outbound_message_substrings = [
         "I'll be in touch as soon as I'm online next!",
@@ -188,6 +188,8 @@ def chat_with_chatbot(user_input, agent_info):
     ]
     previous_message_type = chat_history[-2].type
     last_message_type = chat_history[-1].type
+    past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
+    print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
     if (last_message == user_input): ## Check that the current user_input is the most recent message        
         # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
         if previous_message_type == 'human': 
@@ -220,7 +222,14 @@ def chat_with_chatbot(user_input, agent_info):
     else:
         result = dict()
         result['output'] = '{"response": "Abort Lambda function", "alert_human": false}'
+    # Check that the generated response is not similar to a previously sent outbound message.
+    for item in past_outbound_messages:
+        n_words = len(item.split())
+        if (n_words > 3) & (item in result['output']):
+            result['output'] = '{"response": "[AI response similar to previous outbound message.]", "alert_human": true}'
+            break
     return result
+    
 def placeholder_function(str):
     return ''
 
