@@ -43,4 +43,4 @@ Version | Description | Date | Commit
 1.4.3 | Removed newline character in Step 4 message template. Turned steps 6-7 message templates to JSON format with `"alert_human": true`. | 2024-02-19 00:47
 1.4.4 | `chat_with_chatbot`: Account for Dynamodb ChatHistory record not saving messages in the right sequence. Add missing quotation in step 7 message template. | 2024-02-19 15:22
 1.4.5 | Split mult-sentence essages into paragraphs | 2024-02-19 16:41
-1.4.6 | Account for URLs in outbound message when splitting into paragraphs. | 2024-02-19 17:56
+1.4.6 | Account for URLs in outbound message when splitting into paragraphs. | 2024-02-19 18:06
