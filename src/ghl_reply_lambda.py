@@ -6,6 +6,7 @@ from langchain.agents import Tool
 from app.data_functions import parse_json_string, format_irish_mobile_number, add_to_chat_history
 import time
 import random
+import re
 
 try:
     from dotenv import load_dotenv
@@ -110,7 +111,7 @@ def lambda_handler(event, context):
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
                 message_payload = {
                     "type": payload['messageType'],
-                    "message": chatbot_response['response']
+                    "message": create_paragraphs(chatbot_response['response'])
                 }
                 ghl_api_response = ghl_request(
                     contactId=contactId,

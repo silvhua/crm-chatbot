@@ -2,6 +2,7 @@ from openai import OpenAI
 import boto3
 import os
 from time import time
+import re
 
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
@@ -241,3 +242,25 @@ def openai_models(env="openai_api_key", organization_key='openai_organization', 
     for item in filtered_models:
         print(item.id)
     return filtered_models
+
+def create_paragraphs(input_string):
+    """
+    Add 2 new lines every 2 sentences. Keep emojis at the end of the previous sentence. 
+    Treat emojis as the end of the sentence if stand-alone.
+    """
+    sentences = re.split(r'(?<=[a-zA-Z0-9][.!?]| [\u263a-\U0001f645])\s+', input_string)
+
+    result = ""
+    for i, sentence in enumerate(sentences):
+        if ((i + 1) % 2 == 0) :
+            result += f'{sentence}'
+            if len(sentences[i+1]) == 1:
+                result += f' {sentences[i+1]}'
+            else:                
+                result += "\n\n"
+        elif len(sentence) == 1:
+            result += "\n\n"
+        else:
+            result += f'{sentence} '
+
+    return result
