@@ -109,24 +109,35 @@ def lambda_handler(event, context):
         
         elif payload.get("noReply", False) == False:
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
-                message_payload = {
-                    "type": payload['messageType'],
-                    "message": create_paragraphs(chatbot_response['response'])
-                    # "message": chatbot_response['response']
-                }
-                ghl_api_response = ghl_request(
-                    contactId=contactId,
-                    endpoint='sendMessage',
-                    payload=message_payload, 
-                    location=location                
-                )
-                print(f'GHL sendMessage response: {ghl_api_response}')
-                if ghl_api_response['status_code'] // 100 == 2:
-                    message += f'Message sent contactId {contactId}: \n{ghl_api_response}\n'
-                else:
-                    message += f'Failed to send message for contactId {contactId}: \n{ghl_api_response}\n'
-                    message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}'
-                    create_task = False
+                split_response_list = create_paragraphs(chatbot_response['response']).split('\n\n') # Send multiple messages if response is long
+                for index, message in enumerate(split_response_list):
+                    number_of_words = len(message.split())
+                    if index != 0:
+                        if contactId != os.environ.get('my_contact_id'): # Add pause before sending next consecutive message
+                            pause_before_next_message = number_of_words/2
+                        elif contactId == os.environ.get('my_contact_id'):
+                            pause_before_next_message = number_of_words/2
+                        print(f'\nPause before message {index}: {pause_before_next_message}')
+                        time.sleep(pause_before_next_message)
+                    message_payload = {
+                        "type": payload['messageType'],
+                        "message": message
+                        # "message": chatbot_response['response']
+                    }
+                    ghl_api_response = ghl_request(
+                        contactId=contactId,
+                        endpoint='sendMessage',
+                        payload=message_payload, 
+                        location=location                
+                    )
+                    print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
+                    if ghl_api_response['status_code'] // 100 == 2:
+                        message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
+                    else:
+                        message += f'Failed to send message {index} for contactId {contactId}: \n{ghl_api_response}\n'
+                        message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}\n'
+                        create_task = True
+                        break
             else:
                 message += f'No message sent for contactId {contactId}. \n'
                 if contactId != os.environ.get('my_contact_id'):

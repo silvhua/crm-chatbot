@@ -44,3 +44,4 @@ Version | Description | Date | Commit
 1.4.4 | `chat_with_chatbot`: Account for Dynamodb ChatHistory record not saving messages in the right sequence. Add missing quotation in step 7 message template. | 2024-02-19 15:22
 1.4.5 | Split mult-sentence essages into paragraphs | 2024-02-19 16:41
 1.4.6 | Account for URLs in outbound message when splitting into paragraphs. | 2024-02-19 18:06
+1.4.7 | Send long responses multiple messages. | 2024-02-19 21:23
