@@ -10,7 +10,8 @@
     "dateAdded": "2024-02-19T00:34:00.000Z",
     "direction": "inbound",
     "messageType": "FB",
-    "userId": "80pzXdC3MCqKRpzrteuj"
+    "userId": "80pzXdC3MCqKRpzrteuj",
+    "contact_tags": ["chatgpt", "no height and weight"]
   },
   "direct_local_invoke": 1
 }

@@ -11,7 +11,8 @@
     "direction": "inbound",
     "messageType": "FB",
     "userId": "80pzXdC3MCqKRpzrteuj",
-    "noReply": "1"
+    "noReply": "1",
+    "contact_tags": ["chatgpt", "no height and weight"]
   },
   "direct_local_invoke": 1
 }
