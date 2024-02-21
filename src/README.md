@@ -50,3 +50,4 @@ Version | Description | Date | Commit
 1.4.10 | Webhooks Lambda: Moved `tags_to_ignore` definition to outside try/except block so it exists even if GHL and ManyChat requests fail. | 2024-02-20 16:27
 1.4.11 | Webhooks Lambda: If contact has no tags in GHL or ManyChat, create a task to notify staff. | 2024-02-20 16:27
 1.4.12 | Webhooks Lambda: Add GHL tags to trigger GHL follow up workflow if message in `messages_to_ignore` | 2024-02-20 22:31
+1.4.13 | Webhooks Lambda: Add `chatgpt` tag if InboundMessage is "get started" (case-insensitive). | 2024-02-21 00:14
