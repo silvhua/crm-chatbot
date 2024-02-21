@@ -100,14 +100,14 @@ def lambda_handler(event, context):
                                             'no chatbot',
                                             'money_magnet_schedule'
                                         ]
-                                        try:
-                                            manychat_contact_details = manychat_request(contact_fullname)
-                                            contact_manychat_tags = manychat_tags(manychat_contact_details) # tags are listed in reverse chronological order of when they are added
-                                            print(f'ManyChat contact tags: \n{contact_manychat_tags}')
-                                        except:
-                                            manychat_contact_details = None
-                                            contact_manychat_tags = []
-                                            print('Failed to get ManyChat contact details. \n')
+                                        # try:
+                                        #     manychat_contact_details = manychat_request(contact_fullname)
+                                        #     contact_manychat_tags = manychat_tags(manychat_contact_details) # tags are listed in reverse chronological order of when they are added
+                                        #     print(f'ManyChat contact tags: \n{contact_manychat_tags}')
+                                        # except:
+                                        #     manychat_contact_details = None
+                                        #     contact_manychat_tags = []
+                                        #     print('Failed to get ManyChat contact details. \n')
                                         messages_to_ignore = [ # messages handled by ManyChat workflow
                                             'GET STARTED', 'Get Started', 
                                             '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
@@ -117,7 +117,8 @@ def lambda_handler(event, context):
                                         if inbound_content in messages_to_ignore:
                                             message += 'Inbound message handled by ManyChat workflow. \n'
                                             ghl_tag_to_add = ['facebook lead', 'chatgpt'] if inbound_content.lower() == 'get started' else 'no height and weight'
-                                        elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
+                                        # elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
+                                        elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
                                                 # Invoke another Lambda function
@@ -157,26 +158,26 @@ def lambda_handler(event, context):
                                                 else:
                                                     message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
-                                        elif (len(contact_tags) == 0) & (manychat_contact_details == None):
-                                            message += f'\nUnable to retrieve ManyChat details. \n'
-                                            task_payload = {
-                                                'title': 'Inbound message received but Chatbot is unable to get ManyChat contact details.',
-                                                'body': f'No GHL tags found. Add tag "chatgpt" to activate chatbot for contact, or "no chatbot" to circumvent chatbot.',
-                                                'assignedTo': os.environ['user_id']
-                                            }
-                                            ghl_createTask_response = ghl_request(
-                                                contactId=contact_id, 
-                                                endpoint='createTask', 
-                                                text=None, 
-                                                params_dict=None,
-                                                payload=task_payload, 
-                                                location=location
-                                            )
-                                            if ghl_createTask_response['status_code'] // 100 == 2:
-                                                message += f'Created notification task for contactId {contact_id}: \n{ghl_createTask_response}\n'
-                                            else:
-                                                message += f'Failed to create notification task for contactId {contact_id}: \n{ghl_createTask_response}\n'
-                                                message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+                                        # elif (len(contact_tags) == 0) & (manychat_contact_details == None):
+                                        #     message += f'\nUnable to retrieve ManyChat details. \n'
+                                        #     task_payload = {
+                                        #         'title': 'Inbound message received but Chatbot is unable to get ManyChat contact details.',
+                                        #         'body': f'No GHL tags found. Add tag "chatgpt" to activate chatbot for contact, or "no chatbot" to circumvent chatbot.',
+                                        #         'assignedTo': os.environ['user_id']
+                                        #     }
+                                        #     ghl_createTask_response = ghl_request(
+                                        #         contactId=contact_id, 
+                                        #         endpoint='createTask', 
+                                        #         text=None, 
+                                        #         params_dict=None,
+                                        #         payload=task_payload, 
+                                        #         location=location
+                                        #     )
+                                        #     if ghl_createTask_response['status_code'] // 100 == 2:
+                                        #         message += f'Created notification task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                        #     else:
+                                        #         message += f'Failed to create notification task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                        #         message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
                                         else:
                                             message += f'\nContact is not a relevant lead. No AI response required. \n'
                                         if ghl_tag_to_add != None:
