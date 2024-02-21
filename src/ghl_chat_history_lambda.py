@@ -104,9 +104,9 @@ def lambda_handler(event, context):
                                             manychat_contact_details = manychat_request(contact_fullname)
                                             contact_manychat_tags = manychat_tags(manychat_contact_details) # tags are listed in reverse chronological order of when they are added
                                             print(f'ManyChat contact tags: \n{contact_manychat_tags}')
-                                            all_follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHL workflow "silvia: manychat followup"
+                                            # all_follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHL workflow "silvia: manychat followup"
                                             # follow_up_tags_present = list(set(contact_manychat_tags).intersection(set(all_follow_up_tags)))
-                                            follow_up_tags_present = [tag for tag in contact_manychat_tags if tag in all_follow_up_tags]
+                                            # follow_up_tags_present = [tag for tag in contact_manychat_tags if tag in all_follow_up_tags]
                                         except:
                                             manychat_contact_details = None
                                             contact_manychat_tags = []
@@ -119,20 +119,19 @@ def lambda_handler(event, context):
                                         inbound_content = payload.get('body')
                                         if inbound_content in messages_to_ignore:
                                             message += 'Inbound message handled by ManyChat workflow. \n'
-                                            if len(follow_up_tags_present) > 0:
-                                                ghl_tag_to_add = follow_up_tags_present[0]
-                                                # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
-                                                ghl_addTag_response = ghl_request(
-                                                    contactId=contact_id, 
-                                                    endpoint='addTag', 
-                                                    text=ghl_tag_to_add,
-                                                    location=location
-                                                )
-                                                if ghl_addTag_response['status_code'] // 100 == 2:
-                                                    message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
-                                                else:
-                                                    message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
-                                                    message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+                                            ghl_tag_to_add = 'facebook lead' if inbound_content.lower() == 'get started' else 'no height and weight'
+                                            # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
+                                            ghl_addTag_response = ghl_request(
+                                                contactId=contact_id, 
+                                                endpoint='addTag', 
+                                                text=ghl_tag_to_add,
+                                                location=location
+                                            )
+                                            if ghl_addTag_response['status_code'] // 100 == 2:
+                                                message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                            else:
+                                                message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                                message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
                                         elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
