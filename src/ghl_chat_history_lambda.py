@@ -195,7 +195,19 @@ def lambda_handler(event, context):
                                             else:
                                                 message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
                                                 message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
-                                            
+                                        if 'no height and weight' in contact_tags:
+                                            ## Remove from manychat follow up workflow.
+                                            workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
+                                            workflowName = 'silvia: manychat followup'
+                                            ghl_workflow_response = ghl_request(
+                                                contact_id, 'removeFromWorkflow', path_param=workflowId
+                                            )
+                                            print(f'GHL workflow response: {ghl_workflow_response}')
+                                            if ghl_workflow_response['status_code'] // 100 == 2:
+                                                message += f'\nRemoved contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                            else:
+                                                message += f'\nFailed to Remove contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                                message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                     else:
                                         message += f'{message}\n{refresh_token_response["body"]}. \n'
                                 except Exception as error:
