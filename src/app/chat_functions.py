@@ -86,7 +86,8 @@ It is better to err on the side of caution and flag a staff rather than give a w
     
 # Stage 1
 
-Determine if you should generate a response to the inbound message. If so, generate the response and proceed 
+1. Determine the nature of the content of the inbound message.
+2. Based on the previous step, determine if you should generate a response to the inbound message. If so, generate the response and proceed 
 to Stage 2. Otherwise, return "[ALERT HUMAN]".
 
 Return your response on a JSON format with the following keys:
