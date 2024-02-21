@@ -96,14 +96,14 @@ def lambda_handler(event, context):
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'GHL contact tags: \n{contact_tags}')
                                         contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
+                                        tags_to_ignore = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked
+                                            'no chatbot',
+                                            'money_magnet_schedule'
+                                        ]
                                         try:
                                             manychat_contact_details = manychat_request(contact_fullname)
                                             contact_manychat_tags = manychat_tags(manychat_contact_details) # tags are listed in reverse chronological order of when they are added
                                             print(f'ManyChat contact tags: \n{contact_manychat_tags}')
-                                            tags_to_ignore = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked
-                                                'no chatbot',
-                                                'money_magnet_schedule'
-                                            ]
                                             all_follow_up_tags = ['facebook lead', 'no height and weight'] # tags in ManyChat that will trigger the GHL workflow "silvia: manychat followup"
                                             # follow_up_tags_present = list(set(contact_manychat_tags).intersection(set(all_follow_up_tags)))
                                             follow_up_tags_present = [tag for tag in contact_manychat_tags if tag in all_follow_up_tags]

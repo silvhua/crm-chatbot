@@ -46,3 +46,5 @@ Version | Description | Date | Commit
 1.4.6 | Account for URLs in outbound message when splitting into paragraphs. | 2024-02-19 18:06
 1.4.7 | Send long responses multiple messages. | 2024-02-19 21:23
 1.4.8 | Alert human if AI-generated response matches previous OutboundMessage. | 2024-02-19 22:46
+1.4.9 | Fixed `alert_human` value in business-specific prompt. | 2024-02-19 23:21
+1.4.10 | Webhooks Lambda: Moved `tags_to_ignore` definition to outside try/except block so it exists even if GHL and ManyChat requests fail. | 2024-02-20 16:27
