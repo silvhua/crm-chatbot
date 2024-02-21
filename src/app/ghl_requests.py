@@ -220,6 +220,14 @@ def ghl_request(
                 payload = {
                     "tags": tags
                 }
+        elif endpoint == 'removeTag':
+            endpoint_url = f'contacts/{contactId}/tags'
+            request_type = 'DELETE'
+            if payload == None:
+                tags = text if type(text) == list else [text] 
+                payload = {
+                    "tags": tags
+                }
         elif endpoint == 'getConversation':
             endpoint_url = f'conversations/{contactId if contactId else path_param}'
             request_type = 'GET'
@@ -261,7 +269,8 @@ def ghl_request(
             )
         elif request_type == 'DELETE':
             response = requests.delete(
-                url, headers=headers
+                url, headers=headers,
+                json=payload if payload else None
             )
         else:
             raise ValueError("Invalid request type. Valid values are 'POST', 'GET', and 'DELETE'.")
