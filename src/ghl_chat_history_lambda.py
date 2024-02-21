@@ -95,7 +95,7 @@ def lambda_handler(event, context):
                                         contact_tags = contact_details['contact']['tags']
                                         contact_tags = [tag.strip('"\'') for tag in contact_tags]
                                         print(f'GHL contact tags: \n{contact_tags}')
-                                        contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
+                                        # contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
                                         tags_to_ignore = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked
                                             'no chatbot',
                                             'money_magnet_schedule'
@@ -121,6 +121,8 @@ def lambda_handler(event, context):
                                         elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
+                                                new_payload['contact_tags'] = contact_tags
+                                                # print(f'New payload: \n{new_payload}')
                                                 # Invoke another Lambda function
                                                 if payload.get("noReply", False) == False:
                                                     try:
