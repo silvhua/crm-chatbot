@@ -53,3 +53,5 @@ Version | Description | Date | Commit
 1.4.13 | Webhooks Lambda: Add `chatgpt` tag if InboundMessage is "get started" (case-insensitive). | 2024-02-21 00:14
 1.4.14 | Webhooks Lambda: Commented out the steps that look up ManyChat tags. | 2024-02-21 01:08
 1.4.15 | Reply Lambda: Do not generate reply if contact tags that trigger GHL follow up workflow are present. | 2024-02-21 09:52
+1.4.16 | Cancel out last commit | 2024-02-21 10:46
+1.4.17 | Webhooks Lambda: Remove contact from GHL follow up workflow if "no height and weight" tag is present. | 2024-02-21 11:56
