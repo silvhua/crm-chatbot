@@ -169,6 +169,10 @@ def ghl_request(
             request_type = 'POST'
             payload = {}
             payload['eventStartTime'] = (datetime.utcnow() + timedelta(minutes=random.randint(2, 10))).strftime('%Y-%m-%dT%H:%M:%S+00:00')
+        elif endpoint == 'removeFromWorkflow':
+            endpoint_url = f'contacts/{contactId}/workflow/{path_param}'
+            request_type = 'DELETE'
+            payload = {}
         elif endpoint == 'getWorkflow': ### 
             endpoint_url = r'workflows/'
             request_type = 'GET'
@@ -255,8 +259,12 @@ def ghl_request(
                 json=payload if payload else None,
                 params=params if params else None
             )
+        elif request_type == 'DELETE':
+            response = requests.delete(
+                url, headers=headers
+            )
         else:
-            raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
+            raise ValueError("Invalid request type. Valid values are 'POST', 'GET', and 'DELETE'.")
 
         print(f'Status code {response.status_code}: {response.reason}')
         data = response.json()
