@@ -55,3 +55,4 @@ Version | Description | Date | Commit
 1.4.15 | Reply Lambda: Do not generate reply if contact tags that trigger GHL follow up workflow are present. | 2024-02-21 09:52
 1.4.16 | Cancel out last commit | 2024-02-21 10:46
 1.4.17 | Webhooks Lambda: Remove contact from GHL follow up workflow if "no height and weight" tag is present. | 2024-02-21 11:56
+1.4.18 | Webhooks Lambda: Remove `no height and weight` tag when inbound message is received. | 2024-02-21 12:40

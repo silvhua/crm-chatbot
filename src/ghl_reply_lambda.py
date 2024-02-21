@@ -61,10 +61,10 @@ def lambda_handler(event, context):
             description=f"Do not invoke this function.",
         )
     ]
-    tags_handled_by_ghl_workflow = [ # If contact has any of these GHL tags, no reply is generated
-        # 'facebook lead',
-        # 'no height and weight'
-    ]
+    # tags_handled_by_ghl_workflow = [ # If contact has any of these GHL tags, no reply is generated
+    #     # 'facebook lead',
+    #     # 'no height and weight'
+    # ]
     try:
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(30, 55)  # Generate a random waiting period between 30 and 115 seconds
@@ -73,18 +73,17 @@ def lambda_handler(event, context):
         elif event.get('direct_local_invoke', None) == 1: 
             message += add_to_chat_history(payload) + '. \n'
             # ## Comment out as needed#
-            wait_time = 10
+            # wait_time = 10
             # print(f'Waiting for {wait_time} seconds')
             # time.sleep(wait_time)
         
-        if (len(set(payload['contact_tags']).intersection(set(tags_handled_by_ghl_workflow))) > 0):
-            message += f'No chatbot response for contact with contact_tags {payload["contact_tags"]}. \n'
-            print(message)
-            return {
-                'statusCode': 200,
-                'body': json.dumps(message)
-            }
-
+        # if (len(set(payload['contact_tags']).intersection(set(tags_handled_by_ghl_workflow))) > 0):
+        #     message += f'No chatbot response for contact with contact_tags {payload["contact_tags"]}. \n'
+        #     print(message)
+        #     return {
+        #         'statusCode': 200,
+        #         'body': json.dumps(message)
+        #     }
         try:
             system_message_dict[conversation_id] = create_system_message(
                 'CoachMcloone', 
@@ -95,7 +94,7 @@ def lambda_handler(event, context):
                 contactId, system_message_dict[conversation_id], tools=tools,
                 # model='gpt-4-32k'
                 )
-
+            print(f'conversation_dict[conversation_id] {conversation_dict[conversation_id]}')
             reply_dict[conversation_id][question_id] = chat_with_chatbot(
                 InboundMessage, conversation_dict[conversation_id]
             )

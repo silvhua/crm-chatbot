@@ -36,15 +36,6 @@ def lambda_handler(event, context):
         message_events = ['WorkflowInboundMessage', 'InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
         print(f'Original payload: {payload}')
-
-        # if payload.get('workflow'):
-        #     print('Workflow detected')
-        #     if payload['workflow'].get('id', None): 
-        #     # if payload['workflow'].get('id', None) == 'f6072b18-9c34-4a36-9683-f77c9a0fd401': # "No height and weight" workflow webhook
-        #     # if payload['workflow'].get('id', None) == '94af9db9-ac43-4813-b049-8809b49cd48c': # Follow up workflow webhook
-        #     # if payload['workflow'].get('id') == "d453e1aa-8b09-4a52-a105-c9389ab1aa65": # InboundMessages workflow webhook
-        #         payload = transform_webhook(payload)
-        #     print(f'Processed payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         except:
@@ -56,14 +47,11 @@ def lambda_handler(event, context):
                 aws_access_key_id=aws_access_key_id, 
                 aws_secret_access_key=aws_secret_access_key
                 )
-        # payload['type'] = payload.get('type', 'WorkflowInboundMessage')
-        # print(f'Payload type: {payload["type"]}')
         if payload['type'] == 'ContactCreate':
             message = add_webhook_data_to_dynamodb(
                 payload, table_name, dynamodb
                 ) + ' \n'
         elif payload['type'] in message_events + contact_update_events:
-
             # Only save message_events data if contact exists in database so only data from new leads are saved.
             contact_id_key = 'contactId' if payload['type'] in message_events + ['TaskCreate'] else 'id'
             contact_id = payload[contact_id_key]
@@ -204,10 +192,23 @@ def lambda_handler(event, context):
                                             )
                                             print(f'GHL workflow response: {ghl_workflow_response}')
                                             if ghl_workflow_response['status_code'] // 100 == 2:
-                                                message += f'\nRemoved contactId {contact_id} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                                message += f'\nRemoved contactId {contact_id} from "{workflowName}" workflow: \n{ghl_workflow_response}\n'
                                             else:
-                                                message += f'\nFailed to Remove contactId {contact_id} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                                message += f'\nFailed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
                                                 message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
+                                            ghl_tag_to_remove = 'no height and weight'
+                                            ghl_removeTag_response = ghl_request(
+                                                contactId=contact_id, 
+                                                endpoint='removeTag', 
+                                                text=ghl_tag_to_remove,
+                                                location=location
+                                            )
+                                            if ghl_removeTag_response['status_code'] // 100 == 2:
+                                                message += f'Removed tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
+                                            else:
+                                                message += f'Failed to Remove tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
+                                                message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
+
                                     else:
                                         message += f'{message}\n{refresh_token_response["body"]}. \n'
                                 except Exception as error:
