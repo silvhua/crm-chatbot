@@ -189,8 +189,6 @@ def chat_with_chatbot(user_input, agent_info):
     ]
     previous_message_type = chat_history[-2].type
     last_message_type = chat_history[-1].type
-    past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
-    print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
     if (last_message == user_input): ## Check that the current user_input is the most recent message      
         generate_response = True 
         # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
@@ -221,12 +219,6 @@ def chat_with_chatbot(user_input, agent_info):
     else:
         result = dict()
         result['output'] = '{"response": "Abort Lambda function", "alert_human": false}'
-    # Check that the generated response is not similar to a previously sent outbound message.
-    for item in past_outbound_messages:
-        n_words = len(item.split())
-        if (n_words > 3) & (item in result['output']):
-            result['output'] = '{"response": "[AI response similar to previous outbound message.]", "alert_human": true}'
-            break
     return result
     
 def placeholder_function(str):

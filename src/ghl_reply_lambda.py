@@ -94,10 +94,20 @@ def lambda_handler(event, context):
                 contactId, system_message_dict[conversation_id], tools=tools,
                 # model='gpt-4-32k'
                 )
+            chat_history = conversation_dict[conversation_id]['chat_history'].messages
             reply_dict[conversation_id][question_id] = chat_with_chatbot(
                 InboundMessage, conversation_dict[conversation_id]
             )
             chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
+            # Check that the generated response is not similar to a previously sent outbound message.
+            past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
+            # print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
+            for past_outbound_message in past_outbound_messages:
+                n_words = len(past_outbound_message.split())
+                if (n_words > 3) & (past_outbound_message in chatbot_response['response']):
+                    chatbot_response['response'] = "[AI response similar to previous outbound message.]"
+                    chatbot_response['alert_human'] = True
+                    break
             if chatbot_response.get('phone_number'):
                 chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             create_task = False
