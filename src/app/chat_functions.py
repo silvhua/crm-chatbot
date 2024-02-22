@@ -120,8 +120,8 @@ Return "[ALERT HUMAN] if any of these conditions are met:
 
 # Stage 3
 
-Review your response from stage 2 to revise as needed to make it concise. Make sure all the instructions in 
-step 2 are adhered to.
+Review your response from stage 2 make sure all the instructions in 
+step 2 are adhered to. Revise your response or alert the human as needed.
     """
 
     prompt = """
