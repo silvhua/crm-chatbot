@@ -58,3 +58,7 @@ Version | Description | Date | Commit
 1.4.18 | Webhooks Lambda: Remove `no height and weight` tag when inbound message is received. | 2024-02-21 12:40
 1.5.0 | Update of stage 1 system message template. Removed newline characters in message templates in business-specific prompt. | 2024-02-21 2024-02-21 12:56
 1.5.1 | Updated business-specific prompt step 6. Moved FAQ to RAG doc. | 2024-02-21 22:18
+1.5.2 | Check for duplicate response in the body of the Reply Lambda after AI-generated response has been parsed to dictionary, allowing extracted phone number to be retained. | 2024-02-21 23:49
+1.5.2 | Updated business-specific prompt and RAG doc. | 2024-02-22 10:58
+1.5.3 | Updated RAG doc. | 2024-02-22 14:03
+1.5.6 | Reply Lambda: Remove punctuation and emojis when comparing if AI-generated response is contained in a past message. Updated system message template step 3. | 2024-02-22 2024-02-22 14:28
