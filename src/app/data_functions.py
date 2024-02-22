@@ -46,6 +46,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
         message = f" Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
+        print(f'Raw JSON string: {json_string}\n')
         print(message)
         
         # Extract substring matching the format of a json string
