@@ -57,3 +57,4 @@ Version | Description | Date | Commit
 1.4.17 | Webhooks Lambda: Remove contact from GHL follow up workflow if "no height and weight" tag is present. | 2024-02-21 11:56
 1.4.18 | Webhooks Lambda: Remove `no height and weight` tag when inbound message is received. | 2024-02-21 12:40
 1.5.0 | Update of stage 1 system message template. Removed newline characters in message templates in business-specific prompt. | 2024-02-21 2024-02-21 12:56
+1.5.1 | Updated business-specific prompt step 6. Moved FAQ to RAG doc. | 2024-02-21 22:18

@@ -208,14 +208,14 @@ def chat_with_chatbot(user_input, agent_info):
         else:
             chat_history = chat_history[:-1]
 
-        result = agent_info['agent_executor']({
+        result = agent_info['agent_executor'].invoke({
                 "input": user_input,
                 "chat_history": chat_history
             })  
         print(f'Agent response time: {time() - start_time} seconds')
 
     elif (last_message_type != 'human') & (any(substring in last_message for substring in manychat_outbound_message_substrings)):
-        result = agent_info['agent_executor']({
+        result = agent_info['agent_executor'].invoke({
                 "input": user_input,
                 "chat_history": chat_history
             })  

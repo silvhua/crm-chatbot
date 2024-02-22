@@ -67,7 +67,7 @@ def lambda_handler(event, context):
     # ]
     try:
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
-            random_waiting_period = random.randint(30, 55)  # Generate a random waiting period between 30 and 115 seconds
+            random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
             print(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
         elif event.get('direct_local_invoke', None) == 1: 
@@ -94,7 +94,6 @@ def lambda_handler(event, context):
                 contactId, system_message_dict[conversation_id], tools=tools,
                 # model='gpt-4-32k'
                 )
-            print(f'conversation_dict[conversation_id] {conversation_dict[conversation_id]}')
             reply_dict[conversation_id][question_id] = chat_with_chatbot(
                 InboundMessage, conversation_dict[conversation_id]
             )
