@@ -116,8 +116,9 @@ def ghl_request(
     Parameters:
     - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
     - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
-        'createNote', 'send_message', 'getContacts', 'searchConversations', 'searchUsers' \
-        'getLocation', 'addTag', and 'getEmailHistory'.
+        'createNote', 'send_message', 'getContacts', 'updateContact', \
+        'searchConversations', 'searchUsers' \
+        'getLocation', 'addTag', 'removeTag', and 'getEmailHistory'.
     - payload (dict): Dictionary containing the payload for the request.
     - params_dict (dict): Dictionary containing additional parameters for the request.
     - location (str): Location value for retrieving the authentication token.
@@ -228,6 +229,9 @@ def ghl_request(
                 payload = {
                     "tags": tags
                 }
+        elif endpoint == 'updateContact':
+            endpoint_url = f'contacts/{contactId}'
+            request_type = 'PUT'
         elif endpoint == 'getConversation':
             endpoint_url = f'conversations/{contactId if contactId else path_param}'
             request_type = 'GET'
@@ -256,7 +260,7 @@ def ghl_request(
             "Accept": "application/json"
         }
 
-        if request_type == 'POST':
+        if request_type in 'POST':
             response = requests.post(
                 url, headers=headers, 
                 json=payload if payload else None
@@ -272,8 +276,13 @@ def ghl_request(
                 url, headers=headers,
                 json=payload if payload else None
             )
+        elif request_type == 'PUT':
+            response = requests.put(
+                url, headers=headers,
+                json=payload if payload else None
+            )
         else:
-            raise ValueError("Invalid request type. Valid values are 'POST', 'GET', and 'DELETE'.")
+            raise ValueError("Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
 
         print(f'Status code {response.status_code}: {response.reason}')
         data = response.json()
