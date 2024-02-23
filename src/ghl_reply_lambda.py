@@ -189,6 +189,27 @@ def lambda_handler(event, context):
                 else:
                     message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+            update_contact_payload = {}
+            int_phone_pattern = r'^\+(?:[0-9]){6,14}[0-9]$'
+            extracted_phone_number = ''.join([char for char in chatbot_response['phone_number'] if char != ' ']) # Remove spaces in extracted phone number
+            extracted_phone_in_int_format = re.match(int_phone_pattern, extracted_phone_number) # If phone number not in int'l format, returns `None`
+            if (payload['phone'] != None) & (extracted_phone_in_int_format != None):
+                incorrect_irish_phone_pattern = r'^\+618(?:[0-9]){8}$' # Pattern when Irish number is incorrectly saved in GHL contact in Australian phone # format, e.g. +61870000000
+                phone_in_incorrect_format = re.match(incorrect_irish_phone_pattern, payload['phone'])
+                if (phone_in_incorrect_format != None):
+                    print(f'Fixing incorrectly formatted Irish number.')
+                    update_contact_payload['phone'] = extracted_phone_number
+
+                ghl_updatePhone_response = ghl_request(
+                    contactId, endpoint='updateContact', 
+                    payload=update_contact_payload,
+                    location=location 
+                    )
+                if ghl_updatePhone_response['status_code'] // 100 == 2:
+                    message += f'Updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]}.\n'
+                else:
+                    message += f'Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
+                    message += f'Status code: {ghl_updatePhone_response["status_code"]}. \nResponse reason: {ghl_updatePhone_response["response_reason"]}.\n'
                 # tag_to_add = 'no chatbot'
                 # ghl_addTag_response = ghl_request(
                 #     contactId=contactId, 
