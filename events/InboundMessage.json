@@ -3,7 +3,7 @@
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
     "attachments": [],
-    "body": "height: 150cm. Weight: 56 kg.",
+    "body": "My number is 0872070333",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
@@ -11,7 +11,8 @@
     "direction": "inbound",
     "messageType": "FB",
     "userId": "80pzXdC3MCqKRpzrteuj",
-    "contact_tags": ["chatgpt", "no height and weight"]
+    "contact_tags": ["chatgpt", "no height and weight"],
+    "phone": "+61872070331"
   },
   "direct_local_invoke": 1
 }
