@@ -117,6 +117,7 @@ Return "[ALERT HUMAN] if any of these conditions are met:
 - If the question cannot be answered through the message templates or documentation.
 - If your response matches closely with a previous message in the conversation history.
 - If the contact repeats a question you have already responded to.
+- The message you generated does not match any of the message templates.
 
 # Stage 3
 

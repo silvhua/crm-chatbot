@@ -63,3 +63,4 @@ Version | Description | Date | Commit
 1.5.3 | Updated RAG doc. | 2024-02-22 14:03
 1.5.6 | Reply Lambda: Remove punctuation and emojis when comparing if AI-generated response is contained in a past message. Updated system message template step 3. | 2024-02-22 2024-02-22 14:28
 1.5.7 | Update of stage 1 system message template. Comment out print statements. | 2024-02-22 17:05 
+1.5.8 | Update of stage 2 system message template. | 2024-02-22 17:16
