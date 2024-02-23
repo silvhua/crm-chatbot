@@ -110,7 +110,7 @@ def lambda_handler(event, context):
                                             if (len(set(contact_tags).intersection(set(tags_to_ignore))) == 0):
                                                 new_payload = payload
                                                 new_payload['contact_tags'] = contact_tags
-                                                new_payload['phone'] = payload['contact'].get('phone', None)
+                                                new_payload['phone'] = contact_details['contact'].get('phone', None)
                                                 # new_payload['email'] = payload['contact'].get('email', None)
                                                 # print(f'New payload: \n{new_payload}')
                                                 # Invoke another Lambda function
