@@ -106,8 +106,8 @@ def lambda_handler(event, context):
             cleaned_chatbot_response = re.sub(r'[^a-zA-Z0-9\s]+', '', chatbot_response['response'])
             cleaned_chatbot_response = ' '.join(cleaned_chatbot_response.split())
             # print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
-            print(f'\nCleaned past outbound messages: {[item for item in cleaned_past_outbound_messages]}')
-            print(f'Cleaned chatbot response: {cleaned_chatbot_response}\n')
+            # print(f'\nCleaned past outbound messages: {[item for item in cleaned_past_outbound_messages]}')
+            # print(f'Cleaned chatbot response: {cleaned_chatbot_response}\n')
             for past_outbound_message in cleaned_past_outbound_messages:
                 n_words = len(past_outbound_message.split())
                 if (n_words > 3) & (past_outbound_message in cleaned_chatbot_response):
