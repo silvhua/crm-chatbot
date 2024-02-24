@@ -115,6 +115,10 @@ def lambda_handler(event, context):
                     chatbot_response['response'] = "[AI response similar to previous outbound message.]"
                     chatbot_response['alert_human'] = True
                     break
+                # alert human if placeholders from message templates are not replaced
+            if re.match(r'.*<.*>', chatbot_response['response']):
+                message += f'Placeholder still present in message. \n'
+                chatbot_response['alert_human'] = True
             if chatbot_response.get('phone_number'):
                 chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             create_task = False
@@ -245,7 +249,8 @@ def lambda_handler(event, context):
                 'body': chatbot_response["response"]
             }
             if chatbot_response["alert_human"] == False:
-                message += add_to_chat_history(reply_payload) + '. \n'
+                add_to_chat_history_message, original_chat_history = add_to_chat_history(reply_payload)
+                message += add_to_chat_history_message
         print(message)
         return {
             'statusCode': 200,

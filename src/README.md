@@ -66,4 +66,6 @@ Version | Description | Date | Commit
 1.5.8 | Update of stage 2 system message template. | 2024-02-22 17:16
 1.5.9 | Update business-specific prompt step 7. | 2024-02-23 13:06 
 1.5.10 | Convert incorrectly-formated Irish phone number to international format if Irish phone number is extracted from inbound message. | 2024-02-23 14:17
-1.5.11 | If contact has previously entered the ManyChat funnel, skip the chatbot workflow, add tags, and create a task to notify staff. | 2024-02-23 ;time 
+1.5.11 | If contact has previously entered the ManyChat funnel, skip the chatbot workflow, add tags, and create a task to notify staff. | 2024-02-23 
+1.5.12 | Update business-specific prompt: Combined steps 4-5. | 2024-02-24 01:54
+1.5.13 | Alert human if placeholders in message templates haven't been replaced in the AI response. | 2024-02-24 02:38

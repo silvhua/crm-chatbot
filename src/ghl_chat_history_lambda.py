@@ -81,7 +81,7 @@ def lambda_handler(event, context):
                                     create_task = False
                                     # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda
                                     repeated_optin_messages = set(manychat_optin_messages).intersection(set(past_inbound_messages))
-                                    print(f'Repeated opt-in messages: {repeated_optin_messages}.')
+                                    # print(f'Repeated opt-in messages: {repeated_optin_messages}.')
                                     if (inbound_content in manychat_optin_messages) & (len(repeated_optin_messages) > 0): 
                                         ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot']
                                         create_task = True
