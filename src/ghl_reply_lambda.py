@@ -71,7 +71,8 @@ def lambda_handler(event, context):
             print(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
         elif event.get('direct_local_invoke', None) == 1: 
-            message += add_to_chat_history(payload) + '. \n'
+            add_to_chat_history_message, original_chat_history += add_to_chat_history(payload)
+            message += add_to_chat_history_message + '. \n'
             # ## Comment out as needed#
             # wait_time = 10
             # print(f'Waiting for {wait_time} seconds')
