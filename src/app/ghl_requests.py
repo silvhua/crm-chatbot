@@ -284,7 +284,7 @@ def ghl_request(
         else:
             raise ValueError("Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
 
-        print(f'Status code {response.status_code}: {response.reason}')
+        print(f'GHL request status code for `{endpoint}` endpoint: {response.status_code}: {response.reason}')
         data = response.json()
         data['status_code'] = response.status_code
         data['response_reason'] = response.reason

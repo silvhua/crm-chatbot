@@ -214,11 +214,11 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         return f"Error in line {lineno} of {filename}: {str(error)}"
 
 def add_to_chat_history(payload):
+    original_chat_history = []
     try:
         from langchain_community.chat_message_histories import DynamoDBChatMessageHistory
         
         contactId = payload.get('contactId', 'no contact id')
-
         history = DynamoDBChatMessageHistory(
             table_name="SessionTable", session_id=contactId,
             key={
@@ -226,6 +226,7 @@ def add_to_chat_history(payload):
                 'type': 'ChatHistory'
             }
             )
+        original_chat_history = history.messages
         if payload['type'] == 'InboundMessage':
             history.add_user_message(payload['body'])
             message = f'Added user message to chat history for webhook type {payload["type"]}'
@@ -234,14 +235,15 @@ def add_to_chat_history(payload):
             message = f'Added AI message to chat history for webhook type {payload["type"]}'
         else:
             message = f'No chat history to save.'
-        print(f'Chat history: \n{history.messages}')
+        chat_history = history.messages
+        print(f'Chat history: \n{chat_history}')
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
         message = f'An error occurred on line {lineno} in {filename}: {error}.'
-    return message
+    return message, original_chat_history
 
 def format_irish_mobile_number(phone_number):
     """
