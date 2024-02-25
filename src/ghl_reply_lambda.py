@@ -168,7 +168,7 @@ def lambda_handler(event, context):
                             location=location                
                         )
                         print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
-                        if ghl_api_response['status_code'] // 100 == 2:
+                        if ghl_api_response.get('status_code', None) // 100 == 2:
                             break
                         else:
                             attempt_number += 1
@@ -176,7 +176,7 @@ def lambda_handler(event, context):
                             print(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
                             time.sleep(wait_interval)
 
-                    if ghl_api_response['status_code'] // 100 == 2:
+                    if ghl_api_response.get('status_code', None) // 100 == 2:
                         message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
                     else:
                         message += f'Failed to send message {index} for contactId {contactId}, {fullNameLowerCase}: \n{ghl_api_response}\n'
@@ -209,7 +209,7 @@ def lambda_handler(event, context):
                         text=fullNameLowerCase,
                         location=location
                     )
-                    if ghl_createTask_response['status_code'] // 100 == 2:
+                    if ghl_createTask_response.get('status_code', None) // 100 == 2:
                         break
                     else:
                         create_task_attempt_number += 1
@@ -218,11 +218,11 @@ def lambda_handler(event, context):
                         time.sleep(wait_interval)
 
                 # print(f'GHL createTask response: {ghl_createTask_response}')
-                if ghl_createTask_response['status_code'] // 100 == 2:
+                if ghl_createTask_response.get('status_code', None) // 100 == 2:
                     message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
                 else:
                     message += f'Error : Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
-                    message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+                    message += f'Status code: {ghl_createTask_response.get("status_code", None)}. \nResponse reason: {ghl_createTask_response.get("response_reason", None)}'
                     print(message)
                     return {
                         'statusCode': 500,
@@ -245,11 +245,11 @@ def lambda_handler(event, context):
                         payload=update_contact_payload,
                         location=location 
                         )
-                    if ghl_updatePhone_response['status_code'] // 100 == 2:
+                    if ghl_updatePhone_response.get('status_code', None) // 100 == 2:
                         message += f'Updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]}.\n'
                     else:
                         message += f'Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
-                        message += f'Status code: {ghl_updatePhone_response["status_code"]}. \nResponse reason: {ghl_updatePhone_response["response_reason"]}.\n'
+                        message += f'Status code: {ghl_updatePhone_response.get("status_code", None)}. \nResponse reason: {ghl_updatePhone_response.get("response_reason", None)}.\n'
                 # tag_to_add = 'no chatbot'
                 # ghl_addTag_response = ghl_request(
                 #     contactId=contactId, 
