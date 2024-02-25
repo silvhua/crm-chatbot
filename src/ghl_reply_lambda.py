@@ -168,7 +168,7 @@ def lambda_handler(event, context):
                         message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
                     else:
                         message += f'Failed to send message {index} for contactId {contactId}, {fullNameLowerCase}: \n{ghl_api_response}\n'
-                        message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}\n'
+                        message += f'Status code: {ghl_api_response.get("status_code", None)}. \nResponse reason: {ghl_api_response.get("response_reason", None)}\n'
                         create_task = True
                         break
             else:
