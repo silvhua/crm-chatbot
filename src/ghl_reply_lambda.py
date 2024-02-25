@@ -194,6 +194,11 @@ def lambda_handler(event, context):
                 else:
                     message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+                    print(message)
+                    return {
+                        'statusCode': 500,
+                        'body': json.dumps(message)
+                    }
             update_contact_payload = {}
             if chatbot_response.get('phone_number', None) != None:
                 int_phone_pattern = r'^\+(?:[0-9]){6,14}[0-9]$'
