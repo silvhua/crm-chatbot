@@ -72,4 +72,5 @@ Version | Description | Date | Commit
 1.5.14 | Add contact name when creating GHL task. Update step 4 of business-specific prompt. | 2024-02-24 22:02
 1.5.15 | Re-attempt GHL sendMessage and createTask requests up to 3 times if it fails. | 2024-02-24 23:02
 1.5.16 | Use `.get()` instead of indexing for `ghl_request` response object. | 2024-02-25 11:18
-1.5.17 | Only compare generated message to past messages if not None | 
+1.5.17 | Only compare generated message to past messages if not None | 2024-02-25 11:34
+1.5.19 | Webhooks Lambda: Allow function to run even if `refresh_token` fails. `add_to_chat_history`: get attachments if body is empty. | 2024-02-25 12:53
