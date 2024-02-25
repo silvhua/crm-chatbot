@@ -38,6 +38,7 @@ def lambda_handler(event, context):
     contactId = payload.get('contactId')
     InboundMessage = payload.get('body')
     locationId = payload.get('locationId', None)
+    fullNameLowerCase = payload.get('fullNameLowerCase', None)
     location = os.getenv(locationId, 'CoachMcloone')
     if location == None:
         message += f'No location found for locationId {locationId}. \n'
@@ -127,10 +128,10 @@ def lambda_handler(event, context):
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}."
+            message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
-        print(f'\nChatbot response: {chatbot_response}\n')
+        print(f'\nProcessed chatbot response: {chatbot_response}\n')
         if chatbot_response.get('response') == 'Abort Lambda function':
             message += f'Payload InboundMessage does not match the latest chat history message. End Lambda function. \n'
             print(message)
@@ -166,7 +167,7 @@ def lambda_handler(event, context):
                     if ghl_api_response['status_code'] // 100 == 2:
                         message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
                     else:
-                        message += f'Failed to send message {index} for contactId {contactId}: \n{ghl_api_response}\n'
+                        message += f'Failed to send message {index} for contactId {contactId}, {fullNameLowerCase}: \n{ghl_api_response}\n'
                         message += f'Status code: {ghl_api_response["status_code"]}. \nResponse reason: {ghl_api_response["response_reason"]}\n'
                         create_task = True
                         break
@@ -176,7 +177,8 @@ def lambda_handler(event, context):
                     create_task = True
                 else:
                     message += f'Skip task creation and adding tag for inbound message from testing account. '
-                    create_task = False
+                    # create_task = False
+                    create_task = True
                 
             if (create_task == True):
                 task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response.get("phone_number", None)}.'
@@ -186,13 +188,14 @@ def lambda_handler(event, context):
                     endpoint='createTask', 
                     params_dict=chatbot_response,
                     payload=None, 
+                    text=fullNameLowerCase,
                     location=location
                 )
                 # print(f'GHL createTask response: {ghl_createTask_response}')
                 if ghl_createTask_response['status_code'] // 100 == 2:
                     message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
                 else:
-                    message += f'Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
+                    message += f'Error : Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
                     print(message)
                     return {
@@ -266,7 +269,7 @@ def lambda_handler(event, context):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message += f"Error in line {lineno} of {filename}: {str(error)}"
+        message += f"Error in line {lineno} of {filename}: {str(error)} \n"
         print(message)
         return {
             'statusCode': 500,
