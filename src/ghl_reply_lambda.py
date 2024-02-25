@@ -157,19 +157,32 @@ def lambda_handler(event, context):
                         "message": message
                         # "message": chatbot_response['response']
                     }
-                    ghl_api_response = ghl_request(
-                        contactId=contactId,
-                        endpoint='sendMessage',
-                        payload=message_payload, 
-                        location=location                
-                    )
-                    print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
+                    # Re-attempt GHL sendMessage request up to 3 times if it fails
+                    max_attempts = 3
+                    attempt_number = 0
+                    while attempt_number < max_attempts:
+                        ghl_api_response = ghl_request(
+                            contactId=contactId,
+                            endpoint='sendMessage',
+                            payload=message_payload, 
+                            location=location                
+                        )
+                        print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
+                        if ghl_api_response['status_code'] // 100 == 2:
+                            break
+                        else:
+                            attempt_number += 1
+                            wait_interval = 10
+                            print(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
+                            time.sleep(wait_interval)
+
                     if ghl_api_response['status_code'] // 100 == 2:
                         message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
                     else:
                         message += f'Failed to send message {index} for contactId {contactId}, {fullNameLowerCase}: \n{ghl_api_response}\n'
                         message += f'Status code: {ghl_api_response.get("status_code", None)}. \nResponse reason: {ghl_api_response.get("response_reason", None)}\n'
                         create_task = True
+                        time.sleep(wait_interval)
                         break
             else:
                 message += f'No message sent for contactId {contactId}. \n'
@@ -177,20 +190,33 @@ def lambda_handler(event, context):
                     create_task = True
                 else:
                     message += f'Skip task creation and adding tag for inbound message from testing account. '
-                    # create_task = False
-                    create_task = True
+                    create_task = False
+                    # create_task = True
                 
             if (create_task == True):
                 task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response.get("phone_number", None)}.'
                 print(f'Task description: {task_description}')
-                ghl_createTask_response = ghl_request(
-                    contactId=contactId, 
-                    endpoint='createTask', 
-                    params_dict=chatbot_response,
-                    payload=None, 
-                    text=fullNameLowerCase,
-                    location=location
-                )
+
+                # Re-attempt GHL createTask request up to 3 times if it fails
+                max_attempts = 3
+                create_task_attempt_number = 0
+                while create_task_attempt_number < max_attempts:
+                    ghl_createTask_response = ghl_request(
+                        contactId=contactId, 
+                        endpoint='createTask', 
+                        params_dict=chatbot_response,
+                        payload=None, 
+                        text=fullNameLowerCase,
+                        location=location
+                    )
+                    if ghl_createTask_response['status_code'] // 100 == 2:
+                        break
+                    else:
+                        create_task_attempt_number += 1
+                        wait_interval = 10
+                        print(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
+                        time.sleep(wait_interval)
+
                 # print(f'GHL createTask response: {ghl_createTask_response}')
                 if ghl_createTask_response['status_code'] // 100 == 2:
                     message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
