@@ -226,12 +226,21 @@ def add_to_chat_history(payload):
                 'type': 'ChatHistory'
             }
             )
+        payload_body = payload.get('body', None)
+        if (payload_body == None) | (payload_body == ''):
+            message_key = 'attachments'
+        else:
+            message_key = 'body'
+        message_body = payload.get(message_key, '')
+        if type(message_body) == list:
+            message_body = '[Attachments: ' + ', '.join([f'{item}, ' for item in message_body]) + ']'
+
         original_chat_history = history.messages
         if payload['type'] == 'InboundMessage':
-            history.add_user_message(payload['body'])
+            history.add_user_message(message_body)
             message = f'Added user message to chat history for webhook type {payload["type"]}'
         elif payload['type'] == 'OutboundMessage':
-            history.add_ai_message(payload['body'])
+            history.add_ai_message(message_body)
             message = f'Added AI message to chat history for webhook type {payload["type"]}'
         else:
             message = f'No chat history to save.'
