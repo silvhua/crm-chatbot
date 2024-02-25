@@ -105,21 +105,22 @@ def lambda_handler(event, context):
             past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
             cleaned_past_outbound_messages = [re.sub(r'[^a-zA-Z0-9\s]+', '', message) for message in past_outbound_messages]
             cleaned_past_outbound_messages = [' '.join(message.split()) for message in cleaned_past_outbound_messages]
-            cleaned_chatbot_response = re.sub(r'[^a-zA-Z0-9\s]+', '', chatbot_response['response'])
-            cleaned_chatbot_response = ' '.join(cleaned_chatbot_response.split())
-            # print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
-            # print(f'\nCleaned past outbound messages: {[item for item in cleaned_past_outbound_messages]}')
-            # print(f'Cleaned chatbot response: {cleaned_chatbot_response}\n')
-            for past_outbound_message in cleaned_past_outbound_messages:
-                n_words = len(past_outbound_message.split())
-                if (n_words > 3) & (past_outbound_message in cleaned_chatbot_response):
-                    chatbot_response['response'] = "[AI response similar to previous outbound message.]"
+            if chatbot_response['response'] != None:
+                cleaned_chatbot_response = re.sub(r'[^a-zA-Z0-9\s]+', '', chatbot_response['response'])
+                cleaned_chatbot_response = ' '.join(cleaned_chatbot_response.split())
+                # print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
+                # print(f'\nCleaned past outbound messages: {[item for item in cleaned_past_outbound_messages]}')
+                # print(f'Cleaned chatbot response: {cleaned_chatbot_response}\n')
+                for past_outbound_message in cleaned_past_outbound_messages:
+                    n_words = len(past_outbound_message.split())
+                    if (n_words > 3) & (past_outbound_message in cleaned_chatbot_response):
+                        chatbot_response['response'] = "[AI response similar to previous outbound message.]"
+                        chatbot_response['alert_human'] = True
+                        break
+                    # alert human if placeholders from message templates are not replaced
+                if re.match(r'.*<.*>', chatbot_response['response']):
+                    message += f'Placeholder still present in message. \n'
                     chatbot_response['alert_human'] = True
-                    break
-                # alert human if placeholders from message templates are not replaced
-            if re.match(r'.*<.*>', chatbot_response['response']):
-                message += f'Placeholder still present in message. \n'
-                chatbot_response['alert_human'] = True
             if chatbot_response.get('phone_number'):
                 chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             create_task = False
