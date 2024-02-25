@@ -69,3 +69,4 @@ Version | Description | Date | Commit
 1.5.11 | If contact has previously entered the ManyChat funnel, skip the chatbot workflow, add tags, and create a task to notify staff. | 2024-02-23 
 1.5.12 | Update business-specific prompt: Combined steps 4-5. | 2024-02-24 01:54
 1.5.13 | Alert human if placeholders in message templates haven't been replaced in the AI response. | 2024-02-24 02:38
+1.5.14 | Add contact name when creating GHL task. Update step 4 of business-specific prompt. | 2024-02-24 22:02

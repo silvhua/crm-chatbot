@@ -139,6 +139,7 @@ def ghl_request(
     - response_dict (dict): Dictionary containing the response from the API.
     """
     url_root = 'https://services.leadconnectorhq.com/'
+    data = {}
     if payload:
         print(f'input payload: {payload}')
     try:
@@ -303,15 +304,13 @@ def ghl_request(
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
             print(f'Error in line {lineno} of {filename}: {str(error)}')
-            return '[Chatbot response]'
-        return data
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
         print(f'Error in line {lineno} of {filename}: {str(error)}')
-        return '[Chatbot response]'
+    return data
 
 def parse_result_id(response, result_type):
     """
