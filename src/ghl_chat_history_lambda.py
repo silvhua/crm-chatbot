@@ -72,141 +72,140 @@ def lambda_handler(event, context):
                         message += add_to_chat_history_message + '. \n'
                         print(f'Original chat history: {original_chat_history} \n')
                         if (payload['type'] == 'InboundMessage'):
+                            refresh_token_response = {}
                             try:
                                 refresh_token_response = refresh_token()
-                                if refresh_token_response['statusCode'] == 200:
-                                    inbound_content = payload.get('body')
-                                    manychat_optin_messages = ['GET STARTED', 'Get Started']
-                                    past_inbound_messages = [item.content for item in original_chat_history if item.type.lower() == 'human']
-                                    create_task = False
-                                    # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda
-                                    repeated_optin_messages = set(manychat_optin_messages).intersection(set(past_inbound_messages))
-                                    # print(f'Repeated opt-in messages: {repeated_optin_messages}.')
-                                    if (inbound_content in manychat_optin_messages) & (len(repeated_optin_messages) > 0): 
-                                        ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot']
-                                        create_task = True
-                                        contact_tags = ghl_tag_to_add
-                                        message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'
-                                    else:
-                                        contact_details = ghl_request(
-                                            contact_id, endpoint='getContact', 
-                                            location=location 
-                                            )
-                                        contact_tags = contact_details['contact']['tags']
-                                        contact_tags = [tag.strip('"\'') for tag in contact_tags]
-                                        print(f'GHL contact tags: \n{contact_tags}')
-                                        # contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
-                                        tags_for_human = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked and task will be created to notify human
-                                            'no chatbot',
-                                            'money_magnet_schedule'
-                                        ]
-                                        messages_to_ignore = manychat_optin_messages + [ # messages handled by ManyChat workflow
-                                            '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
-                                        ] 
-                                        ghl_tag_to_add = None
-                                        if inbound_content in messages_to_ignore:
-                                            message += 'Inbound message handled by ManyChat workflow. \n'
-                                            ghl_tag_to_add = ['facebook lead', 'chatgpt'] if inbound_content.lower() == 'get started' else 'no height and weight'
-                                        # elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
-                                        elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
-                                            if (len(set(contact_tags).intersection(set(tags_for_human))) == 0):
-                                                new_payload = payload
-                                                new_payload['contact_tags'] = contact_tags
-                                                new_payload['phone'] = contact_details['contact'].get('phone', None)
-                                                new_payload['fullNameLowerCase'] = contact_details['contact'].get('fullNameLowerCase', None)
-                                                # new_payload['email'] = payload['contact'].get('email', None)
-                                                # print(f'New payload: \n{new_payload}')
-                                                # Invoke another Lambda function
-                                                if payload.get("noReply", False) == False:
-                                                    try:
-                                                        lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                                    except:
-                                                        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                                                        region = os.environ.get('AWS_REGION')
-                                                        lambda_client = boto3.client(
-                                                            'lambda', region_name=region, 
-                                                            aws_access_key_id=aws_access_key_id, 
-                                                            aws_secret_access_key=aws_secret_access_key
-                                                            )
-                                                    lambda_client.invoke(
-                                                        FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-                                                        InvocationType='Event',
-                                                        Payload=json.dumps(new_payload)
-                                                    )
-                                                    message += f'`ghl_reply` Lambda function invoked. \n'
-                                                else:
-                                                    message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
-                                            else:
-                                                create_task = True
-                                                message += f'`ghl_reply` Lambda function skipped based on contact tags. \n'
-                                        else:
-                                            message += f'\nContact is not a relevant lead. No AI response required. \n'
-                                    if 'no height and weight' in contact_tags:
-                                        ## Remove from manychat follow up workflow.
-                                        workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
-                                        workflowName = 'silvia: manychat followup'
-                                        ghl_workflow_response = ghl_request(
-                                            contact_id, 'removeFromWorkflow', path_param=workflowId
-                                        )
-                                        print(f'GHL workflow response: {ghl_workflow_response}')
-                                        if ghl_workflow_response['status_code'] // 100 == 2:
-                                            message += f'\nRemoved contactId {contact_id} from "{workflowName}" workflow: \n{ghl_workflow_response}\n'
-                                        else:
-                                            message += f'\nFailed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
-                                            message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
-                                        ghl_tag_to_remove = 'no height and weight'
-                                        ghl_removeTag_response = ghl_request(
-                                            contactId=contact_id, 
-                                            endpoint='removeTag', 
-                                            text=ghl_tag_to_remove,
-                                            location=location
-                                        )
-                                        if ghl_removeTag_response['status_code'] // 100 == 2:
-                                            message += f'Removed tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
-                                        else:
-                                            message += f'Failed to Remove tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
-                                            message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
-                                    if ghl_tag_to_add != None:
-                                        # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
-                                        ghl_addTag_response = ghl_request(
-                                            contactId=contact_id, 
-                                            endpoint='addTag', 
-                                            text=ghl_tag_to_add,
-                                            location=location
-                                        )
-                                        if ghl_addTag_response['status_code'] // 100 == 2:
-                                            message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
-                                        else:
-                                            message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
-                                            message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
-                                    if create_task == True:
-                                        if contact_id != os.environ.get('my_contact_id', ''):
-                                            task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
-                                            ghl_createTask_response = ghl_request(
-                                                contactId=contact_id, 
-                                                endpoint='createTask', 
-                                                text=task_body, 
-                                                params_dict=None,
-                                                payload=None, 
-                                                location=location
-                                            )
-                                            # print(f'GHL createTask response: {ghl_createTask_response}')
-                                            if ghl_createTask_response['status_code'] // 100 == 2:
-                                                message += f'Created respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
-                                            else:
-                                                message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
-                                                message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
-                                        else:
-                                            message += f'Skip task creation and adding tag for inbound message from testing account. '
+                                inbound_content = payload.get('body')
+                                manychat_optin_messages = ['GET STARTED', 'Get Started']
+                                past_inbound_messages = [item.content for item in original_chat_history if item.type.lower() == 'human']
+                                create_task = False
+                                # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda
+                                repeated_optin_messages = set(manychat_optin_messages).intersection(set(past_inbound_messages))
+                                # print(f'Repeated opt-in messages: {repeated_optin_messages}.')
+                                if (inbound_content in manychat_optin_messages) & (len(repeated_optin_messages) > 0): 
+                                    ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot']
+                                    create_task = True
+                                    contact_tags = ghl_tag_to_add
+                                    message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'
                                 else:
-                                    message += f'{message}\n{refresh_token_response["body"]}. \n'
+                                    contact_details = ghl_request(
+                                        contact_id, endpoint='getContact', 
+                                        location=location 
+                                        )
+                                    contact_tags = contact_details['contact']['tags']
+                                    contact_tags = [tag.strip('"\'') for tag in contact_tags]
+                                    print(f'GHL contact tags: \n{contact_tags}')
+                                    # contact_fullname = f"{contact_details['contact']['firstName']} {contact_details['contact']['lastName']}"
+                                    tags_for_human = [ # If contact has any of these GHL tags, ghl_reply Lambda wont' be invoked and task will be created to notify human
+                                        'no chatbot',
+                                        'money_magnet_schedule'
+                                    ]
+                                    messages_to_ignore = manychat_optin_messages + [ # messages handled by ManyChat workflow
+                                        '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
+                                    ] 
+                                    ghl_tag_to_add = None
+                                    if inbound_content in messages_to_ignore:
+                                        message += 'Inbound message handled by ManyChat workflow. \n'
+                                        ghl_tag_to_add = ['facebook lead', 'chatgpt'] if inbound_content.lower() == 'get started' else 'no height and weight'
+                                    # elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
+                                    elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
+                                        if (len(set(contact_tags).intersection(set(tags_for_human))) == 0):
+                                            new_payload = payload
+                                            new_payload['contact_tags'] = contact_tags
+                                            new_payload['phone'] = contact_details['contact'].get('phone', None)
+                                            new_payload['fullNameLowerCase'] = contact_details['contact'].get('fullNameLowerCase', None)
+                                            # new_payload['email'] = payload['contact'].get('email', None)
+                                            # print(f'New payload: \n{new_payload}')
+                                            # Invoke another Lambda function
+                                            if payload.get("noReply", False) == False:
+                                                try:
+                                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                                except:
+                                                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                    region = os.environ.get('AWS_REGION')
+                                                    lambda_client = boto3.client(
+                                                        'lambda', region_name=region, 
+                                                        aws_access_key_id=aws_access_key_id, 
+                                                        aws_secret_access_key=aws_secret_access_key
+                                                        )
+                                                lambda_client.invoke(
+                                                    FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+                                                    InvocationType='Event',
+                                                    Payload=json.dumps(new_payload)
+                                                )
+                                                message += f'`ghl_reply` Lambda function invoked. \n'
+                                            else:
+                                                message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
+                                        else:
+                                            create_task = True
+                                            message += f'`ghl_reply` Lambda function skipped based on contact tags. \n'
+                                    else:
+                                        message += f'\nContact is not a relevant lead. No AI response required. \n'
+                                if 'no height and weight' in contact_tags:
+                                    ## Remove from manychat follow up workflow.
+                                    workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
+                                    workflowName = 'silvia: manychat followup'
+                                    ghl_workflow_response = ghl_request(
+                                        contact_id, 'removeFromWorkflow', path_param=workflowId
+                                    )
+                                    print(f'GHL workflow response: {ghl_workflow_response}')
+                                    if ghl_workflow_response['status_code'] // 100 == 2:
+                                        message += f'\nRemoved contactId {contact_id} from "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+                                    else:
+                                        message += f'\nFailed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                        message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
+                                    ghl_tag_to_remove = 'no height and weight'
+                                    ghl_removeTag_response = ghl_request(
+                                        contactId=contact_id, 
+                                        endpoint='removeTag', 
+                                        text=ghl_tag_to_remove,
+                                        location=location
+                                    )
+                                    if ghl_removeTag_response['status_code'] // 100 == 2:
+                                        message += f'Removed tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
+                                    else:
+                                        message += f'Failed to Remove tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
+                                        message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
+                                if ghl_tag_to_add != None:
+                                    # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
+                                    ghl_addTag_response = ghl_request(
+                                        contactId=contact_id, 
+                                        endpoint='addTag', 
+                                        text=ghl_tag_to_add,
+                                        location=location
+                                    )
+                                    if ghl_addTag_response['status_code'] // 100 == 2:
+                                        message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                    else:
+                                        message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                        message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+                                if create_task == True:
+                                    if contact_id != os.environ.get('my_contact_id', ''):
+                                        task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
+                                        ghl_createTask_response = ghl_request(
+                                            contactId=contact_id, 
+                                            endpoint='createTask', 
+                                            text=task_body, 
+                                            params_dict=None,
+                                            payload=None, 
+                                            location=location
+                                        )
+                                        # print(f'GHL createTask response: {ghl_createTask_response}')
+                                        if ghl_createTask_response['status_code'] // 100 == 2:
+                                            message += f'Created respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                        else:
+                                            message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                            message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
+                                    else:
+                                        message += f'Skip task creation and adding tag for inbound message from testing account. '
                             except Exception as error:
                                 exc_type, exc_obj, tb = sys.exc_info()
                                 f = tb.tb_frame
                                 lineno = tb.tb_lineno
                                 filename = f.f_code.co_filename
-                                message += f'Error getting contact details. An error occurred on line {lineno} in {filename}: {error}. \n'
+                                message += f'Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
+                                message += f"{message}\nGHL refresh token status: {refresh_token_response.get('statusCode', None)} :{refresh_token_response.get('body', None)}. \n"
                         else:
                             message += f'Not an inbound message; ghl_reply skipped. \n'
                 except Exception as error:
