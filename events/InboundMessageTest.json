@@ -2,8 +2,8 @@
   "body": {
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
-    "attachments": [],
-    "body": "to look like a beast",
+    "attachments": ["https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif"],
+    "body": "[Attachments: https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif]",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
