@@ -59,7 +59,7 @@ def create_system_message(
         document = load_txt(document_filename, doc_filepath)
     except Exception as error:
         if cloud == True:
-            print(f'Error: {error}')
+            print(f'[ERROR] {error}')
             print('Loading prompt files from s3...')
         s3 = boto3.client('s3')
         instructions = s3.get_object(

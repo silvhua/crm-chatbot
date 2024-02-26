@@ -56,9 +56,10 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
         previous_token = tokens[location]
         print(f'Tokens retrieved from S3 for {location}.')
     else:
+        message = "[ERROR] SamLab token not found in token_file."
         return {
             'statusCode': 500,
-            'body': json.dumps({"error": "SamLab token not found in token_file."})
+            'body': json.dumps({"error": message})
         }
 
     data = {
@@ -94,7 +95,7 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            print(f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}")
+            print(f"[ERROR] Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}")
         return {
             'statusCode': 200,
             'body': json.dumps(response.json())
@@ -102,7 +103,7 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
     else:
         return {
             'statusCode': 500,
-            'body': json.dumps({"error": f"Failed to fetch access token: {response.reason}",}),
+            'body': json.dumps({"error": f"[ERROR] Failed to fetch access token: {response.reason}",}),
             'response': json.dumps(response.json())
         }
 
@@ -250,7 +251,7 @@ def ghl_request(
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message = f'Error in line {lineno} of {filename}: {str(error)}'
+            message = f'[ERROR] Error in line {lineno} of {filename}: {str(error)}'
             print(message)
             return message
 
@@ -283,7 +284,7 @@ def ghl_request(
                 json=payload if payload else None
             )
         else:
-            raise ValueError("Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
+            raise ValueError("[ERROR] Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
 
         print(f'GHL request status code for `{endpoint}` endpoint: {response.status_code}: {response.reason}')
         data = response.json()
@@ -303,13 +304,13 @@ def ghl_request(
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            print(f'Error in line {lineno} of {filename}: {str(error)}')
+            print(f'[ERROR] Error in line {lineno} of {filename}: {str(error)}')
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        print(f'Error in line {lineno} of {filename}: {str(error)}')
+        print(f'[ERROR] Error in line {lineno} of {filename}: {str(error)}')
     return data
 
 def parse_result_id(response, result_type):
@@ -381,7 +382,7 @@ def manychat_request(
                     url, headers=headers
                 )
             else:
-                raise ValueError("Invalid request type. Valid values are 'POST' and 'GET'.")
+                raise ValueError("[ERROR] Invalid request type. Valid values are 'POST' and 'GET'.")
 
             print(f'Status code {response.status_code}: {response.reason}')
             data = response.json()
@@ -393,7 +394,7 @@ def manychat_request(
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            print(f'Error in line {lineno} of {filename}: {str(error)}')
+            print(f'[ERROR] Error in line {lineno} of {filename}: {str(error)}')
             
             return {}
     else:
@@ -474,6 +475,6 @@ class Ghl:
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message = f"Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}"
+            message = f"[ERROR] Unable to save tokens to S3. Error in line {lineno} of {filename}: {str(error)}"
         print(message)
         return self.update_response
