@@ -68,6 +68,16 @@ def lambda_handler(event, context):
                     print(f'Location: {location}')
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
+                        # if message is an image without text, extract the attachment link(s)
+                        payload_body = payload.get('body', None)
+                        if (payload_body == None) | (payload_body == ''):
+                            message_key = 'attachments'
+                        else:
+                            message_key = 'body'
+                        message_body = payload.get(message_key, '')
+                        if type(message_body) == list:
+                            message_body = '[Attachments: ' + ', '.join([f'{item}' for item in message_body]) + ']'
+                        payload['body'] = message_body
                         add_to_chat_history_message, original_chat_history = add_to_chat_history(payload)
                         message += add_to_chat_history_message + '. \n'
                         print(f'Original chat history: {original_chat_history} \n')

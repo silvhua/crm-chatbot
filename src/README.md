@@ -73,4 +73,5 @@ Version | Description | Date | Commit
 1.5.15 | Re-attempt GHL sendMessage and createTask requests up to 3 times if it fails. | 2024-02-24 23:02
 1.5.16 | Use `.get()` instead of indexing for `ghl_request` response object. | 2024-02-25 11:18
 1.5.17 | Only compare generated message to past messages if not None | 2024-02-25 11:34
-1.5.19 | Webhooks Lambda: Allow function to run even if `refresh_token` fails. `add_to_chat_history`: get attachments if body is empty. | 2024-02-25 12:53
+1.5.19 | Webhooks Lambda: Allow function to run even if `refresh_token` fails. `chat_with_chatbot`: `add_to_chat_history`: get attachments if body is empty. | 2024-02-25 12:53
+1.5.20 | Webhooks Lambda: If inbound/outbound message has no text, make the payload body the attachment URLs as string . | 2024-02-25 13:06

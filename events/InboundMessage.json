@@ -2,17 +2,18 @@
   "body": {
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
-    "attachments": [],
-    "body": "look good in tank tops",
+    "attachments": ["https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif"],
+    "body": "",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
-    "dateAdded": "2024-02-19T00:34:00.000Z",
+    "dateAdded": "2024-02-25T21:06:00.000Z",
     "direction": "inbound",
     "messageType": "FB",
     "userId": "80pzXdC3MCqKRpzrteuj",
-    "contact_tags": ["chatgpt", "no height and weight"],
-    "phone": "+61872070331"
+    "contact_tags": ["chatgpt", "no height and weight", "no chatbot"],
+    "phone": "+61872070331",
+    "fullNameLowerCase": "silvia hua"
   },
   "direct_local_invoke": 1
 }
