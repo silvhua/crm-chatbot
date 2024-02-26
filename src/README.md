@@ -1,4 +1,10 @@
-# Releases
+# Info
+
+This app consists of two AWS Lambda functions:
+- `WebhooksLambda`: Defined in `ghl_chat_history_lambda.py`. This receives webhooks and handles the data appropriately.
+- `ReplyLambda`: Defined in `ghl_reply_lambda.py`. This receives data from the `WebhooksLambda` to generate a response to inbound messages.
+
+# Release History
 
 Version | Description | Date | Commit
 --- | ---- | --- | ---
@@ -75,3 +81,4 @@ Version | Description | Date | Commit
 1.5.17 | Only compare generated message to past messages if not None | 2024-02-25 11:34
 1.5.19 | Webhooks Lambda: Allow function to run even if `refresh_token` fails. `chat_with_chatbot`: `add_to_chat_history`: get attachments if body is empty. | 2024-02-25 12:53
 1.5.20 | Webhooks Lambda: If inbound/outbound message has no text, make the payload body the attachment URLs as string . | 2024-02-25 13:06
+Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
