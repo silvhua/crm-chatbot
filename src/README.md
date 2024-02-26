@@ -82,3 +82,4 @@ Version | Description | Date | Commit
 1.5.19 | Webhooks Lambda: Allow function to run even if `refresh_token` fails. `chat_with_chatbot`: `add_to_chat_history`: get attachments if body is empty. | 2024-02-25 12:53
 1.5.20 | Webhooks Lambda: If inbound/outbound message has no text, make the payload body the attachment URLs as string . | 2024-02-25 13:06
 Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
+1.5.21 | Bug fix to Reply Lambda: `ghl_api_response.get('status_code', None)` -> `ghl_api_response.get('status_code', 500)` | 2024-02-26 15:31
