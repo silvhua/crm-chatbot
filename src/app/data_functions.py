@@ -45,7 +45,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message = f" Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
+        message = f" [ERROR] Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
         print(f'Raw JSON string: {json_string}\n')
         print(message)
         
@@ -148,6 +148,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
     """
     Taken from ghl_webhook_lambda.py
     """
+    message = ''
     try:
         item_attributes = dict()
         message_events = ['InboundMessage', 'OutboundMessage']
@@ -182,7 +183,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message = f"Error in line {lineno} of {filename}: {str(error)}"
+            message += f"[ERROR] Error in line {lineno} of {filename}: {str(error)}"
             return message
         if payload_type in contact_events:
             timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
@@ -191,7 +192,7 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
             TableName=table_name,
             Item=item_attributes
         )
-        message = f'Data for {payload.get("type", "")} webhook saved to DynamoDB successfully.'
+        message += f'Data for {payload.get("type", "")} webhook saved to DynamoDB successfully.'
         
         # lastInboundMessage = dict()
         # lastInboundMessage['SessionId'] = {'S': payload.get(contact_id_key, 'no contact id')}
@@ -210,8 +211,8 @@ def add_webhook_data_to_dynamodb(payload, table_name, dynamodb):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        print("An error occurred on line", lineno, "in", filename, ":", error)
-        return f"Error in line {lineno} of {filename}: {str(error)}"
+        message += f"[ERROR] Error in line {lineno} of {filename}: {str(error)}"
+        return message
 
 def add_to_chat_history(payload):
     original_chat_history = []
@@ -226,15 +227,7 @@ def add_to_chat_history(payload):
                 'type': 'ChatHistory'
             }
             )
-        payload_body = payload.get('body', None)
-        if (payload_body == None) | (payload_body == ''):
-            message_key = 'attachments'
-        else:
-            message_key = 'body'
-        message_body = payload.get(message_key, '')
-        if type(message_body) == list:
-            message_body = '[Attachments: ' + ', '.join([f'{item}, ' for item in message_body]) + ']'
-
+        message_body = payload.get('body', '')
         original_chat_history = history.messages
         if payload['type'] == 'InboundMessage':
             history.add_user_message(message_body)
@@ -251,7 +244,7 @@ def add_to_chat_history(payload):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message = f'An error occurred on line {lineno} in {filename}: {error}.'
+        message = f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.'
     return message, original_chat_history
 
 def format_irish_mobile_number(phone_number):

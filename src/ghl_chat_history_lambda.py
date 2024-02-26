@@ -163,7 +163,7 @@ def lambda_handler(event, context):
                                     if ghl_workflow_response['status_code'] // 100 == 2:
                                         message += f'\nRemoved contactId {contact_id} from "{workflowName}" workflow: \n{ghl_workflow_response}\n'
                                     else:
-                                        message += f'\nFailed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
+                                        message += f'\n[ERROR] Failed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
                                         message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                     ghl_tag_to_remove = 'no height and weight'
                                     ghl_removeTag_response = ghl_request(
@@ -175,7 +175,7 @@ def lambda_handler(event, context):
                                     if ghl_removeTag_response['status_code'] // 100 == 2:
                                         message += f'Removed tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
                                     else:
-                                        message += f'Failed to Remove tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
+                                        message += f'[ERROR] Failed to Remove tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
                                         message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
                                 if ghl_tag_to_add != None:
                                     # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
@@ -188,7 +188,7 @@ def lambda_handler(event, context):
                                     if ghl_addTag_response['status_code'] // 100 == 2:
                                         message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
                                     else:
-                                        message += f'Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
+                                        message += f'[ERROR] Failed to add tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
                                         message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
                                 if create_task == True:
                                     if contact_id != os.environ.get('my_contact_id', ''):
@@ -205,7 +205,7 @@ def lambda_handler(event, context):
                                         if ghl_createTask_response['status_code'] // 100 == 2:
                                             message += f'Created respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                         else:
-                                            message += f'Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
+                                            message += f'[ERROR] Failed to create respond task for contactId {contact_id}: \n{ghl_createTask_response}\n'
                                             message += f'Status code: {ghl_createTask_response["status_code"]}. \nResponse reason: {ghl_createTask_response["response_reason"]}'
                                     else:
                                         message += f'Skip task creation and adding tag for inbound message from testing account. '
@@ -214,7 +214,7 @@ def lambda_handler(event, context):
                                 f = tb.tb_frame
                                 lineno = tb.tb_lineno
                                 filename = f.f_code.co_filename
-                                message += f'Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
+                                message += f'[ERROR] Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
                                 message += f"{message}\nGHL refresh token status: {refresh_token_response.get('statusCode', None)} :{refresh_token_response.get('body', None)}. \n"
                         else:
                             message += f'Not an inbound message; ghl_reply skipped. \n'
@@ -223,7 +223,7 @@ def lambda_handler(event, context):
                     f = tb.tb_frame
                     lineno = tb.tb_lineno
                     filename = f.f_code.co_filename
-                    message += f'An error occurred on line {lineno} in {filename}: {error}.'
+                    message += f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.'
             else:
                 message += f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 
@@ -257,12 +257,12 @@ def lambda_handler(event, context):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message += f'An error occurred on line {lineno} in {filename}: {error}.'
+        message += f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.'
         
         print(f'\nOriginal payload: {payload}\n')
         return {
             "statusCode": 500,
-            "body": json.dumps(f"Error in line {lineno} of {filename}: {str(error)}")
+            "body": json.dumps(f"[ERROR] Error in line {lineno} of {filename}: {str(error)}")
         }
                                         # try:
                                         #     manychat_contact_details = manychat_request(contact_fullname)

@@ -129,7 +129,7 @@ def lambda_handler(event, context):
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
+            message += f" [ERROR] Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
         print(f'\nProcessed chatbot response: {chatbot_response}\n')
@@ -222,7 +222,7 @@ def lambda_handler(event, context):
                 if ghl_createTask_response.get('status_code', None) // 100 == 2:
                     message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
                 else:
-                    message += f'Error : Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
+                    message += f'[ERROR] Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response.get("status_code", None)}. \nResponse reason: {ghl_createTask_response.get("response_reason", None)}'
                     print(message)
                     return {
@@ -249,7 +249,7 @@ def lambda_handler(event, context):
                     if ghl_updatePhone_response.get('status_code', None) // 100 == 2:
                         message += f'Updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]}.\n'
                     else:
-                        message += f'Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
+                        message += f'[ERROR] Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
                         message += f'Status code: {ghl_updatePhone_response.get("status_code", None)}. \nResponse reason: {ghl_updatePhone_response.get("response_reason", None)}.\n'
                 # tag_to_add = 'no chatbot'
                 # ghl_addTag_response = ghl_request(
@@ -296,7 +296,7 @@ def lambda_handler(event, context):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message += f"Error in line {lineno} of {filename}: {str(error)} \n"
+        message += f"[ERROR] Error in line {lineno} of {filename}: {str(error)} \n"
         print(message)
         return {
             'statusCode': 500,
