@@ -257,7 +257,7 @@ def lambda_handler(event, context):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        print("An error occurred on line", lineno, "in", filename, ":", error)
+        message += f'An error occurred on line {lineno} in {filename}: {error}.'
         
         print(f'\nOriginal payload: {payload}\n')
         return {
