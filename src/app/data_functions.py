@@ -8,7 +8,7 @@ import re
 
 import re
 
-def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_number']):
+def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
     """
     Parses the result from Open AI response and returns a dictionary that matches the specified dictionary keys.
     
@@ -30,7 +30,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         
         if isinstance(parsed_json, list):
             parsed_dict = {}
-            for item in reversed(parsed_json):
+            for item in parsed_json:
                 if isinstance(item, dict) and all(key in item for key in dict_keys):
                     parsed_dict = item
                     break
@@ -53,7 +53,6 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         matches = re.findall(regex, json_string)
         
         parsed_dict = {}
-        
         for match in matches:
             temp_dict = json.loads(match)
             if all(key in temp_dict for key in dict_keys):
@@ -63,7 +62,6 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         if parsed_dict:
             return parsed_dict
         else:
-            print(f'Unparsed JSON string: "{json_string}"')
             return {"response": None, "alert_human": True}
 
 def query_dynamodb_table(
