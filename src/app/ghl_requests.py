@@ -253,7 +253,7 @@ def ghl_request(
             filename = f.f_code.co_filename
             message = f'[ERROR] Error in line {lineno} of {filename}: {str(error)}'
             print(message)
-            return message
+            return data
 
         headers = {
             "Authorization": f"Bearer {token['access_token']}",
@@ -284,7 +284,7 @@ def ghl_request(
                 json=payload if payload else None
             )
         else:
-            raise ValueError("[ERROR] Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
+            raise ValueError("Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
 
         print(f'GHL request status code for `{endpoint}` endpoint: {response.status_code}: {response.reason}')
         data = response.json()
@@ -304,13 +304,13 @@ def ghl_request(
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            print(f'[ERROR] Error in line {lineno} of {filename}: {str(error)}')
+            print(f'Error in line {lineno} of {filename}: {str(error)}')
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        print(f'[ERROR] Error in line {lineno} of {filename}: {str(error)}')
+        print(f'Error in line {lineno} of {filename}: {str(error)}')
     return data
 
 def parse_result_id(response, result_type):
