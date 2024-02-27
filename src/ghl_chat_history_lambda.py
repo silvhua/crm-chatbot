@@ -56,7 +56,9 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
-            if contact_data: 
+            manychat_optin_messages = ['GET STARTED', 'Get Started']
+            inbound_content = payload.get('body')
+            if (len(contact_data) > 0) | (inbound_content in manychat_optin_messages): 
                 if payload.get("noReply", False) == False:
                     message += add_webhook_data_to_dynamodb(
                         payload, table_name, dynamodb
@@ -85,8 +87,6 @@ def lambda_handler(event, context):
                             refresh_token_response = {}
                             try:
                                 refresh_token_response = refresh_token()
-                                inbound_content = payload.get('body')
-                                manychat_optin_messages = ['GET STARTED', 'Get Started']
                                 past_inbound_messages = [item.content for item in original_chat_history if item.type.lower() == 'human']
                                 create_task = False
                                 # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda

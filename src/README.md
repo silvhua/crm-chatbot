@@ -87,3 +87,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.5.23 | Webhooks Lambda: Prevent duplicate intro outbound messages (both GHL Workflow and ChatGPT) in case contact responds to ManyChat multiple-choice question more than once. | 2024-02-27 00:30
 1.5.24 | In case contact responds to ManyChat multiple-choice question more than once after already completing the ManyChat workflow, add the tag 'no chatbot' to avoid unexpected chatbot responses. | 2024-02-27 00:51
 1.6.0 | Show outbound messages as being sent from chatbot's GHL staff account. | 2024-02-27 10:03
+1.6.1 | Process the opt-in InboundMessage even if contact is not yet in the database. This accounts for slight delay in the webhook for ContactCreate and InboundMessage. | 2024-02-27 14:23
