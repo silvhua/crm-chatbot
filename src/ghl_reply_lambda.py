@@ -129,7 +129,7 @@ def lambda_handler(event, context):
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
-            message += f" [ERROR] Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
+            message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
         print(f'\nProcessed chatbot response: {chatbot_response}\n')
@@ -150,12 +150,13 @@ def lambda_handler(event, context):
                         if contactId != os.environ.get('my_contact_id'): # Add pause before sending next consecutive message
                             pause_before_next_message = number_of_words/2
                         elif contactId == os.environ.get('my_contact_id'):
-                            pause_before_next_message = number_of_words/2
+                            pause_before_next_message = number_of_words/number_of_words
                         print(f'\nPause before message {index}: {pause_before_next_message}')
                         time.sleep(pause_before_next_message)
                     message_payload = {
                         "type": payload['messageType'],
-                        "message": message
+                        "message": message,
+                        "userId": os.environ.get('bot_user_id', os.environ.get('user_id', None))
                         # "message": chatbot_response['response']
                     }
                     # Re-attempt GHL sendMessage request up to 3 times if it fails

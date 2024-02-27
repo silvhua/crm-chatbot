@@ -86,3 +86,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.5.22 | `parse_json_string`: Update print statements to remove `ERROR` | 2024-02-26 20:39
 1.5.23 | Webhooks Lambda: Prevent duplicate intro outbound messages (both GHL Workflow and ChatGPT) in case contact responds to ManyChat multiple-choice question more than once. | 2024-02-27 00:30
 1.5.24 | In case contact responds to ManyChat multiple-choice question more than once after already completing the ManyChat workflow, add the tag 'no chatbot' to avoid unexpected chatbot responses. | 2024-02-27 00:51
+1.6.0 | Show outbound messages as being sent from chatbot's GHL staff account. | 2024-02-27 10:03
