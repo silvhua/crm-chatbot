@@ -119,9 +119,14 @@ def lambda_handler(event, context):
                                         if inbound_content.lower() == 'get started':
                                             ghl_tag_to_add = ['facebook lead', 'chatgpt']
                                         elif 'facebook lead' in contact_tags: 
+                                            # Checking for the 'facebook lead' tag before adding the tag 'no height and weight' prevents contact from being re-added 
+                                            # to the GHL workflow that could re-send the intro message if they respond to ManyChat multiple-choice question more than once
                                             ghl_tag_to_add ='no height and weight'
-                                        else:
+                                        else: 
                                             message += 'ManyChat question answered multiple times. \n'
+                                            # In case contact responds to ManyChat multiple-choice question more than once, add the tag 'no chatbot' to avoid 
+                                            # unexpected chatbot responses
+                                            ghl_tag_to_add ='no chatbot'
                                     # elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                     elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                         if (len(set(contact_tags).intersection(set(tags_for_human))) == 0):
