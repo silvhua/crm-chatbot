@@ -92,6 +92,9 @@ def lambda_handler(event, context):
                                 # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda
                                 repeated_optin_messages = set(manychat_optin_messages).intersection(set(past_inbound_messages))
                                 # print(f'Repeated opt-in messages: {repeated_optin_messages}.')
+                                messages_to_ignore = manychat_optin_messages + [ # messages handled by ManyChat workflow
+                                    '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
+                                ] 
                                 if (inbound_content in manychat_optin_messages) & (len(repeated_optin_messages) > 0): 
                                     ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot']
                                     create_task = True
@@ -110,13 +113,15 @@ def lambda_handler(event, context):
                                         'no chatbot',
                                         'money_magnet_schedule'
                                     ]
-                                    messages_to_ignore = manychat_optin_messages + [ # messages handled by ManyChat workflow
-                                        '🍎 Nutrition', '💪 Training', '🧠 Knowledge'
-                                    ] 
                                     ghl_tag_to_add = None
                                     if inbound_content in messages_to_ignore:
                                         message += 'Inbound message handled by ManyChat workflow. \n'
-                                        ghl_tag_to_add = ['facebook lead', 'chatgpt'] if inbound_content.lower() == 'get started' else 'no height and weight'
+                                        if inbound_content.lower() == 'get started':
+                                            ghl_tag_to_add = ['facebook lead', 'chatgpt']
+                                        elif 'facebook lead' in contact_tags: 
+                                            ghl_tag_to_add ='no height and weight'
+                                        else:
+                                            message += 'ManyChat question answered multiple times. \n'
                                     # elif ('money_magnet_lead' in contact_manychat_tags) | ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                     elif ('money_magnet_lead' in contact_tags) | ('chatgpt' in contact_tags):
                                         if (len(set(contact_tags).intersection(set(tags_for_human))) == 0):
@@ -152,7 +157,7 @@ def lambda_handler(event, context):
                                             message += f'`ghl_reply` Lambda function skipped based on contact tags. \n'
                                     else:
                                         message += f'\nContact is not a relevant lead. No AI response required. \n'
-                                if 'no height and weight' in contact_tags:
+                                if ('no height and weight' in contact_tags) & (inbound_content not in messages_to_ignore):
                                     ## Remove from manychat follow up workflow.
                                     workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
                                     workflowName = 'silvia: manychat followup'
@@ -165,7 +170,7 @@ def lambda_handler(event, context):
                                     else:
                                         message += f'\n[ERROR] Failed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
                                         message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
-                                    ghl_tag_to_remove = 'no height and weight'
+                                    ghl_tag_to_remove = ['facebook lead', 'no height and weight']
                                     ghl_removeTag_response = ghl_request(
                                         contactId=contact_id, 
                                         endpoint='removeTag', 
@@ -215,7 +220,7 @@ def lambda_handler(event, context):
                                 lineno = tb.tb_lineno
                                 filename = f.f_code.co_filename
                                 message += f'[ERROR] Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
-                                message += f"{message}\nGHL refresh token status: {refresh_token_response.get('statusCode', None)} :{refresh_token_response.get('body', None)}. \n"
+                                message += f"{message}\nGHL refresh token status: {refresh_token_response.get('statusCode', None)}: {refresh_token_response.get('response_reason', None)}. \n"
                         else:
                             message += f'Not an inbound message; ghl_reply skipped. \n'
                 except Exception as error:
