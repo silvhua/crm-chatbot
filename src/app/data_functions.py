@@ -23,11 +23,10 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         - Exception: If there is an error while parsing the JSON string.
     """
     try:
-        json_string = re.sub(r'(?<!["])\bFalse\b(?![":])', 'false', json_string)
-        json_string = re.sub(r'(?<!["])\bTrue\b(?![":])', 'true', json_string)
-        json_string = re.sub(r'(?<!["])\bNone\b(?![":])', 'null', json_string)
-        
-        parsed_json = json.loads(json_string)
+        processed_json_string = re.sub(r'(?<!["])\bFalse\b(?![":])', 'false', json_string)
+        processed_json_string = re.sub(r'(?<!["])\bTrue\b(?![":])', 'true', processed_json_string)
+        processed_json_string = re.sub(r'(?<!["])\bNone\b(?![":])', 'null', processed_json_string)
+        parsed_json = json.loads(processed_json_string)
         
         if isinstance(parsed_json, list):
             parsed_dict = {}
@@ -45,8 +44,8 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message = f" [ERROR] Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
-        print(f'Raw JSON string: {json_string}\n')
+        message = f"Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
+        print(f'Raw JSON string: "{json_string}"\n')
         print(message)
         
         # Extract substring matching the format of a json string
@@ -64,7 +63,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human', 'phone_
         if parsed_dict:
             return parsed_dict
         else:
-            print(f'Unparsed JSON string: \n{json_string}')
+            print(f'Unparsed JSON string: "{json_string}"')
             return {"response": None, "alert_human": True}
 
 def query_dynamodb_table(
