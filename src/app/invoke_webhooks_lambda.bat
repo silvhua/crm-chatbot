@@ -19,3 +19,5 @@ sam local invoke FollowupLambda --event events/followupWorkflowWebhook.json
 @REM sam local invoke WebhooksLambda --event events/CustomInboundMessage.json
 @REM sam local invoke WebhooksLambda --event events/CustomInboundMessageTest.json
 @REM sam local invoke WebhooksLambda --event events/CustomInboundMessage.json
+
+sam local invoke WebhooksLambda --event src/events/InboundMessageTest.json

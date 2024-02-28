@@ -1,1 +1,0 @@
-rmdir /Q /S pydantic_core pydantic_core-2.14.5.dist-info pydantic-2.5.2.dist-info requests sniffio sqlalchemy tenacity urllib3 urllib3-2.0.0.dist-info urllib3-2.0.2.dist-info urllib3-2.1.0.dist-info yaml yarl 
