@@ -1,0 +1,26 @@
+{
+  "body": {
+        "type": "ContactCreate",
+        "locationId": "QSZ6lvarPNxtmTFl84W8",
+        "id": "test",
+        "address1": "3535 1st St N",
+        "city": "ruDolomitebika",
+        "state": "AL",
+        "companyName": "Loram ipsum",
+        "country": "DE",
+        "source": "xyz form",
+        "dateAdded": "2021-11-26T12:41:02.193Z",
+        "dateOfBirth": "2000-01-05T00:00:00.000Z",
+        "dnd": false,
+        "email": "JohnDeo@gmail.comm",
+        "name": "Test Contact",
+        "firstName": "Test",
+        "lastName": "Contact",
+        "phone": "+919509597501",
+        "postalCode": "452001",
+        "tags": ["sam lab members", "consultation booked"],
+        "website": "https://www.google.com/",
+        "attachments": [],
+        "assignedTo": "80pzXdC3MCqKRpzrteuj"
+      }
+}
