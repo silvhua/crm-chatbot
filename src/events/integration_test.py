@@ -1,11 +1,13 @@
 import json
 import sys
 sys.path.append('../')
-sys.path.append('../src')
-sys.path.append('../src/app')
-from src import ghl_reply_lambda
+sys.path.append('../app')
+import ghl_reply_lambda
+# sys.path.append('../src')
+# sys.path.append('../src/app')
+# from src import ghl_reply_lambda
 import pytest
-from app import data_functions
+# from app import data_functions
 from datetime import datetime, timezone
 import os
 
