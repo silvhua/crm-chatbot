@@ -1,0 +1,19 @@
+{
+  "body": {
+    "type": "InboundMessage",
+    "locationId": "fsdVH26v30hoBBQOBttG",
+    "attachments": ["https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif"],
+    "body": "i can do a call tonight",
+    "contactId": "6kIAuqeiBUxJ3nWTwNVE",
+    "contentType": "text/plain",
+    "conversationId": "fcanlLgpbQgQhderivVs",
+    "dateAdded": "2024-02-25T21:06:00.000Z",
+    "direction": "inbound",
+    "messageType": "FB",
+    "userId": "80pzXdC3MCqKRpzrteuj",
+    "contact_tags": ["chatgpt", "no height and weight", "no chatbot"],
+    "phone": "+61872070331",
+    "fullNameLowerCase": "silvia hua"
+  },
+  "direct_local_invoke": 1
+}

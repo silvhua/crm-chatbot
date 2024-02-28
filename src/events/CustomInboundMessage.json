@@ -1,0 +1,41 @@
+{"body": 
+    {
+        "contact_id": "6kIAuqeiBUxJ3nWTwNVE",
+        "first_name": "Silvia",
+        "last_name": "Hua",
+        "full_name": "Silvia Hua",
+        "tags": "chatbot",
+        "date_created": "2023-12-29T04:51:50.798Z",
+        "full_address": "",
+        "contact_type": "lead",
+        "location": {
+            "name": "Coach Mc Loone",
+            "address": "92 Mcevoy st, level 1",
+            "city": "Alexandria",
+            "state": "NSW",
+            "country": "AU",
+            "postalCode": "2015",
+            "fullAddress": "92 Mcevoy st, level 1, Alexandria NSW 2015",
+            "id": "fsdVH26v30hoBBQOBttG"
+        },
+        "message": {
+            "type": 11,
+            "body": "testing webhooks Lambda function"
+        },
+        "workflow": {
+            "id": "d453e1aa-8b09-4a52-a105-c9389ab1aa65",
+            "name": "silvia test: 1703825075577"
+        },
+        "contact": {
+            "attributionSource": {
+                "sessionSource": "Other",
+                "mediumId": "6975421785872187",
+                "medium": "facebook"
+            },
+            "lastAttributionSource": {}
+        },
+        "attributionSource": {},
+        "customData": {}
+    },
+    "direct_local_invoke": "1"
+}
