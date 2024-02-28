@@ -49,7 +49,7 @@ jobs:
         run: |
           echo 'Initial test'
           pip3 install pytest pytest-mock boto3
-          cd events
+          cd src/events
           python3 -m pytest unit_test.py
 
   delete-feature:
@@ -225,7 +225,7 @@ jobs:
           echo 'Integration tests'
           pip3 install pytest pytest-mock boto3
           pip3 install -r requirements.txt
-          cd events
+          cd src/events
           python3 -m pytest integration_test.py
 
   deploy-prod:

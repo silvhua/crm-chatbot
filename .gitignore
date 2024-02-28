@@ -9,6 +9,7 @@ events/__pycache__
 events/InboundMessageTest.json
 src/*/**
 !src/app/*
+!src/events/*
 !src/app/auth_app.py
 src/jsonpatch.py
 src/mypy_extensions.py
