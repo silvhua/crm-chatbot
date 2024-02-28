@@ -62,10 +62,6 @@ def lambda_handler(event, context):
             description=f"Do not invoke this function.",
         )
     ]
-    # tags_handled_by_ghl_workflow = [ # If contact has any of these GHL tags, no reply is generated
-    #     # 'facebook lead',
-    #     # 'no height and weight'
-    # ]
     try:
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
@@ -79,13 +75,6 @@ def lambda_handler(event, context):
             # print(f'Waiting for {wait_time} seconds')
             # time.sleep(wait_time)
         
-        # if (len(set(payload['contact_tags']).intersection(set(tags_handled_by_ghl_workflow))) > 0):
-        #     message += f'No chatbot response for contact with contact_tags {payload["contact_tags"]}. \n'
-        #     print(message)
-        #     return {
-        #         'statusCode': 200,
-        #         'body': json.dumps(message)
-        #     }
         try:
             system_message_dict[conversation_id] = create_system_message(
                 'CoachMcloone', 
@@ -144,7 +133,7 @@ def lambda_handler(event, context):
         elif payload.get("noReply", False) == False:
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
                 split_response_list = create_paragraphs(chatbot_response['response']).split('\n\n') # Send multiple messages if response is long
-                for index, message in enumerate(split_response_list):
+                for index, paragraph in enumerate(split_response_list):
                     number_of_words = len(message.split())
                     if index != 0:
                         if contactId != os.environ.get('my_contact_id'): # Add pause before sending next consecutive message
@@ -155,9 +144,8 @@ def lambda_handler(event, context):
                         time.sleep(pause_before_next_message)
                     message_payload = {
                         "type": payload['messageType'],
-                        "message": message,
+                        "message": paragraph,
                         "userId": os.environ.get('bot_user_id', os.environ.get('user_id', None))
-                        # "message": chatbot_response['response']
                     }
                     # Re-attempt GHL sendMessage request up to 3 times if it fails
                     max_attempts = 3
