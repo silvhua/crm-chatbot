@@ -1,8 +1,25 @@
-# Info
+# Go High Level SMS Chatbot
+## Objectives
+The objective of this project is to leverage generative AI and automations to reduce how much time the staff spend on communicating with leads via text message.
+
+This project integrates a large language model with Go High Level, a CRM software, to auto-generate responses to inbound text messages to a small business. 
+
+The project is currently being deployed for private use by a small fitness business.
+
+# Methods
+## Architecture
 
 This app consists of two AWS Lambda functions:
 - `WebhooksLambda`: Defined in `ghl_chat_history_lambda.py`. This receives webhooks and handles the data appropriately.
 - `ReplyLambda`: Defined in `ghl_reply_lambda.py`. This receives data from the `WebhooksLambda` to generate a response to inbound messages.
+
+## Tech Stack
+* Amazon Web Services: API Gateway, S3, DynamoDB, Lambda, CloudWatch, Serverless Application Model (SAM)
+* Go High Level and Go High Level API
+* Python
+* LangChain
+* OpenAI
+* VS Code
 
 # Release History
 
