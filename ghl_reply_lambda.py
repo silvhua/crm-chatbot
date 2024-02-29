@@ -119,6 +119,7 @@ def lambda_handler(event, context):
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
             message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
+            print(message) # Print message here in case Lambda function times out.
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
         print(f'\nProcessed chatbot response: {chatbot_response}\n')
