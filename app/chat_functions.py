@@ -195,7 +195,7 @@ def chat_with_chatbot(user_input, agent_info):
         # If the last message is also Inbound, then join all inbound messages together and delete them from chat history
         if previous_message_type == 'human': 
             last_inbound_messages_list = []
-            for item in chat_history[-1:0:-1]:
+            for item in reversed(chat_history):
                 if item.type.lower() == 'human':
                     last_inbound_messages_list.append(item.content)
                     truncated_history = chat_history[:-1]
