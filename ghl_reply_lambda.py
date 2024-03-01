@@ -24,6 +24,7 @@ def lambda_handler(event, context):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
+    print(f'Event: {event}')
     if event.get('direct_local_invoke', None):
         payload = event['body']
     else:
