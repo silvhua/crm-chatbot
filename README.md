@@ -107,3 +107,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.6.1 | Process the opt-in InboundMessage even if contact is not yet in the database. This accounts for slight delay in the webhook for ContactCreate and InboundMessage. | 2024-02-27 14:23
 1.6.2 | Made parent repository private. Created git subtree. | 2024-02-28 15:49
 1.6.3 | Avoid adding ['re-entered ManyChat funnel', 'no chatbot'] tags if last inbound message was also a ManyChat opt-in message. Print event JSON for easier troubleshotting of duplicate triggers. | 2024-02-29 23:34 
+1.6.4 | To avoid sending duplicate outbound messages, split past outbound messages into sentences to see if it is contained in the AI-generated response. Added [license file](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.txt)

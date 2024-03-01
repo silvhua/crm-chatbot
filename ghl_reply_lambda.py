@@ -7,6 +7,7 @@ from app.data_functions import parse_json_string, format_irish_mobile_number, ad
 import time
 import random
 import re
+import itertools
 
 try:
     from dotenv import load_dotenv
@@ -93,6 +94,8 @@ def lambda_handler(event, context):
             chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
             # Check that the generated response is not similar to a previously sent outbound message.
             past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
+            # Split past outbound messages into sentences
+            past_outbound_messages = [sentence for sentence in list(itertools.chain(*[outbound_message.split('. ') for outbound_message in past_outbound_messages])) if sentence]
             cleaned_past_outbound_messages = [re.sub(r'[^a-zA-Z0-9\s]+', '', message) for message in past_outbound_messages]
             cleaned_past_outbound_messages = [' '.join(message.split()) for message in cleaned_past_outbound_messages]
             if chatbot_response['response'] != None:
