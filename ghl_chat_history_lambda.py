@@ -19,7 +19,6 @@ def lambda_handler(event, context):
     message = ''
     try:
         print(f'Event: {event}')
-        print(f'context: {context}')
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
         else:
