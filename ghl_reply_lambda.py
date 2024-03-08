@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
-    print(f'Event: {event}')
+    # print(f'Event: {event}')
     if event.get('direct_local_invoke', None):
         payload = event['body']
     else:
@@ -227,7 +227,8 @@ def lambda_handler(event, context):
                     }
             # Add tag(s) to the contact if it is indicated in the chatbot response AND if message was successfully sent.
             ghl_tag_to_add = chatbot_response.get('tag', None)
-            if (ghl_tag_to_add != None) & (ghl_api_response.get('status_code', 500) // 100 == 2):
+            if (ghl_tag_to_add != None) & (ghl_tag_to_add not in payload.get('contact_tags', [])) \
+                & (ghl_api_response.get('status_code', 500) // 100 == 2):
                 ghl_addTag_response = ghl_request(
                     contactId=contactId, 
                     endpoint='addTag', 
@@ -239,6 +240,8 @@ def lambda_handler(event, context):
                 else:
                     message += f'[ERROR] Failed to add tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
                     message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+            elif ghl_tag_to_add in payload.get('contact_tags', []):
+                message += f'Tag `{ghl_tag_to_add}` already exists for contact.'
 
             # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
             # workflowName = 'chatbot:_1-day_follow_up'

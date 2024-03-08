@@ -114,3 +114,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.7.1 | Check that AI-generated response is successfully sent before adding the tag to the contact. | 2024-03-07 22:58
 1.7.2 | Fix error in reply Lambda caused by chat history length being fewer than 2 messages. | 2024-03-07 23:22
 1.7.3 | Update message templates to avoid unecessary addition of contact tags. | 2024-03-08 00:06 
+1.7.4 | Check if tag already exists before sending the GHL request to add it. | 2024-03-08 00:30
