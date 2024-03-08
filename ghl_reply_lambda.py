@@ -114,6 +114,7 @@ def lambda_handler(event, context):
                 if re.match(r'.*<.*>', chatbot_response['response']):
                     message += f'Placeholder still present in message. \n'
                     chatbot_response['alert_human'] = True
+            
             if chatbot_response.get('phone_number'):
                 chatbot_response['phone_number'] = format_irish_mobile_number(chatbot_response['phone_number'])
             create_task = False
@@ -223,40 +224,19 @@ def lambda_handler(event, context):
                         'statusCode': 500,
                         'body': json.dumps(message)
                     }
-            update_contact_payload = {}
-            if chatbot_response.get('phone_number', None) != None:
-                int_phone_pattern = r'^\+(?:[0-9]){6,14}[0-9]$'
-                extracted_phone_number = ''.join([char for char in chatbot_response['phone_number'] if char != ' ']) # Remove spaces in extracted phone number
-                extracted_phone_in_int_format = re.match(int_phone_pattern, extracted_phone_number) # If phone number not in int'l format, returns `None`
-                if (payload['phone'] != None) & (extracted_phone_in_int_format != None):
-                    incorrect_irish_phone_pattern = r'^\+618(?:[0-9]){8}$' # Pattern when Irish number is incorrectly saved in GHL contact in Australian phone # format, e.g. +61870000000
-                    phone_in_incorrect_format = re.match(incorrect_irish_phone_pattern, payload['phone'])
-                    if (phone_in_incorrect_format != None):
-                        print(f'Fixing incorrectly formatted Irish number.')
-                        update_contact_payload['phone'] = extracted_phone_number
-
-                    ghl_updatePhone_response = ghl_request(
-                        contactId, endpoint='updateContact', 
-                        payload=update_contact_payload,
-                        location=location 
-                        )
-                    if ghl_updatePhone_response.get('status_code', 500) // 100 == 2:
-                        message += f'Updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]}.\n'
-                    else:
-                        message += f'[ERROR] Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
-                        message += f'Status code: {ghl_updatePhone_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_updatePhone_response.get("response_reason", None)}.\n'
-                # tag_to_add = 'no chatbot'
-                # ghl_addTag_response = ghl_request(
-                #     contactId=contactId, 
-                #     endpoint='addTag', 
-                #     text=tag_to_add,
-                #     location=location
-                # )
-                # if ghl_addTag_response['status_code'] // 100 == 2:
-                #     message += f'Added tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-                # else:
-                #     message += f'Failed to add tag `{tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-                #     message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
+            ghl_tag_to_add = chatbot_response.get('tag', None)
+            if ghl_tag_to_add != None:
+                ghl_addTag_response = ghl_request(
+                    contactId=contactId, 
+                    endpoint='addTag', 
+                    text=ghl_tag_to_add,
+                    location=location
+                )
+                if ghl_addTag_response['status_code'] // 100 == 2:
+                    message += f'Added tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+                else:
+                    message += f'[ERROR] Failed to add tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
+                    message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
 
             # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
             # workflowName = 'chatbot:_1-day_follow_up'
@@ -300,3 +280,28 @@ def lambda_handler(event, context):
     # else:
     #     print('Failed to refresh token')
     #     return response
+
+##### This is not needed because GHl automatically updates phone numbers extracted from chatbot responses.
+    
+            # update_contact_payload = {}
+            # if chatbot_response.get('phone_number', None) != None:
+            #     int_phone_pattern = r'^\+(?:[0-9]){6,14}[0-9]$'
+            #     extracted_phone_number = ''.join([char for char in chatbot_response['phone_number'] if char != ' ']) # Remove spaces in extracted phone number
+            #     extracted_phone_in_int_format = re.match(int_phone_pattern, extracted_phone_number) # If phone number not in int'l format, returns `None`
+            #     if (payload['phone'] != None) & (extracted_phone_in_int_format != None):
+            #         incorrect_irish_phone_pattern = r'^\+618(?:[0-9]){8}$' # Pattern when Irish number is incorrectly saved in GHL contact in Australian phone # format, e.g. +61870000000
+            #         phone_in_incorrect_format = re.match(incorrect_irish_phone_pattern, payload['phone'])
+            #         if (phone_in_incorrect_format != None):
+            #             print(f'Fixing incorrectly formatted Irish number.')
+            #             update_contact_payload['phone'] = extracted_phone_number
+
+            #         ghl_updatePhone_response = ghl_request(
+            #             contactId, endpoint='updateContact', 
+            #             payload=update_contact_payload,
+            #             location=location 
+            #             )
+            #         if ghl_updatePhone_response.get('status_code', 500) // 100 == 2:
+            #             message += f'Updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]}.\n'
+            #         else:
+            #             message += f'[ERROR] Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
+            #             message += f'Status code: {ghl_updatePhone_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_updatePhone_response.get("response_reason", None)}.\n'

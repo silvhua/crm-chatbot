@@ -110,3 +110,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.6.4 | To avoid sending duplicate outbound messages, split past outbound messages into sentences to see if it is contained in the AI-generated response. Added [license file](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.txt) | 2024-03-01 00:47
 1.6.5 | Updated message template for website link to alert human. Updated examples of questions asking about program details. | 2024-03-01 21:13
 1.6.6 | Tweak FAQ question re: cost. | 2024-03-07 09:59
+1.7 | Chatbot response includes a key for `tag`. If response contains a value for tag, then the tag is added to the contact in GHL. | 2024-03-07 22:28
