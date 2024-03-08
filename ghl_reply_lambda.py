@@ -25,12 +25,12 @@ def lambda_handler(event, context):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
-    # print(f'Event: {event}')
+    print(f'Event: {event}')
     if event.get('direct_local_invoke', None):
         payload = event['body']
     else:
         payload = event
-    print(f'Payload (line 27 of ghl_reply_lambda): {payload}')
+    # print(f'Payload (line 27 of ghl_reply_lambda): {payload}')
     message = ''
     ghl_api_response = {}
     print(f"direct local invoke: {event.get('direct_local_invoke', False)}")

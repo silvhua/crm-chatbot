@@ -34,7 +34,7 @@ def lambda_handler(event, context):
             }
         message_events = ['WorkflowInboundMessage', 'InboundMessage', 'OutboundMessage', 'NoteCreate']
         contact_update_events = ['ContactDelete', 'ContactDndUpdate', 'TaskCreate','ContactTagUpdate']
-        print(f'Original payload: {payload}')
+        # print(f'Original payload: {payload}')
         try:
             dynamodb = boto3.client('dynamodb') # Initialize DynamoDB client
         except:
