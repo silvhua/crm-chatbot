@@ -111,3 +111,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.6.5 | Updated message template for website link to alert human. Updated examples of questions asking about program details. | 2024-03-01 21:13
 1.6.6 | Tweak FAQ question re: cost. | 2024-03-07 09:59
 1.7 | Chatbot response includes a key for `tag`. If response contains a value for tag, then the tag is added to the contact in GHL. | 2024-03-07 22:28
+1.7.1 | Check that AI-generated response is successfully sent before adding the tag to the contact. | 2024-03-07 22:58

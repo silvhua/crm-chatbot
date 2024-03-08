@@ -32,6 +32,7 @@ def lambda_handler(event, context):
         payload = event
     print(f'Payload (line 27 of ghl_reply_lambda): {payload}')
     message = ''
+    ghl_api_response = {}
     print(f"direct local invoke: {event.get('direct_local_invoke', False)}")
     if event.get('direct_local_invoke', None):
         payload = event['body']
@@ -224,8 +225,9 @@ def lambda_handler(event, context):
                         'statusCode': 500,
                         'body': json.dumps(message)
                     }
+            # Add tag(s) to the contact if it is indicated in the chatbot response AND if message was successfully sent.
             ghl_tag_to_add = chatbot_response.get('tag', None)
-            if ghl_tag_to_add != None:
+            if (ghl_tag_to_add != None) & (ghl_api_response.get('status_code', 500) // 100 == 2):
                 ghl_addTag_response = ghl_request(
                     contactId=contactId, 
                     endpoint='addTag', 
