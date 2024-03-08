@@ -190,7 +190,7 @@ def chat_with_chatbot(user_input, agent_info):
         "I'll be in touch as soon as I'm online next!",
         "I'll give you a personal message here shortly."
     ]
-    previous_message_type = chat_history[-2].type
+    previous_message_type = chat_history[-2].type if len(chat_history) > 1 else None
     last_message_type = chat_history[-1].type
     if (last_message == user_input): ## Check that the current user_input is the most recent message      
         generate_response = True 
