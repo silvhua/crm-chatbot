@@ -2,7 +2,7 @@
 import sys
 import os
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 from urllib.parse import urlencode
 import boto3
@@ -176,19 +176,19 @@ class Ghl:
                         payload['title'] += f'{"Human attention needed: " if params_dict["alert_human"]==True else "Chatbot response: "}'
                         payload['body'] = params_dict['response']
                     else:
-                        payload['body'] = text if text else f"Test task via GHL API at {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')} UTC time"
+                        payload['body'] = text if text else f"Test task via GHL API at {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} UTC time"
                     payload['title'] += f'Send message to contact {contactId}{" "+text if text else ""}.'
                     payload['assignedTo'] = os.environ['user_id'] if contactId != os.environ['my_contact_id'] else None
                     if params_dict:
                         if params_dict.get('phone_number') != None:
                             payload['title'] += f' Phone number: {params_dict["phone_number"]}'
-                payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+                payload['dueDate'] = payload[3] if len(payload) > 3 else datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
                 payload['completed'] = False
             elif endpoint == 'workflow':
                 endpoint_url = f'contacts/{contactId}/workflow/{path_param}'
                 request_type = 'POST'
                 payload = {}
-                payload['eventStartTime'] = (datetime.utcnow() + timedelta(minutes=random.randint(2, 10))).strftime('%Y-%m-%dT%H:%M:%S+00:00')
+                payload['eventStartTime'] = (datetime.now(timezone.utc) + timedelta(minutes=random.randint(2, 10))).strftime('%Y-%m-%dT%H:%M:%S+00:00')
             elif endpoint == 'removeFromWorkflow':
                 endpoint_url = f'contacts/{contactId}/workflow/{path_param}'
                 request_type = 'DELETE'
@@ -202,7 +202,7 @@ class Ghl:
                 request_type = 'POST'
                 if payload == None:
                     payload = {}
-                    payload['body'] = (f"Reply to SMS (contactID {contactId}) {datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
+                    payload['body'] = (f"Reply to SMS (contactID {contactId}) {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}" if text==None else text)
                     payload['userId'] = contactId
             elif endpoint == 'sendMessage':
                 endpoint_url = f'conversations/messages'
@@ -296,11 +296,10 @@ class Ghl:
             data['response_reason'] = response.reason
             try:
                 if endpoint == 'getEmailHistory':
-                    email_timestamp = data['conversations'][0]['dateUpdated']/1000
-                    utc_time = datetime.utcfromtimestamp(email_timestamp)
-                    pacific_time = utc_time.replace(tzinfo=pytz.utc).astimezone(pytz.timezone('US/Pacific'))
+                    email_timestamp = data['conversations'][0]['dateUpdated']/1000                     
+                    utc_time = datetime.utcfromtimestamp(email_timestamp).replace(tzinfo=timezone.utc)
+                    pacific_time = utc_time.astimezone(timezone(timedelta(hours=-7)))  # US/Pacific is UTC-7
                     email_timestamp_str = pacific_time.strftime('%Y-%m-%d %H:%M:%S')
-
                     print(f'Last email sent: {email_timestamp_str} Pacific time')
                     data['emailTimestamp_pacific'] = email_timestamp_str
             except Exception as error:
