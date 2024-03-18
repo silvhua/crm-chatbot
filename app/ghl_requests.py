@@ -108,28 +108,33 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
             'response': json.dumps(response.json())
         }
 
-class Ghl:
-    def __init__(self, location):
-        self.logger = Custom_Logger(__name__, level=logging.DEBUG)
-        token_filename = 'auth_token_response_cicd.json'
+class Crm:
+    def __init__(self, logging_level=logging.INFO):
+        self.logger = Custom_Logger(__name__, level=logging_level)
+        self.token_filename = 'auth_token_response_cicd.json'
+
+    def get_token(self, location='CoachMcloone'):
+        self.location = location
         try:
             s3 = boto3.client('s3')
-            response = s3.get_object(Bucket='ownitfit-silvhua', Key=token_filename)
+            response = s3.get_object(Bucket='ownitfit-silvhua', Key=self.token_filename)
             self.token = json.loads(response['Body'].read().decode('utf-8'))[location]
+            self.logger.debug(f'Token retrieved from S3 for {location}.')
+            self.locationId = self.token.get('locationId')
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
             f = tb.tb_frame
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
             message = f'[ERROR] Error in line {lineno} of {filename}: {str(error)}'
-            print(message)
+            self.logger.error(message)
             
     def send_request(self,
-            contactId, endpoint='createTask', text=None, payload=None, location='CoachMcloone', 
-            path_param=None, locationId=None, params_dict=None
+            contactId, endpoint='createTask', text=None, payload=None, 
+            path_param=None, params_dict=None
             ):
         """
-        Send a message to a contact in GoHighLevel or retrieve email history.
+        Send a message to a contact in the or retrieve email history.
 
         Parameters:
         - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
@@ -159,7 +164,7 @@ class Ghl:
         url_root = 'https://services.leadconnectorhq.com/'
         data = {}
         if payload:
-            print(f'input payload: {payload}')
+            self.logger.debug(f'input payload: {payload}')
         try:
             if endpoint == 'getContact':
                 endpoint_url = f'contacts/{contactId}'
@@ -196,7 +201,7 @@ class Ghl:
             elif endpoint == 'getWorkflow': ### 
                 endpoint_url = r'workflows/'
                 request_type = 'GET'
-                params = {'locationId': contactId if contactId else locationId}
+                params = {'locationId': contactId if contactId else self.locationId}
             elif endpoint == 'createNote':
                 endpoint_url = f'contacts/{contactId}/notes'
                 request_type = 'POST'
@@ -222,14 +227,14 @@ class Ghl:
                 elif endpoint == 'getContacts':
                     endpoint_url = f'contacts/'
                 else:
-                    endpoint_url = f'locations/{locationId}'
+                    endpoint_url = f'locations/{self.locationId}'
                 request_type = 'GET'
                 payload = None
                 if params_dict:
                     params = params_dict
                 else:
                     params = {
-                        'locationId': locationId,
+                        'locationId': self.locationId,
                         'query': contactId
                     }
             elif endpoint == 'addTag':
