@@ -17,6 +17,7 @@ def lambda_handler(event, context):
     """
     table_name = 'SessionTable' ############
     message = ''
+    end_function = False
     try:        
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
@@ -29,8 +30,12 @@ def lambda_handler(event, context):
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & \
             (("click here to unsubscribe" in payload.get('body', '').lower()) | ("unsubscribe here</a>" in payload.get('body', '').lower())):
             message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}. \n'
+            end_function = True
+        elif payload.get('contactId') == os.environ.get('notifications_contact_id'):
+            message += f'No need to save webhook data for {payload["type"]} for this contactId.'
+            end_function = True
+        if end_function:
             print(message)
-
             return {
                 "statusCode": 200,
                 "body": json.dumps(message)
@@ -141,7 +146,7 @@ def lambda_handler(event, context):
                                             new_payload['fullNameLowerCase'] = contact_details['contact'].get('fullNameLowerCase', None)
                                             # new_payload['auth_token'] = Crm_client.auth_token
                                             new_payload['access_token'] = getattr(Crm_client, 'token', None)['access_token']
-                                            logger.debug(f'Payload for Reply Lambda: {new_payload}')
+                                            # logger.debug(f'Payload for Reply Lambda: {new_payload}')
                                             # Invoke another Lambda function
                                             if payload.get("noReply", False) == False:
                                                 if local_invoke == None:
@@ -164,10 +169,10 @@ def lambda_handler(event, context):
                                                     message += f'`ghl_reply` Lambda function invoked. \n'
                                                 else:
                                                     from ghl_reply_lambda import lambda_handler
-                                                    reply_lambda_response = lambda_handler(new_payload, context)
+                                                    reply_lambda_response = lambda_handler(new_payload, context, logger)
 
-                                                    message += f'ReplyLambda invoked locally.'
-                                                    message += f'{reply_lambda_response["statusCode"]}: \n{reply_lambda_response["body"]}'
+                                                    message += f'ReplyLambda invoked locally. \n'
+                                                    message += f'Status code: {reply_lambda_response["statusCode"]}: \nBody: {reply_lambda_response["body"]}'
 
                                             else:
                                                 message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
