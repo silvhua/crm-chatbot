@@ -15,7 +15,7 @@ def lambda_handler(event, context):
             logger_name='refresh_token', level=logger_level
         )
         info_messages = []
-        max_attempts = 2
+        max_attempts = 3
         attempt_number = 0
         while attempt_number < max_attempts:
             refresh_token_response = refresh_token()  # Call the refresh_token function
@@ -24,7 +24,11 @@ def lambda_handler(event, context):
                 logger.info(f'API response statusCode: \n{refresh_token_response.get("statusCode")}')
                 if logger.logger.level <= 10:
                     logger.debug(f'API response body: \n{refresh_token_response.get("body")}')
-                break
+                logger.info('\n'.join(info_messages))
+                return {
+                    'statusCode': 200,
+                    'body': json.dumps('\n'.join(info_messages))
+                }
             else:
                 retry_messages = []
                 attempt_number += 1
@@ -33,12 +37,12 @@ def lambda_handler(event, context):
                 retry_messages.append(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
                 logger.error('\n'.join(retry_messages))
                 time.sleep(wait_interval)
-
-        logger.info('\n'.join(info_messages))
-        return {
-            'statusCode': 200,
-            'body': json.dumps('\n'.join(info_messages))
-        }
+        if attempt_number == max_attempts:            
+            logger.error(f'Failed to refresh token after {max_attempts} attempts.')
+            return {
+                'statusCode': 500,
+                'body': json.dumps('\n'.join(info_messages))
+            }
     except Exception as error:
         exc_type, exc_obj, tb = sys.exc_info()
         f = tb.tb_frame
