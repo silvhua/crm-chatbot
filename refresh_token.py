@@ -2,11 +2,13 @@ import json
 from app.ghl_requests import *
 import time
 from app.Custom_Logger import *
+import logging
 
 def lambda_handler(event, context):
     """
     Refreshes the authentication token and checks the response.
     """
+    refresh_token_response = dict()
     try:
         logger_level = event.get('logger_level', logging.INFO)
         logger = Custom_Logger(
@@ -44,7 +46,7 @@ def lambda_handler(event, context):
         filename = f.f_code.co_filename
         message = f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.\nAPI response: \n{refresh_token_response}'
         logger = logging.getLogger()
-        logger.logger.error(message)
+        logger.error(message)
         return {
             'statusCode': 500,
             'body': json.dumps(message)
