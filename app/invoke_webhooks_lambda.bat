@@ -13,6 +13,8 @@ sam local invoke ReplyLambda --event src/events/InboundMessageTest.json --force-
 @REM sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json
 @REM sam local invoke ReplyLambda --event events/InboundMessageFromLambda.json --force-image-build
 
+sam local invoke TokenLambda --event src/events/InboundMessage.json
+
 
 sam local invoke FollowupLambda --event src/events/followupWorkflowWebhook.json
 
