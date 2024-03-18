@@ -104,7 +104,8 @@ def lambda_handler(event, context):
                                     contact_tags = ghl_tag_to_add
                                     message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'
                                 else:
-                                    contact_details = ghl_request(
+                                    client = Crm(location)
+                                    contact_details = client.send_request(
                                         contact_id, endpoint='getContact', 
                                         location=location 
                                         )
@@ -169,7 +170,7 @@ def lambda_handler(event, context):
                                     ## Remove from manychat follow up workflow.
                                     workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
                                     workflowName = 'silvia: manychat followup'
-                                    ghl_workflow_response = ghl_request(
+                                    ghl_workflow_response = client.send_request(
                                         contact_id, 'removeFromWorkflow', path_param=workflowId
                                     )
                                     print(f'GHL workflow response: {ghl_workflow_response}')
@@ -179,7 +180,7 @@ def lambda_handler(event, context):
                                         message += f'\n[ERROR] Failed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
                                         message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                     ghl_tag_to_remove = ['facebook lead', 'no height and weight']
-                                    ghl_removeTag_response = ghl_request(
+                                    ghl_removeTag_response = client.send_request(
                                         contactId=contact_id, 
                                         endpoint='removeTag', 
                                         text=ghl_tag_to_remove,
@@ -192,7 +193,7 @@ def lambda_handler(event, context):
                                         message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
                                 if ghl_tag_to_add != None:
                                     # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
-                                    ghl_addTag_response = ghl_request(
+                                    ghl_addTag_response = client.send_request(
                                         contactId=contact_id, 
                                         endpoint='addTag', 
                                         text=ghl_tag_to_add,
@@ -206,7 +207,7 @@ def lambda_handler(event, context):
                                 if create_task == True:
                                     if contact_id != os.environ.get('my_contact_id', ''):
                                         task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
-                                        ghl_createTask_response = ghl_request(
+                                        ghl_createTask_response = client.send_request(
                                             contactId=contact_id, 
                                             endpoint='createTask', 
                                             text=task_body, 
