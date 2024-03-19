@@ -117,6 +117,5 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.7.4 | Check if tag already exists before sending the GHL request to add it. | 2024-03-08 00:30
 1.7.5 | Print Lambda event instead of just the event body. | 2024-03-08 00:55
 1.8 | Created TokenLambda to refresh CRM API credentials. Created Event Bridge Schedule to schedule TokenLambda. | 2024-03-17 21:00
-1.81 | Update business-specific prompt to add contact tags for each message template in chat flow. | 2024-03-18 19:10
-1.82 | Webhooks Lambda: End function if webhook for staff notification emails | 2024-03-18 15:16
-1.83 | Update to use Crm class for CRM API requests. Pass API credentials from Webhook Lambda to TokenLambda. | 2024-03-18 21:25
+1.81 | Webhooks Lambda: End function if webhook for staff notification emails | 2024-03-18 15:16
+1.82 | Update to use Crm class for CRM API requests. Pass API credentials from Webhook Lambda to TokenLambda. | 2024-03-18 21:25

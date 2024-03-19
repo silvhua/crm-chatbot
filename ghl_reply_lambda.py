@@ -21,13 +21,22 @@ except Exception as error:
     # print(message)
     pass
 
-def lambda_handler(event, context):
+# logging_level = logging.INFO
+# logger = Custom_Logger(__name__, level=logging_level)
+
+def lambda_handler(event, context, logger=None):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
-    print(f'Event: {event}')
-    if event.get('direct_local_invoke', None):
+    if event.get('direct_local_invoke', False): # directly from `sam local invoke`
         payload = event['body']
+        local_invoke = True
+    else: # if from WebhooksLambda
+        payload = event
+        print('Directly from WebhooksLambda')
+        local_invoke = payload.get('direct_local_invoke', False)
+    if logger:
+        logger = create_function_logger(__name__, logger)
     else:
         logging_level = logging.DEBUG if local_invoke else logging.INFO 
         logger = Custom_Logger(__name__, level=logging_level)
@@ -40,7 +49,6 @@ def lambda_handler(event, context):
     # }
     message = ''
     ghl_api_response = {}
-    print(f"direct local invoke: {event.get('direct_local_invoke', False)}")
     if event.get('direct_local_invoke', None):
         payload = event['body']
     else:
@@ -149,10 +157,6 @@ def lambda_handler(event, context):
                 'statusCode': 200,
                 'body': json.dumps(message)
             }        
-
-            
-        
-
         elif payload.get("noReply", False) == False:
             if (chatbot_response['alert_human'] == False) & (chatbot_response['response'] != None):
                 split_response_list = create_paragraphs(chatbot_response['response']).split('\n\n') # Send multiple messages if response is long
@@ -177,7 +181,7 @@ def lambda_handler(event, context):
                         ghl_api_response = Crm_client.send_request(
                             contactId=contactId,
                             endpoint='sendMessage',
-                            payload=message_payload,    
+                            payload=message_payload,          
                         )
                         print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
                         if ghl_api_response.get('status_code', 500) // 100 == 2:
@@ -265,9 +269,7 @@ def lambda_handler(event, context):
             if chatbot_response["alert_human"] == False:
                 add_to_chat_history_message, original_chat_history = add_to_chat_history(reply_payload)
                 message += add_to_chat_history_message
-
         logger.info(message)
-
         return {
             'statusCode': 200,
             'body': json.dumps(message)
@@ -312,3 +314,18 @@ def lambda_handler(event, context):
             #         else:
             #             message += f'[ERROR] Failed to updated contact phone number from {payload["phone"]} to {chatbot_response["phone_number"]} for contactId {contactId}: \n{ghl_updatePhone_response}.\n'
             #             message += f'Status code: {ghl_updatePhone_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_updatePhone_response.get("response_reason", None)}.\n'
+    
+    
+
+            # workflowId = 'ab3df14a-b4a2-495b-86ae-79ab6fad805b'
+            # workflowName = 'chatbot:_1-day_follow_up'
+            # ghl_workflow_response = ghl_request(
+            #     contactId, 'workflow', path_param=workflowId
+            # )
+
+            # print(f'GHL workflow response: {ghl_workflow_response}')
+            # if ghl_workflow_response['status_code'] // 100 == 2:
+            #     message += f'\nAdded contactId {contactId} to "{workflowName}" workflow: \n{ghl_workflow_response}\n'
+            # else:
+            #     message += f'\nFailed to add contactId {contactId} to "{workflowName} workflow": \n{ghl_workflow_response}\n'
+            #     message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
