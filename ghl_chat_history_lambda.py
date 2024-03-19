@@ -18,6 +18,7 @@ def lambda_handler(event, context):
     table_name = 'SessionTable' ############
     message = ''
     try:
+        end_function = False
         print(f'Event: {event}')
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
