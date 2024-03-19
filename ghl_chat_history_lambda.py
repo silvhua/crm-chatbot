@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             message += f'No need to save webhook data for {payload["type"]} for this contactId.'
             end_function = True
         if end_function:
-            print(message)
+            logger.info(message)
             return {
                 "statusCode": 200,
                 "body": json.dumps(message)

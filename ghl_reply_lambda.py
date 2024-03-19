@@ -60,12 +60,12 @@ def lambda_handler(event, context, logger=None):
     location = os.getenv(locationId)
     if location == None:
         message += f'No location found for locationId {locationId}. \n'
-        print(message)
+        logger.error(message)
         return {
             'statusCode': 500,
             'body': json.dumps(message)
         }
-    print(f'location: {location}')
+    logger.info(f'location: {location}')
 
     system_message_dict = dict()
     conversation_dict = dict()
@@ -90,7 +90,7 @@ def lambda_handler(event, context, logger=None):
         # logger.debug(dev_message)
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
-            print(f'Waiting for {random_waiting_period} seconds')
+            logger.info(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
         elif event.get('direct_local_invoke', None) == 1: 
             add_to_chat_history_message, original_chat_history = add_to_chat_history(payload)
@@ -146,13 +146,13 @@ def lambda_handler(event, context, logger=None):
             lineno = tb.tb_lineno
             filename = f.f_code.co_filename
             message += f" Unable to generate reply. Error in line {lineno} of {filename}: {str(error)}. \n"
-            print(message) # Print message here in case Lambda function times out.
+            logger.error(message) # Print message here in case Lambda function times out.
             chatbot_response = {"response": None, "alert_human": True, "phone_number": None}
             create_task = True
-        print(f'\nProcessed chatbot response: {chatbot_response}\n')
+        logger.info(f'\nProcessed chatbot response: {chatbot_response}\n')
         if chatbot_response.get('response') == 'Abort Lambda function':
             message += f'Payload InboundMessage does not match the latest chat history message. End Lambda function. \n'
-            print(message)
+            logger.info(message)
             return {
                 'statusCode': 200,
                 'body': json.dumps(message)
@@ -167,7 +167,7 @@ def lambda_handler(event, context, logger=None):
                             pause_before_next_message = number_of_words/2
                         elif contactId == os.environ.get('my_contact_id'):
                             pause_before_next_message = number_of_words/number_of_words
-                        print(f'\nPause before message {index}: {pause_before_next_message}')
+                        logger.info(f'\nPause before message {index}: {pause_before_next_message}')
                         time.sleep(pause_before_next_message)
                     message_payload = {
                         "type": payload['messageType'],
@@ -183,13 +183,13 @@ def lambda_handler(event, context, logger=None):
                             endpoint='sendMessage',
                             payload=message_payload,          
                         )
-                        print(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
+                        logger.info(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
                         if ghl_api_response.get('status_code', 500) // 100 == 2:
                             break
                         else:
                             attempt_number += 1
                             wait_interval = 10
-                            print(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
+                            logger.info(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
                             time.sleep(wait_interval)
 
                     if ghl_api_response.get('status_code', 500) // 100 == 2:
@@ -211,7 +211,7 @@ def lambda_handler(event, context, logger=None):
                 
             if (create_task == True):
                 task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response.get("phone_number", None)}.'
-                print(f'Task description: {task_description}')
+                logger.info(f'Task description: {task_description}')
 
                 # Re-attempt GHL createTask request up to 3 times if it fails
                 max_attempts = 3
@@ -229,7 +229,7 @@ def lambda_handler(event, context, logger=None):
                     else:
                         create_task_attempt_number += 1
                         wait_interval = 10
-                        print(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
+                        logger.info(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
                         time.sleep(wait_interval)
 
                 # print(f'GHL createTask response: {ghl_createTask_response}')
@@ -238,7 +238,7 @@ def lambda_handler(event, context, logger=None):
                 else:
                     message += f'[ERROR] Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_createTask_response.get("response_reason", None)}'
-                    print(message)
+                    logger.error(message)
                     return {
                         'statusCode': 500,
                         'body': json.dumps(message)
@@ -280,7 +280,7 @@ def lambda_handler(event, context, logger=None):
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
         message += f"[ERROR] Error in line {lineno} of {filename}: {str(error)} \n"
-        print(message)
+        logger.error(message)
         return {
             'statusCode': 500,
             'body': json.dumps(message)
