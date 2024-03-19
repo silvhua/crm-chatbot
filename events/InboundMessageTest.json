@@ -14,7 +14,8 @@
     "noReply": "1",
     "contact_tags": ["chatgpt"],
     "phone": "7788917189",
-    "email": "silvhua2@gmail.com"
+    "email": "silvhua2@gmail.com",
+    "direct_local_invoke": 1
   },
   "direct_local_invoke": 1
 }
