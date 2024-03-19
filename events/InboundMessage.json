@@ -3,7 +3,7 @@
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
     "attachments": ["https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif"],
-    "body": "hi",
+    "body": "How does your program work?",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
@@ -11,7 +11,7 @@
     "direction": "inbound",
     "messageType": "FB",
     "userId": "80pzXdC3MCqKRpzrteuj",
-    "contact_tags": [],
+    "contact_tags": ["chatgpt", "no height and weight", "call offered"],
     "phone": "+61872070331",
     "fullNameLowerCase": "silvia hua"
   },
