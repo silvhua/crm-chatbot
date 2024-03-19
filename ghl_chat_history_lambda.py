@@ -65,8 +65,6 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
-            Crm_client = Crm() ### Instantiate `Crm` class.
-            Crm_client.get_token(location)
             manychat_optin_messages = ['GET STARTED', 'Get Started']
             inbound_content = payload.get('body')
             if (len(contact_data) > 0) | (inbound_content in manychat_optin_messages): 
@@ -79,6 +77,8 @@ def lambda_handler(event, context):
                 try:
                     location = os.getenv(payload['locationId'])
                     print(f'Location: {location}')
+                    Crm_client = Crm() ### Instantiate `Crm` class.
+                    Crm_client.get_token(location)
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
                         # if message is an image without text, extract the attachment link(s)
