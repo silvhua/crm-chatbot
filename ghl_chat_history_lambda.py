@@ -17,12 +17,16 @@ def lambda_handler(event, context):
     """
     table_name = 'SessionTable' ############
     message = ''
-    try:
-        print(f'Event: {event}')
+    end_function = False
+    try:        
         if type(event["body"]) == str:
             payload = json.loads(event["body"])
         else:
             payload = event["body"]
+        local_invoke = event.get('direct_local_invoke', None)
+        logging_level = logging.DEBUG if local_invoke else logging.INFO
+        logger = Custom_Logger(__name__, level=logging_level)
+        logger.info(f'Event: {event}\n\nLocal invoke: {local_invoke}')
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & \
             (("click here to unsubscribe" in payload.get('body', '').lower()) | ("unsubscribe here</a>" in payload.get('body', '').lower())):
             message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}. \n'
@@ -89,9 +93,7 @@ def lambda_handler(event, context):
                         message += add_to_chat_history_message + '. \n'
                         print(f'Original chat history: {original_chat_history} \n')
                         if (payload['type'] == 'InboundMessage'):
-                            refresh_token_response = {}
                             try:
-                                refresh_token_response = refresh_token()
                                 past_inbound_messages = [item.content for item in original_chat_history if item.type.lower() == 'human']
                                 create_task = False
                                 # If past inbound messages contain the ManyChat opt-in message, add tag and create task; do not invoke Reply Lambda
@@ -108,9 +110,10 @@ def lambda_handler(event, context):
                                     contact_tags = ghl_tag_to_add
                                     message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'
                                 else:
-                                    contact_details = ghl_request(
-                                        contact_id, endpoint='getContact', 
-                                        location=location 
+                                    Crm_client = Crm() ### Instantiate `Crm` class.
+                                    Crm_client.get_token(location)
+                                    contact_details = Crm_client.send_request(
+                                        contact_id, endpoint='getContact'
                                         )
                                     contact_tags = contact_details['contact']['tags']
                                     contact_tags = [tag.strip('"\'') for tag in contact_tags]
@@ -141,27 +144,36 @@ def lambda_handler(event, context):
                                             new_payload['contact_tags'] = contact_tags
                                             new_payload['phone'] = contact_details['contact'].get('phone', None)
                                             new_payload['fullNameLowerCase'] = contact_details['contact'].get('fullNameLowerCase', None)
-                                            # new_payload['email'] = payload['contact'].get('email', None)
-                                            # print(f'New payload: \n{new_payload}')
+                                            # new_payload['auth_token'] = Crm_client.auth_token
+                                            new_payload['access_token'] = getattr(Crm_client, 'token', None)['access_token']
+                                            # logger.debug(f'Payload for Reply Lambda: {new_payload}')
                                             # Invoke another Lambda function
                                             if payload.get("noReply", False) == False:
-                                                try:
-                                                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
-                                                except:
-                                                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                                                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                                                    region = os.environ.get('AWS_REGION')
-                                                    lambda_client = boto3.client(
-                                                        'lambda', region_name=region, 
-                                                        aws_access_key_id=aws_access_key_id, 
-                                                        aws_secret_access_key=aws_secret_access_key
-                                                        )
-                                                lambda_client.invoke(
-                                                    FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
-                                                    InvocationType='Event',
-                                                    Payload=json.dumps(new_payload)
-                                                )
-                                                message += f'`ghl_reply` Lambda function invoked. \n'
+                                                if local_invoke == None:
+                                                    try:
+                                                        lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                                                    except:
+                                                        aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                                                        aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                                                        region = os.environ.get('AWS_REGION')
+                                                        lambda_client = boto3.client(
+                                                            'lambda', region_name=region, 
+                                                            aws_access_key_id=aws_access_key_id, 
+                                                            aws_secret_access_key=aws_secret_access_key
+                                                            )
+                                                    lambda_client.invoke(
+                                                        FunctionName=os.environ.get('ghl_reply_lambda','ghl-chat-prod-ReplyLambda-9oAzGMbcYxXB'),
+                                                        InvocationType='Event',
+                                                        Payload=json.dumps(new_payload)
+                                                    )
+                                                    message += f'`ghl_reply` Lambda function invoked. \n'
+                                                else:
+                                                    from ghl_reply_lambda import lambda_handler
+                                                    reply_lambda_response = lambda_handler(new_payload, context, logger)
+
+                                                    message += f'ReplyLambda invoked locally. \n'
+                                                    message += f'Status code: {reply_lambda_response["statusCode"]}: \nBody: {reply_lambda_response["body"]}'
+
                                             else:
                                                 message += f'`ghl_reply` Lambda function skipped because `noReply` is set. \n'
                                         else:
@@ -173,7 +185,7 @@ def lambda_handler(event, context):
                                     ## Remove from manychat follow up workflow.
                                     workflowId = 'f6072b18-9c34-4a36-9683-f77c9a0fd401'
                                     workflowName = 'silvia: manychat followup'
-                                    ghl_workflow_response = ghl_request(
+                                    ghl_workflow_response = Crm_client.send_request(
                                         contact_id, 'removeFromWorkflow', path_param=workflowId
                                     )
                                     print(f'GHL workflow response: {ghl_workflow_response}')
@@ -183,11 +195,10 @@ def lambda_handler(event, context):
                                         message += f'\n[ERROR] Failed to Remove contactId {contact_id} from "{workflowName} workflow": \n{ghl_workflow_response}\n'
                                         message += f'Status code: {ghl_workflow_response["status_code"]}. \nResponse reason: {ghl_workflow_response["response_reason"]}'
                                     ghl_tag_to_remove = ['facebook lead', 'no height and weight']
-                                    ghl_removeTag_response = ghl_request(
+                                    ghl_removeTag_response = Crm_client.send_request(
                                         contactId=contact_id, 
                                         endpoint='removeTag', 
-                                        text=ghl_tag_to_remove,
-                                        location=location
+                                        text=ghl_tag_to_remove
                                     )
                                     if ghl_removeTag_response['status_code'] // 100 == 2:
                                         message += f'Removed tag `{ghl_tag_to_remove}` for contactId {contact_id}: \n{ghl_removeTag_response}\n'
@@ -196,11 +207,10 @@ def lambda_handler(event, context):
                                         message += f'Status code: {ghl_removeTag_response["status_code"]}. \nResponse reason: {ghl_removeTag_response["response_reason"]}'
                                 if ghl_tag_to_add != None:
                                     # message += f'Adding GHL tag "{ghl_tag_to_add}" to contact... \n'
-                                    ghl_addTag_response = ghl_request(
+                                    ghl_addTag_response = Crm_client.send_request(
                                         contactId=contact_id, 
                                         endpoint='addTag', 
-                                        text=ghl_tag_to_add,
-                                        location=location
+                                        text=ghl_tag_to_add
                                     )
                                     if ghl_addTag_response['status_code'] // 100 == 2:
                                         message += f'Added tag `{ghl_tag_to_add}` for contactId {contact_id}: \n{ghl_addTag_response}\n'
@@ -210,13 +220,12 @@ def lambda_handler(event, context):
                                 if create_task == True:
                                     if contact_id != os.environ.get('my_contact_id', ''):
                                         task_body = 'Contact tags: ' + ', '.join([tag for tag in contact_tags])
-                                        ghl_createTask_response = ghl_request(
+                                        ghl_createTask_response = Crm_client.send_request(
                                             contactId=contact_id, 
                                             endpoint='createTask', 
                                             text=task_body, 
                                             params_dict=None,
-                                            payload=None, 
-                                            location=location
+                                            payload=None
                                         )
                                         # print(f'GHL createTask response: {ghl_createTask_response}')
                                         if ghl_createTask_response['status_code'] // 100 == 2:
@@ -232,7 +241,6 @@ def lambda_handler(event, context):
                                 lineno = tb.tb_lineno
                                 filename = f.f_code.co_filename
                                 message += f'[ERROR] Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
-                                message += f"{message}\nGHL refresh token status: {refresh_token_response.get('statusCode', None)}: {refresh_token_response.get('response_reason', None)}. \n"
                         else:
                             message += f'Not an inbound message; ghl_reply skipped. \n'
                 except Exception as error:
@@ -245,26 +253,32 @@ def lambda_handler(event, context):
                 message += f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 
         elif payload['type'] == "Workflow":
-            try:
-                lambda_client = boto3.client('lambda')  # Initialize Lambda client
-            except:
-                aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
-                aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-                region = os.environ.get('AWS_REGION')
-                lambda_client = boto3.client(
-                    'lambda', region_name=region, 
-                    aws_access_key_id=aws_access_key_id, 
-                    aws_secret_access_key=aws_secret_access_key
-                    )
-            lambda_client.invoke(
-                FunctionName=os.environ.get('ghl_followup_lambda','ghl-chat-prod-FollowupLambda-EilvE9Mq3fKg'),
-                InvocationType='Event',
-                Payload=json.dumps(payload)
-            )
-            message += f'`ghl_followup` Lambda function invoked. \n'
+            if local_invoke == None:
+                try:
+                    lambda_client = boto3.client('lambda')  # Initialize Lambda client
+                except:
+                    aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
+                    aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
+                    region = os.environ.get('AWS_REGION')
+                    lambda_client = boto3.client(
+                        'lambda', region_name=region, 
+                        aws_access_key_id=aws_access_key_id, 
+                        aws_secret_access_key=aws_secret_access_key
+                        )
+                lambda_client.invoke(
+                    FunctionName=os.environ.get('ghl_followup_lambda','ghl-chat-prod-FollowupLambda-EilvE9Mq3fKg'),
+                    InvocationType='Event',
+                    Payload=json.dumps(payload)
+                )
+                logger.info(f'`ghl_followup` Lambda function invoked online.')
+            else:
+                from ghl_followup_lambda import lambda_handler
+                reply_lambda_response = lambda_handler(new_payload, context)
+                logger.info(f'FollowupLambda invoked locally.{reply_lambda_response["statusCode"]}: \n{reply_lambda_response["body"]}')
         else:
             message += f'No need to save webhook data for {payload["type"]}. \n'
-        print(message)
+        # print(message)
+        logger.info(message)
         return {
             "statusCode": 200,
             "body": json.dumps(message)
