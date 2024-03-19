@@ -291,6 +291,7 @@ def lambda_handler(event, context):
         message += f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.'
         
         print(f'\nOriginal payload: {payload}\n')
+        logger.error(message)
         return {
             "statusCode": 500,
             "body": json.dumps(f"[ERROR] Error in line {lineno} of {filename}: {str(error)}")
