@@ -65,6 +65,8 @@ def lambda_handler(event, context):
             contact_data = query_dynamodb_table(
                 'SessionTable', contact_id, partition_key='SessionId'
                 )['Items']
+            Crm_client = Crm() ### Instantiate `Crm` class.
+            Crm_client.get_token(location)
             manychat_optin_messages = ['GET STARTED', 'Get Started']
             inbound_content = payload.get('body')
             if (len(contact_data) > 0) | (inbound_content in manychat_optin_messages): 
@@ -110,8 +112,6 @@ def lambda_handler(event, context):
                                     contact_tags = ghl_tag_to_add
                                     message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'
                                 else:
-                                    Crm_client = Crm() ### Instantiate `Crm` class.
-                                    Crm_client.get_token(location)
                                     contact_details = Crm_client.send_request(
                                         contact_id, endpoint='getContact'
                                         )
