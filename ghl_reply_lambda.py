@@ -38,7 +38,7 @@ def lambda_handler(event, context, logger=None):
     if logger:
         logger = create_function_logger(__name__, logger)
     else:
-        logging_level = logging.INFO
+        logging_level = logging.DEBUG if local_invoke else logging.INFO 
         logger = Custom_Logger(__name__, level=logging_level)
     logger.debug(f'Custom_Logger name in Reply Lambda: {logger.logger.name}')
     logger.info(f'Event: {event}')
@@ -84,10 +84,10 @@ def lambda_handler(event, context, logger=None):
         Crm_client = Crm() ### Instantiate `Crm` class.
         Crm_client.token = dict()
         Crm_client.token['access_token'] = payload.get('access_token', None)
-        if Crm_client.token == None:
+        if Crm_client.token.get('access_token') == None:
             Crm_client.get_token(location=location)
-        dev_message = f'access token: {Crm_client.token}'
-        logger.debug(dev_message)
+        # dev_message = f'access token: {Crm_client.token}'
+        # logger.debug(dev_message)
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
             print(f'Waiting for {random_waiting_period} seconds')
@@ -98,8 +98,7 @@ def lambda_handler(event, context, logger=None):
             # ## Comment out as needed#
             # wait_time = 10
             # print(f'Waiting for {wait_time} seconds')
-            # time.sleep(wait_time)
-        
+            # time.sleep(wait_time)        
         try:
             system_message_dict[conversation_id] = create_system_message(
                 'CoachMcloone', 
@@ -252,7 +251,6 @@ def lambda_handler(event, context, logger=None):
                     contactId=contactId, 
                     endpoint='addTag', 
                     text=ghl_tag_to_add,
-                    location=location
                 )
                 if ghl_addTag_response['status_code'] // 100 == 2:
                     message += f'Added tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'

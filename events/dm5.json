@@ -1,0 +1,20 @@
+{
+  "body": {
+    "type": "InboundMessage",
+    "locationId": "fsdVH26v30hoBBQOBttG",
+    "attachments": [],
+    "body": "sure",
+    "contactId": "6kIAuqeiBUxJ3nWTwNVE",
+    "contentType": "text/plain",
+    "conversationId": "fcanlLgpbQgQhderivVs",
+    "dateAdded": "2024-02-19T00:34:00.000Z",
+    "direction": "inbound",
+    "messageType": "FB",
+    "userId": "80pzXdC3MCqKRpzrteuj",
+    "contact_tags": ["chatgpt"],
+    "phone": "7788917189",
+    "email": "silvhua2@gmail.com",
+    "direct_local_invoke": 1
+  },
+  "direct_local_invoke": 1
+}
