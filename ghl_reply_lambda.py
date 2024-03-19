@@ -57,7 +57,7 @@ def lambda_handler(event, context, logger=None):
     InboundMessage = payload.get('body')
     locationId = payload.get('locationId', None)
     fullNameLowerCase = payload.get('fullNameLowerCase', None)
-    location = os.getenv(locationId, 'CoachMcloone')
+    location = os.getenv(locationId)
     if location == None:
         message += f'No location found for locationId {locationId}. \n'
         print(message)
