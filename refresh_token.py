@@ -1,8 +1,6 @@
 import json
 from app.ghl_requests import *
 import time
-from app.Custom_Logger import *
-import logging
 
 def lambda_handler(event, context):
     """
@@ -15,15 +13,13 @@ def lambda_handler(event, context):
             logger_name='refresh_token', level=logger_level
         )
         info_messages = []
-        max_attempts = 3
+        max_attempts = 5
         attempt_number = 0
         while attempt_number < max_attempts:
             refresh_token_response = refresh_token()  # Call the refresh_token function
             if refresh_token_response.get('statusCode', 500) // 100 == 2:
                 info_messages.append(f'Token refreshed successfully.')
-                logger.info(f'API response statusCode: \n{refresh_token_response.get("statusCode")}')
-                if logger.logger.level <= 10:
-                    logger.debug(f'API response body: \n{refresh_token_response.get("body")}')
+                logger.debug(f'API response body: \n{refresh_token_response.get("statusCode")} - {refresh_token_response.get("body")}')
                 logger.info('\n'.join(info_messages))
                 return {
                     'statusCode': 200,
@@ -32,7 +28,7 @@ def lambda_handler(event, context):
             else:
                 retry_messages = []
                 attempt_number += 1
-                wait_interval = 10
+                wait_interval = 30
                 retry_messages.append(f'Response Status: {refresh_token_response.get("statusCode")}. \n{refresh_token_response}')
                 retry_messages.append(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
                 logger.error('\n'.join(retry_messages))
