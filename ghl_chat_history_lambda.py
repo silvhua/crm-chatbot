@@ -26,7 +26,7 @@ def lambda_handler(event, context):
         local_invoke = event.get('direct_local_invoke', None)
         logging_level = logging.DEBUG if local_invoke else logging.INFO
         logger = Custom_Logger(__name__, level=logging_level)
-        logger.info(f'Event: {event}\n\nLocal invoke: {local_invoke}')
+        logger.info(f'Event: {event}\nLocal invoke: {local_invoke}')
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & \
             (("click here to unsubscribe" in payload.get('body', '').lower()) | ("unsubscribe here</a>" in payload.get('body', '').lower())):
             message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}. \n'
@@ -169,7 +169,8 @@ def lambda_handler(event, context):
                                                     message += f'`ghl_reply` Lambda function invoked. \n'
                                                 else:
                                                     from ghl_reply_lambda import lambda_handler
-                                                    reply_lambda_response = lambda_handler(new_payload, context, logger)
+                                                    # reply_lambda_response = lambda_handler(new_payload, context, logger)
+                                                    reply_lambda_response = lambda_handler(new_payload, context)
 
                                                     message += f'ReplyLambda invoked locally. \n'
                                                     message += f'Status code: {reply_lambda_response["statusCode"]}: \nBody: {reply_lambda_response["body"]}'
@@ -240,7 +241,7 @@ def lambda_handler(event, context):
                                 f = tb.tb_frame
                                 lineno = tb.tb_lineno
                                 filename = f.f_code.co_filename
-                                message += f'[ERROR] Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n'
+                                logger.debug(f'[ERROR] Error completing GHL requests. An error occurred on line {lineno} in {filename}: {error}. \n')
                         else:
                             message += f'Not an inbound message; ghl_reply skipped. \n'
                 except Exception as error:
@@ -248,7 +249,7 @@ def lambda_handler(event, context):
                     f = tb.tb_frame
                     lineno = tb.tb_lineno
                     filename = f.f_code.co_filename
-                    message += f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.'
+                    logger.error(f'[ERROR] An error occurred on line {lineno} in {filename}: {error}.')
             else:
                 message += f'Contact not in database. No need to save for webhook type {payload["type"]}. \n'
 

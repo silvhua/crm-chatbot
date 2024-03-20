@@ -10,6 +10,7 @@
     "dateAdded": "2023-12-18T15:28:02.000Z",
     "direction": "outbound",
     "messageType": "SMS",
-    "userId": "80pzXdC3MCqKRpzrteuj"
+    "userId": "80pzXdC3MCqKRpzrteuj",
+    "from": "GHL Chatbot <amanda@coachmcloone.com>"
   }
 }

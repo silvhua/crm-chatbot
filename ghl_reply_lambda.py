@@ -28,69 +28,63 @@ def lambda_handler(event, context, logger=None):
     """
     This Lambda function is triggered by another function when the payload type is 'InboundMessage'.
     """
-    if event.get('direct_local_invoke', False): # directly from `sam local invoke`
-        payload = event['body']
-        local_invoke = True
-    else: # if from WebhooksLambda
-        payload = event
-        print('Directly from WebhooksLambda')
-        local_invoke = payload.get('direct_local_invoke', False)
-    if logger:
-        logger = create_function_logger(__name__, logger)
-    else:
-        logging_level = logging.DEBUG if local_invoke else logging.INFO 
-        logger = Custom_Logger(__name__, level=logging_level)
-    logger.debug(f'Custom_Logger name in Reply Lambda: {logger.logger.name}')
-    logger.info(f'Event: {event}')
-    logger.debug(f'\nLocal invoke: {local_invoke}')
-    # return {
-    #     'statusCode': 200,
-    #     'body': json.dumps('Hello from ReplyLambda!')
-    # }
-    message = ''
-    ghl_api_response = {}
-    if event.get('direct_local_invoke', None):
-        payload = event['body']
-    else:
-        payload = event
-    contactId = payload.get('contactId')
-    InboundMessage = payload.get('body')
-    locationId = payload.get('locationId', None)
-    fullNameLowerCase = payload.get('fullNameLowerCase', None)
-    location = os.getenv(locationId)
-    if location == None:
-        message += f'No location found for locationId {locationId}. \n'
-        logger.error(message)
-        return {
-            'statusCode': 500,
-            'body': json.dumps(message)
-        }
-    logger.info(f'location: {location}')
-
-    system_message_dict = dict()
-    conversation_dict = dict()
-    reply_dict = dict()
-    conversation_id = 1
-    question_id = 1
-    reply_dict[conversation_id] = dict()
-    tools = [
-        Tool(
-            name=f"placeholder_function",
-            func=placeholder_function,
-            description=f"Do not invoke this function.",
-        )
-    ]
     try:
+        initialize_messages = []
+        if (event.get('direct_local_invoke', False)): # directly from `sam local invoke`
+            payload = event['body']
+            local_invoke = True
+            initialize_messages.append('Directly from `sam local invoke`')
+        else: # if from WebhooksLambda, either locally or remotely
+            payload = event
+            initialize_messages.append('Directly from WebhooksLambda.')
+            local_invoke = payload.get('sam_local_invoke', False)
+        logging_level = logging.DEBUG if local_invoke else logging.INFO 
+        logger = create_function_logger('ghl_reply_lambda', logger, level=logging_level)
+        initialize_messages.append(f'Custom_Logger name in Reply Lambda: {logger.logger.name}')
+        initialize_messages.append(f'Local invoke: {local_invoke}')
+        logger.debug('\n'.join(initialize_messages))
+        logger.info(f'Event: {event}')
+        message = ''
+        ghl_api_response = {}
+        # if event.get('direct_local_invoke', None):
+        #     payload = event['body']
+        # else:
+        #     payload = event
+        contactId = payload.get('contactId')
+        InboundMessage = payload.get('body')
+        locationId = payload.get('locationId', None)
+        fullNameLowerCase = payload.get('fullNameLowerCase', None)
+        location = os.getenv(locationId)
+        if location == None:
+            message += f'No location found for locationId {locationId}. \n'
+            logger.error(message)
+            return {
+                'statusCode': 500,
+                'body': json.dumps(message)
+            }
+        logger.info(f'location: {location}')
+
+        system_message_dict = dict()
+        conversation_dict = dict()
+        reply_dict = dict()
+        conversation_id = 1
+        question_id = 1
+        reply_dict[conversation_id] = dict()
+        tools = [
+            Tool(
+                name=f"placeholder_function",
+                func=placeholder_function,
+                description=f"Do not invoke this function.",
+            )
+        ]
         Crm_client = Crm() ### Instantiate `Crm` class.
         Crm_client.token = dict()
         Crm_client.token['access_token'] = payload.get('access_token', None)
         if Crm_client.token.get('access_token') == None:
             Crm_client.get_token(location=location)
-        # dev_message = f'access token: {Crm_client.token}'
-        # logger.debug(dev_message)
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
-            logger.info(f'Waiting for {random_waiting_period} seconds')
+            logger.debug(f'Waiting for {random_waiting_period} seconds')
             time.sleep(random_waiting_period)
         elif event.get('direct_local_invoke', None) == 1: 
             add_to_chat_history_message, original_chat_history = add_to_chat_history(payload)
@@ -113,7 +107,7 @@ def lambda_handler(event, context, logger=None):
             reply_dict[conversation_id][question_id] = chat_with_chatbot(
                 InboundMessage, conversation_dict[conversation_id]
             )
-            chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"])
+            chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"], logger=logger)
             # Check that the generated response is not similar to a previously sent outbound message.
             past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
             # Split past outbound messages into sentences
@@ -167,7 +161,7 @@ def lambda_handler(event, context, logger=None):
                             pause_before_next_message = number_of_words/2
                         elif contactId == os.environ.get('my_contact_id'):
                             pause_before_next_message = number_of_words/number_of_words
-                        logger.info(f'\nPause before message {index}: {pause_before_next_message}')
+                        logger.debug(f'\nPause before message {index}: {pause_before_next_message}')
                         time.sleep(pause_before_next_message)
                     message_payload = {
                         "type": payload['messageType'],
@@ -189,7 +183,7 @@ def lambda_handler(event, context, logger=None):
                         else:
                             attempt_number += 1
                             wait_interval = 10
-                            logger.info(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
+                            logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
                             time.sleep(wait_interval)
 
                     if ghl_api_response.get('status_code', 500) // 100 == 2:
@@ -229,7 +223,7 @@ def lambda_handler(event, context, logger=None):
                     else:
                         create_task_attempt_number += 1
                         wait_interval = 10
-                        logger.info(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
+                        logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
                         time.sleep(wait_interval)
 
                 # print(f'GHL createTask response: {ghl_createTask_response}')

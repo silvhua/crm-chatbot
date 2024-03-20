@@ -5,10 +5,12 @@ from datetime import datetime, timezone
 import sys
 import os
 import re
+from app.Custom_Logger import *
 
-import re
-
-def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
+def parse_json_string(
+    json_string, dict_keys=['response', 'alert_human'], 
+    logger=None, logging_level=logging.DEBUG
+    ):
     """
     Parses the result from Open AI response and returns a dictionary that matches the specified dictionary keys.
     
@@ -23,6 +25,7 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
         - Exception: If there is an error while parsing the JSON string.
     """
     try:
+        logger = create_function_logger('parse_json_string', logger, level=logging_level)
         processed_json_string = re.sub(r'(?<!["])\bFalse\b(?![":])', 'false', json_string)
         processed_json_string = re.sub(r'(?<!["])\bTrue\b(?![":])', 'true', processed_json_string)
         processed_json_string = re.sub(r'(?<!["])\bNone\b(?![":])', 'null', processed_json_string)
@@ -44,9 +47,10 @@ def parse_json_string(json_string, dict_keys=['response', 'alert_human']):
         f = tb.tb_frame
         lineno = tb.tb_lineno
         filename = f.f_code.co_filename
-        message = f"Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}."
-        print(f'Raw JSON string: "{json_string}"\n')
-        print(message)
+        messages = []
+        messages.append(f"Unable to parse JSON string: Line {lineno} of {filename}: {str(error)}.")
+        messages.append(f'Raw JSON string: "{json_string}"\n')
+        logger.log('\n'.join(messages))
         
         # Extract substring matching the format of a json string
         regex = r'({[^{}]+})'
