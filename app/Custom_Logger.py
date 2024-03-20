@@ -31,6 +31,7 @@ class Custom_Logger:
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s:\n%(message)s\n')
         handler_messages = ''
         console_handler = None
+        self.save = True if level == logging.DEBUG else False            
         if len(self.logger.handlers) > 0:
             handler_messages += f'Found existing handlers: {self.logger.handlers}. '
             for handler in self.logger.handlers:
@@ -88,7 +89,7 @@ class Custom_Logger:
             print(message)
         return self.log_messages
     
-    def debug(self, message, save=True):
+    def debug(self, message):
         """
         - Logs a debug message and optionally saves it to the log file.
         - Parameters:
@@ -98,10 +99,10 @@ class Custom_Logger:
             - None
         """
         self.logger.debug(message)
-        if save:
+        if self.save:
             self.save_log_messages('debug', message)
 
-    def info(self, message, save=True):
+    def info(self, message):
         """
         Logs an informational message using the provided message. 
         Parameters:
@@ -109,10 +110,10 @@ class Custom_Logger:
             save (bool): A flag indicating whether to save the log message. Defaults to False.
         """
         self.logger.info(message)
-        if save:
+        if self.save:
             self.save_log_messages('info', message)
 
-    def warning(self, message, save=True):
+    def warning(self, message):
         """
         A method to log a warning message and optionally save it to a file.
 
@@ -120,10 +121,10 @@ class Custom_Logger:
         - save: A boolean indicating whether to save the warning message to a file.
         """
         self.logger.warning(message)
-        if save:
+        if self.save:
             self.save_log_messages('warning', message)
 
-    def error(self, message, save=True):
+    def error(self, message):
         """
         - A method to log an error message and optionally save it to the log file.
         - 
@@ -132,10 +133,10 @@ class Custom_Logger:
         - :return: None
         """
         self.logger.error(message)
-        if save:
+        if self.save:
             self.save_log_messages('error', message)
 
-    def critical(self, message, save=True):
+    def critical(self, message):
         """
         A function that logs a critical message and optionally saves it. 
 
@@ -144,14 +145,19 @@ class Custom_Logger:
             save (bool, optional): Whether to save the critical message. Defaults to False.
         """
         self.logger.critical(message)
-        if save:
+        if self.save:
             self.save_log_messages('critical', message)
+
+    def log(self, message):
+        self.logger.log(self.logger.level, message)
+        if self.save:
+            self.save_log_messages(str(self.logger.level), message)
 
 def convert_windows_path(path):
     path = f'{path}/'.replace('\\','/')
     return path
             
-def test_logger(logger, messages_dict, save=True):
+def test_logger(logger, messages_dict):
     """
     A function that logs messages at different levels using the provided logger.
     Parameters:
