@@ -107,7 +107,7 @@ def lambda_handler(event, context):
                                 ] 
                                 if (inbound_content in manychat_optin_messages) & (len(repeated_optin_messages) > 0) & \
                                     (last_inbound_message not in manychat_optin_messages):
-                                    ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot']
+                                    ghl_tag_to_add = ['re-entered ManyChat funnel', 'no chatbot', 'money_magnet_lead']
                                     create_task = True
                                     contact_tags = ghl_tag_to_add
                                     message += f'ghl_reply` Lambda function skipped because contact has previously entered ManyChat funnel. \n'

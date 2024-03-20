@@ -118,7 +118,8 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.7.5 | Print Lambda event instead of just the event body. | 2024-03-08 00:55
 1.8 | Created TokenLambda to refresh CRM API credentials. Created Event Bridge Schedule to schedule TokenLambda. | 2024-03-17 21:00
 1.8.1 | Webhooks Lambda: End function if webhook for staff notification emails | 2024-03-18 15:16
-1.8.2 | Update to use Crm class for CRM API requests. Pass API credentials from Webhook Lambda to TokenLambda. | 2024-03-18 21:25
+1.8.2 | Update to use Crm class for CRM API requests. Pass API credentials from Webhook Lambda to ReplyLambda. Webhooks Lambda no longer refreshes API token. | 2024-03-18 21:25
 1.8.3 | Removed AWS::Events::Rule from template.yaml to avoid scheduling in both prod and dev stages. Manually created EventBridge schedule to trigger TokenLambda. | 2024-03-18 22:57
 1.8.4 | Webhooks Lambda: Ignore webhooks sent from notifications emails | 2024-03-19 10:18
 1.8.5 | Refactor code to switch from print statements to logging. | 2024-03-19 22:17
+1.8.6 | Add an additional tag to the contact if they re-entered ManyChat. | 2024-03-20 09:40
