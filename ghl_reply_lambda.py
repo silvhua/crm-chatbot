@@ -81,7 +81,7 @@ def lambda_handler(event, context, logger=None):
         Crm_client.token = dict()
         Crm_client.token['access_token'] = payload.get('access_token', None)
         if Crm_client.token.get('access_token') == None:
-            Crm_client.get_token(location=location)
+            Crm_client.get_token()
         if (event.get('direct_local_invoke', None) == None) & (contactId != os.environ.get('my_contact_id')):
             random_waiting_period = random.randint(45, 75)  # Generate a random waiting period between 30 and 115 seconds
             logger.debug(f'Waiting for {random_waiting_period} seconds')
@@ -168,32 +168,12 @@ def lambda_handler(event, context, logger=None):
                         "message": paragraph,
                         "userId": os.environ.get('bot_user_id', os.environ.get('user_id', None))
                     }
-                    # Re-attempt GHL sendMessage request up to 3 times if it fails
-                    max_attempts = 3
-                    attempt_number = 0
-                    while attempt_number < max_attempts:
-                        ghl_api_response = Crm_client.send_request(
-                            contactId=contactId,
-                            endpoint='sendMessage',
-                            payload=message_payload,          
-                        )
-                        logger.info(f'GHL sendMessage response for message {index}: {ghl_api_response}\n')
-                        if ghl_api_response.get('status_code', 500) // 100 == 2:
-                            break
-                        else:
-                            attempt_number += 1
-                            wait_interval = 10
-                            logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL sendMessage request. Re-attempt {attempt_number} of {max_attempts}.')
-                            time.sleep(wait_interval)
-
-                    if ghl_api_response.get('status_code', 500) // 100 == 2:
-                        message += f'Message {index} sent to contactId {contactId}: \n{ghl_api_response}\n'
-                    else:
-                        message += f'Failed to send message {index} for contactId {contactId}, {fullNameLowerCase}: \n{ghl_api_response}\n'
-                        message += f'Status code: {ghl_api_response.get("status_code", 500)}. \nResponse reason: {ghl_api_response.get("response_reason", None)}\n'
-                        create_task = True
-                        time.sleep(wait_interval)
-                        break
+                    ghl_api_response = Crm_client.send_request_auto_retry(
+                        contactId=contactId,
+                        endpoint='sendMessage',
+                        payload=message_payload, max_attempts=3, wait_interval=15
+                    )
+                    message += f'GHL sendMessage response for message {index}: {ghl_api_response}\n'
             else:
                 message += f'No message sent for contactId {contactId}. \n'
                 if contactId != os.environ.get('my_contact_id'):
@@ -207,24 +187,13 @@ def lambda_handler(event, context, logger=None):
                 task_description = f'Alert human: {chatbot_response["alert_human"]}. Response: {chatbot_response["response"]}. Phone number: {chatbot_response.get("phone_number", None)}.'
                 logger.info(f'Task description: {task_description}')
 
-                # Re-attempt GHL createTask request up to 3 times if it fails
-                max_attempts = 3
-                create_task_attempt_number = 0
-                while create_task_attempt_number < max_attempts:
-                    ghl_createTask_response = Crm_client.send_request(
-                        contactId=contactId, 
-                        endpoint='createTask', 
-                        params_dict=chatbot_response,
-                        payload=None, 
-                        text=fullNameLowerCase,
-                    )
-                    if ghl_createTask_response.get('status_code', 500) // 100 == 2:
-                        break
-                    else:
-                        create_task_attempt_number += 1
-                        wait_interval = 10
-                        logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL createTask request. Re-attempt {create_task_attempt_number} of {max_attempts}.')
-                        time.sleep(wait_interval)
+                ghl_createTask_response = Crm_client.send_request_auto_retry(
+                    contactId=contactId, 
+                    endpoint='createTask', 
+                    params_dict=chatbot_response,
+                    payload=None, 
+                    text=fullNameLowerCase, max_attempts=3, wait_interval=15
+                )
 
                 # print(f'GHL createTask response: {ghl_createTask_response}')
                 if ghl_createTask_response.get('status_code', 500) // 100 == 2:
@@ -232,19 +201,19 @@ def lambda_handler(event, context, logger=None):
                 else:
                     message += f'[ERROR] Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
                     message += f'Status code: {ghl_createTask_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_createTask_response.get("response_reason", None)}'
-                    logger.error(message)
-                    return {
-                        'statusCode': 500,
-                        'body': json.dumps(message)
-                    }
+                    # logger.error(message)
+                    # return {
+                    #     'statusCode': 500,
+                    #     'body': json.dumps(message)
+                    # }
             # Add tag(s) to the contact if it is indicated in the chatbot response AND if message was successfully sent.
             ghl_tag_to_add = chatbot_response.get('tag', None)
             if (ghl_tag_to_add != None) & (ghl_tag_to_add not in payload.get('contact_tags', [])) \
                 & (ghl_api_response.get('status_code', 500) // 100 == 2):
-                ghl_addTag_response = Crm_client.send_request(
+                ghl_addTag_response = Crm_client.send_request_auto_retry(
                     contactId=contactId, 
                     endpoint='addTag', 
-                    text=ghl_tag_to_add,
+                    text=ghl_tag_to_add, max_attempts=3, wait_interval=15
                 )
                 if ghl_addTag_response['status_code'] // 100 == 2:
                     message += f'Added tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'

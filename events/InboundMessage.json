@@ -3,7 +3,7 @@
     "type": "InboundMessage",
     "locationId": "fsdVH26v30hoBBQOBttG",
     "attachments": ["https://msgsndr-private.storage.googleapis.com/fsdVH26v30hoBBQOBttG/contact/6kIAuqeiBUxJ3nWTwNVE/365560585_945698136538472_6777327492769225232_n.gif"],
-    "body": "what is your websitehi",
+    "body": "what is your website",
     "contactId": "6kIAuqeiBUxJ3nWTwNVE",
     "contentType": "text/plain",
     "conversationId": "fcanlLgpbQgQhderivVs",
@@ -13,7 +13,8 @@
     "userId": "80pzXdC3MCqKRpzrteuj",
     "contact_tags": [],
     "phone": "+61872070331",
-    "fullNameLowerCase": "silvia hua"
+    "fullNameLowerCase": "silvia hua",
+    "sam_local_invoke": "1"
   },
   "direct_local_invoke": 1
 }
