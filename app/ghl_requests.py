@@ -110,18 +110,24 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
         }
 
 class Crm:
-    def __init__(self, logging_level=logging.INFO):
+    def __init__(self, location='CoachMcloone', logging_level=logging.INFO):
+        """
+        Initialize the object with the given location and logging level.
+
+        Args:
+        - location (str): Location value for retrieving the authentication token. Defaults to 'CoachMcloone'.
+        - logging_level (int): The logging level to be set for the object. Defaults to logging.INFO.
+        """
         self.logger = Custom_Logger(__name__, level=logging_level)
         self.token_filename = 'auth_token_response_cicd.json'
-
-    def get_token(self, location='CoachMcloone'):
         self.location = location
+
+    def get_token(self):
         try:
             s3 = boto3.client('s3')
-            self.location = location
             response = s3.get_object(Bucket='ownitfit-silvhua', Key=self.token_filename)
-            self.token = json.loads(response['Body'].read().decode('utf-8'))[location]
-            self.logger.debug(f'Token retrieved from S3 for {location}.')
+            self.token = json.loads(response['Body'].read().decode('utf-8'))[self.location]
+            self.logger.debug(f'Token retrieved from S3 for {self.location}.')
             self.locationId = self.token.get('locationId')
         except Exception as error:
             exc_type, exc_obj, tb = sys.exc_info()
@@ -131,18 +137,41 @@ class Crm:
             message = f'[ERROR] Error in line {lineno} of {filename}: {str(error)}'
             self.logger.error(message)
     
-    def send_request_auto_retry(
-            self, max_attempts=3, **kwargs):
+    def send_request_auto_retry(self,
+            contactId, endpoint='createTask', text=None, payload=None, 
+            path_param=None, params_dict=None, max_attempts=3, wait_interval=15
+            ):
+        """
+        Sends a request to the GHL API with auto-retry functionality.
+
+        Args:
+        - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
+        - endpoint (str): API endpoint. Valid values are 'createTask', 'workflow', 'getWorkflow', \
+            'createNote', 'send_message', 'getContacts', 'updateContact', \
+            'searchConversations', 'searchUsers' \
+            'getLocation', 'addTag', 'removeTag', and 'getEmailHistory'.
+        - payload (dict): Dictionary containing the payload for the request.
+        - params_dict (dict): Dictionary containing additional parameters for the request.
+        - path_param (str): Additional path parameter for the request.
+        - max_attempts (int, optional): The maximum number of retry attempts. Defaults to 3.
+        - wait_interval (int, optional): The number of seconds to wait between retry attempts. Defaults to 15.
+
+        Returns:
+            dict: The response from the GHL API.
+        """
         attempt_number = 0
         while attempt_number < max_attempts:
-            ghl_api_response = self.send_request(**kwargs)
+            ghl_api_response = self.send_request(
+                contactId, endpoint=endpoint, text=text, payload=payload, 
+                path_param=path_param, params_dict=params_dict                
+            )
             if ghl_api_response.get('status_code', 0) // 100 == 2:
                 break
             else:
                 if ghl_api_response.get('status_code', 0) // 100 == 4:
-                    self.get_token(self.location)
+                    self.logger.debug(f'Re-retrieving access token from S3.')
+                    self.get_token()
                 attempt_number += 1
-                wait_interval = 10
                 self.logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL request. Re-attempt {attempt_number} of {max_attempts}.')
                 time.sleep(wait_interval)
         return ghl_api_response
@@ -152,7 +181,7 @@ class Crm:
             path_param=None, params_dict=None
             ):
         """
-        Send a message to a contact in the or retrieve email history.
+        Send a message to the CRM.
 
         Parameters:
         - contactId (str): Contact ID OR locationId if endpoint is 'getWorkflow'.
@@ -162,9 +191,7 @@ class Crm:
             'getLocation', 'addTag', 'removeTag', and 'getEmailHistory'.
         - payload (dict): Dictionary containing the payload for the request.
         - params_dict (dict): Dictionary containing additional parameters for the request.
-        - location (str): Location value for retrieving the authentication token.
         - path_param (str): Additional path parameter for the request.
-        - locationId: locationId for getContacts endpoint.
 
         Example payload for sendMessage endpoint:
             
@@ -283,7 +310,7 @@ class Crm:
             url = f'{url_root}{endpoint_url}'
 
             headers = {
-                "Authorization": f"Bearer {self.token['access_token']}",
+                "Authorization": f"Bearer {getattr(self, 'token', {}).get('access_token')}",
                 "Version": "2021-07-28",
                 "Content-Type": "application/json",
                 "Accept": "application/json"
@@ -313,7 +340,7 @@ class Crm:
             else:
                 raise ValueError("Invalid request type. Valid values are 'POST', 'GET', 'DELETE' and 'PUT'.")
 
-            print(f'GHL request status code for `{endpoint}` endpoint: {response.status_code}: {response.reason}')
+            self.logger.debug(f'GHL request status code for `{endpoint}` endpoint: {response.status_code}: {response.reason}')
             data = response.json()
             data['status_code'] = response.status_code
             data['response_reason'] = response.reason
