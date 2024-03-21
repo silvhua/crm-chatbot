@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 import boto3
 import random
 from app.Custom_Logger import *
+import time
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -117,6 +118,7 @@ class Crm:
         self.location = location
         try:
             s3 = boto3.client('s3')
+            self.location = location
             response = s3.get_object(Bucket='ownitfit-silvhua', Key=self.token_filename)
             self.token = json.loads(response['Body'].read().decode('utf-8'))[location]
             self.logger.debug(f'Token retrieved from S3 for {location}.')
@@ -128,6 +130,22 @@ class Crm:
             filename = f.f_code.co_filename
             message = f'[ERROR] Error in line {lineno} of {filename}: {str(error)}'
             self.logger.error(message)
+    
+    def send_request_auto_retry(
+            self, max_attempts=3, **kwargs):
+        attempt_number = 0
+        while attempt_number < max_attempts:
+            ghl_api_response = self.send_request(**kwargs)
+            if ghl_api_response.get('status_code', 0) // 100 == 2:
+                break
+            else:
+                if ghl_api_response.get('status_code', 0) // 100 == 4:
+                    self.get_token(self.location)
+                attempt_number += 1
+                wait_interval = 10
+                self.logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL request. Re-attempt {attempt_number} of {max_attempts}.')
+                time.sleep(wait_interval)
+        return ghl_api_response
             
     def send_request(self,
             contactId, endpoint='createTask', text=None, payload=None, 
