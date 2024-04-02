@@ -174,6 +174,8 @@ class Crm:
                 attempt_number += 1
                 self.logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL request. Re-attempt {attempt_number} of {max_attempts}.')
                 time.sleep(wait_interval)
+        if attempt_number >= max_attempts:
+            self.logger.error(f'Failed to send request after {max_attempts}')
         return ghl_api_response
             
     def send_request(self,
