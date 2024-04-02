@@ -123,3 +123,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.8.4 | Webhooks Lambda: Ignore webhooks sent from notifications emails | 2024-03-19 10:18
 1.8.5 | Refactor code to switch from print statements to logging. | 2024-03-19 22:17
 1.8.6 | Add an additional tag to the contact if they re-entered ManyChat. | 2024-03-20 09:40
+1.8.7 | Refactored code to incorporate `Crm.send_request_auto_retry()` method. | 2024-04-02 14:25
