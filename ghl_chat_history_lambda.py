@@ -77,8 +77,8 @@ def lambda_handler(event, context):
                 try:
                     location = os.getenv(payload['locationId'])
                     print(f'Location: {location}')
-                    Crm_client = Crm() ### Instantiate `Crm` class.
-                    Crm_client.get_token(location)
+                    Crm_client = Crm(location) ### Instantiate `Crm` class.
+                    Crm_client.get_token()
                     if payload['type'] in message_events:
                         print(f'Webhook type: {payload["type"]}')
                         # if message is an image without text, extract the attachment link(s)

@@ -77,7 +77,7 @@ def lambda_handler(event, context, logger=None):
                 description=f"Do not invoke this function.",
             )
         ]
-        Crm_client = Crm() ### Instantiate `Crm` class.
+        Crm_client = Crm(location) ### Instantiate `Crm` class.
         Crm_client.token = dict()
         Crm_client.token['access_token'] = payload.get('access_token', None)
         if Crm_client.token.get('access_token') == None:
