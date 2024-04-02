@@ -61,7 +61,7 @@ class Custom_Logger:
             if file_handler == None:
                 handler_messages += f'Creating new file handler. '
                 file_handler = logging.FileHandler(f'{log_path}/{log_file}')
-            file_handler.setLevel(level)
+            file_handler.setLevel(file_level)
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
             self.file_handler = file_handler
