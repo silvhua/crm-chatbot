@@ -26,7 +26,7 @@ def lambda_handler(event, context):
         local_invoke = event.get('direct_local_invoke', None)
         logging_level = logging.DEBUG if local_invoke else logging.INFO
         logger = Custom_Logger(__name__, level=logging_level)
-        logger.info(f'Event: {event}\nLocal invoke: {local_invoke}')
+        logger.info(f'Payload: {payload}\nLocal invoke: {local_invoke}')
         if (payload['type'] == "OutboundMessage") & (payload.get("messageType", False) == "Email") & \
             (("click here to unsubscribe" in payload.get('body', '').lower()) | ("unsubscribe here</a>" in payload.get('body', '').lower())):
             message += f'No need to save webhook data for {payload.get("messageType")} {payload["type"]}. \n'
