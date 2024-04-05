@@ -13,16 +13,7 @@ try:
     from dotenv import load_dotenv
     load_dotenv()
 except Exception as error:
-    # exc_type, exc_obj, tb = sys.exc_info()
-    # f = tb.tb_frame
-    # lineno = tb.tb_lineno
-    # filename = f.f_code.co_filename
-    # message = f"Error in line {lineno} of {filename}: {str(error)}"
-    # print(message)
     pass
-
-# logging_level = logging.INFO
-# logger = Custom_Logger(__name__, level=logging_level)
 
 def lambda_handler(event, context, logger=None):
     """
@@ -117,9 +108,6 @@ def lambda_handler(event, context, logger=None):
             if chatbot_response['response'] != None:
                 cleaned_chatbot_response = re.sub(r'[^a-zA-Z0-9\s]+', '', chatbot_response['response'])
                 cleaned_chatbot_response = ' '.join(cleaned_chatbot_response.split())
-                # print(f'Past outbound messages: {[item for item in past_outbound_messages]}')
-                # print(f'\nCleaned past outbound messages: {[item for item in cleaned_past_outbound_messages]}')
-                # print(f'Cleaned chatbot response: {cleaned_chatbot_response}\n')
                 for past_outbound_message in cleaned_past_outbound_messages:
                     n_words = len(past_outbound_message.split())
                     if (n_words > 3) & (past_outbound_message in cleaned_chatbot_response):
@@ -194,18 +182,6 @@ def lambda_handler(event, context, logger=None):
                     payload=None, 
                     text=fullNameLowerCase, max_attempts=3, wait_interval=15
                 )
-
-                # print(f'GHL createTask response: {ghl_createTask_response}')
-                if ghl_createTask_response.get('status_code', 500) // 100 == 2:
-                    message += f'Created task for contactId {contactId}: \n{ghl_createTask_response}\n'
-                else:
-                    message += f'[ERROR] Failed to create task for contactId {contactId}: \n{ghl_createTask_response}\n'
-                    message += f'Status code: {ghl_createTask_response.get("status_code", 500) // 100 == 2}. \nResponse reason: {ghl_createTask_response.get("response_reason", None)}'
-                    # logger.error(message)
-                    # return {
-                    #     'statusCode': 500,
-                    #     'body': json.dumps(message)
-                    # }
             # Add tag(s) to the contact if it is indicated in the chatbot response AND if message was successfully sent.
             ghl_tag_to_add = chatbot_response.get('tag', None)
             if (ghl_tag_to_add != None) & (ghl_tag_to_add not in payload.get('contact_tags', [])) \
@@ -215,11 +191,6 @@ def lambda_handler(event, context, logger=None):
                     endpoint='addTag', 
                     text=ghl_tag_to_add, max_attempts=3, wait_interval=15
                 )
-                if ghl_addTag_response['status_code'] // 100 == 2:
-                    message += f'Added tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-                else:
-                    message += f'[ERROR] Failed to add tag `{ghl_tag_to_add}` for contactId {contactId}: \n{ghl_addTag_response}\n'
-                    message += f'Status code: {ghl_addTag_response["status_code"]}. \nResponse reason: {ghl_addTag_response["response_reason"]}'
             elif ghl_tag_to_add in payload.get('contact_tags', []):
                 message += f'Tag `{ghl_tag_to_add}` already exists for contact.'
         else:
