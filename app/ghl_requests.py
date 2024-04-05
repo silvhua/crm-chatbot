@@ -175,7 +175,15 @@ class Crm:
                 self.logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL request. Re-attempt {attempt_number} of {max_attempts}.')
                 time.sleep(wait_interval)
         if attempt_number >= max_attempts:
-            self.logger.error(f'Failed to send request after {max_attempts}')
+            error_messages = []
+            error_messages.append(f'Failed to send request after {max_attempts} attempts for endpoint `{endpoint}`.')
+            if payload:
+                error_messages.append(f'\tpayload: {payload}')
+            if params_dict:
+                error_messages.append(f'\tparams_dict: {params_dict}')
+            if text:
+                error_messages.append(f'\ttext: {text}')
+            self.logger.error('\n'.join(error_messages))
         return ghl_api_response
             
     def send_request(self,
