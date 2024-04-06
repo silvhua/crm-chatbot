@@ -39,10 +39,6 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
     """
 
     filename = 'auth_token_response_cicd.json'
-    # filename = 'auth_token_response.json' # Original
-    # config_file_name = 'config.json'
-    # with open(f'{token_file_path}/{config_file_name}') as config_file:
-    #     appConfig = json.load(config_file)
     appConfig = dict()
     # try:
     appConfig["clientId"] = os.environ["clientId"]
@@ -83,7 +79,6 @@ def refresh_token(location='CoachMcloone', token_file_path = 'app/private'):
 
     if response.status_code == 200:
         tokens[location] = response.json()
-        # pprint(f'Tokens: {tokens["SamLab"]}')
         try:
             # Save tokens to S3
             s3 = boto3.client('s3')
@@ -119,6 +114,7 @@ class Crm:
         - logging_level (int): The logging level to be set for the object. Defaults to logging.INFO.
         """
         self.logger = Custom_Logger(__name__, level=logging_level)
+        # self.token_filename = 'auth_token_response.json' ## this filename is to purposely trigger error 401
         self.token_filename = 'auth_token_response_cicd.json'
         self.location = location
 
@@ -169,8 +165,12 @@ class Crm:
                 break
             else:
                 if ghl_api_response.get('status_code', 0) // 100 == 4:
-                    self.logger.debug(f'Re-retrieving access token from S3.')
-                    self.get_token()
+                    info_messages = []
+                    info_messages.append(f'GHL request failed with status code {ghl_api_response.get("status_code")}. Reason: {ghl_api_response.get("response_reason")}.')
+                    if ghl_api_response.get('status_code', 0) == 401:
+                        info_messages.append(f'Re-retrieving access token from S3.')
+                        self.get_token()
+                    self.logger.info('\n'.join(info_messages))
                 attempt_number += 1
                 self.logger.debug(f'Waiting {wait_interval} seconds before re-attempting GHL request. Re-attempt {attempt_number} of {max_attempts}.')
                 time.sleep(wait_interval)
