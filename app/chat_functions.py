@@ -79,7 +79,7 @@ def create_system_message(
 ## Other Messages
 
 Only repond to inbound messages that can be answered by the message templates or provided 
-documenation. Otherwise, return "[ALERT HUMAN]". 
+documentation. Otherwise, return "[ALERT HUMAN]". 
 If the message indicates the contact has an eating disorder, suicidal ideation, depression, 
 or other serious mental health conditions, return "[ALERT HUMAN]". 
 The "[ALERT HUMAN]" message will trigger a human staff member to review the messages to write a response. 
@@ -89,7 +89,7 @@ It is better to err on the side of caution and flag a staff rather than give a w
 
 1. Determine the nature of the content of the inbound message.
 2. Based on the previous step, determine if the inbound message can be addressed by one of the message templates. 
-If so, generate the response and proceed to Stage 2. Otherwise, return "[ALERT HUMAN]".
+If so, determine which of the message templates to use and proceed to Stage 2. Otherwise, return "[ALERT HUMAN]".
 
 Return your response on a JSON format with the following keys:
 - "response" (string): The response to the InboundMessage, if applicable. If a human is to be alerted, the value will be [ALERT HUMAN]
@@ -117,8 +117,6 @@ Revise your response if needed to make sure you followed the instructions.
 Revise your response if needed to avoid asking questions that have already been answered in previous messages.
 Return "[ALERT HUMAN] if any of these conditions are met:
 - If the question cannot be answered through the message templates or documentation.
-- If your response matches closely with a previous message in the conversation history.
-- If the contact repeats a question you have already responded to.
 - The message you generated does not match any of the message templates.
 
 # Stage 3
