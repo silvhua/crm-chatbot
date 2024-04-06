@@ -1,10 +1,11 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+import time
 
 class Custom_Logger:
     def __init__(
             self, logger_name=__name__, level=logging.DEBUG, file_level=logging.DEBUG,
-            propagate=False, log_file=None, 
+            propagate=False, log_file=None, localtime=True,
             log_path=r'C:\Users\silvh\OneDrive\lighthouse\custom_python\files\logger_files'
             ):
         """
@@ -29,6 +30,8 @@ class Custom_Logger:
         self.logger.propagate = propagate
         self.log_messages = []  # New attribute to store log messages
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s:\n%(message)s\n')
+        if localtime:
+            formatter.converter = time.localtime  # Use local time
         handler_messages = ''
         console_handler = None
         self.save = True if level == logging.DEBUG else False            

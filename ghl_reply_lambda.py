@@ -100,15 +100,17 @@ def lambda_handler(event, context, logger=None):
             )
             chatbot_response = parse_json_string(reply_dict[conversation_id][question_id]["output"], logger=logger)
             # Check that the generated response is not similar to a previously sent outbound message.
-            past_outbound_messages = [item.content for item in chat_history if item.type.lower() == 'ai']
+            past_messages = [item.content for item in chat_history]
             # Split past outbound messages into sentences
-            past_outbound_messages = [sentence for sentence in list(itertools.chain(*[outbound_message.split('. ') for outbound_message in past_outbound_messages])) if sentence]
-            cleaned_past_outbound_messages = [re.sub(r'[^a-zA-Z0-9\s]+', '', message) for message in past_outbound_messages]
-            cleaned_past_outbound_messages = [' '.join(message.split()) for message in cleaned_past_outbound_messages]
+            past_messages = [sentence for sentence in list(itertools.chain(*[re.split(r'[?!.\n]', message) for message in past_messages])) if sentence]
+            cleaned_past_messages = [re.sub(r'[^a-zA-Z0-9\s]+', '', message.strip()) for message in past_messages]
+            cleaned_past_messages = [''.join(message) for message in cleaned_past_messages]
+            logger.debug(f'cleaned_past_messages: {cleaned_past_messages}')
             if chatbot_response['response'] != None:
                 cleaned_chatbot_response = re.sub(r'[^a-zA-Z0-9\s]+', '', chatbot_response['response'])
                 cleaned_chatbot_response = ' '.join(cleaned_chatbot_response.split())
-                for past_outbound_message in cleaned_past_outbound_messages:
+                logger.debug(f'cleaned_chatbot_response: {cleaned_chatbot_response}')
+                for past_outbound_message in cleaned_past_messages:
                     n_words = len(past_outbound_message.split())
                     if (n_words > 3) & (past_outbound_message in cleaned_chatbot_response):
                         chatbot_response['response'] = "[AI response similar to previous outbound message.]"

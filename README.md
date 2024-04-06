@@ -125,3 +125,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.8.6 | Add an additional tag to the contact if they re-entered ManyChat. | 2024-03-20 09:40
 1.8.7 | Refactored code to incorporate `Crm.send_request_auto_retry()` method. | 2024-04-02 14:25
 1.8.8 | Updated error log message to include request parameters. | 2024-04-04 23:29
+1.8.9 | Make sure generated response does not match any previous message (including inbound) before sending it.
