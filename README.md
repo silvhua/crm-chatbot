@@ -128,3 +128,4 @@ Add `[ERROR] ` to error print statements for cloudwatch SNS alerts.
 1.8.9 | Make sure generated response does not match any previous message (including inbound) before sending it. | 2024-04-06 15:15
 1.8.10 | Only re-retrieve token from s3 if status_code is 401. Add logging messages for debugging failed GHL requests. | 2024-04-06 15:31
 1.8.11 | Updated prompt scaffold template. | 2024-04-06 15:49
+1.8.12 | Updated business-specific prompt. | 2024-04-06 16:10 
