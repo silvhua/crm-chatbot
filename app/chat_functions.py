@@ -58,6 +58,7 @@ def create_system_message(
         instructions = load_txt(instructions_filename, prompts_filepath)
         examples = load_txt(examples_filename, examples_filepath)
         document = load_txt(document_filename, doc_filepath)
+        base_system_message = load_txt('base_system_message.md', prompts_filepath)
     except Exception as error:
         if cloud == True:
             print(f'[ERROR] {error}')
@@ -72,66 +73,39 @@ def create_system_message(
         document = s3.get_object(
             Bucket='ownitfit-silvhua', Key=document_filename
             )['Body'].read().decode('utf-8')
+        base_system_message = s3.get_object(
+            Bucket='ownitfit-silvhua', Key='base_system_message.md'
+            )['Body'].read().decode('utf-8')
     # print(f'**Instructions component of system message**: \n{instructions}\n')
 
-    system_message = f"""{instructions}
+    system_message = f"""
+# Context
 
-## Other Messages
-
-Only repond to inbound messages that can be answered by the message templates or provided 
-documentation. Otherwise, return "[ALERT HUMAN]". 
-If the message indicates the contact has an eating disorder, suicidal ideation, depression, 
-or other serious mental health conditions, return "[ALERT HUMAN]". 
-The "[ALERT HUMAN]" message will trigger a human staff member to review the messages to write a response. 
-It is better to err on the side of caution and flag a staff rather than give a wrong response.
-    
-# Stage 1
-
-1. Determine the nature of the content of the inbound message.
-2. Based on the previous step, determine if the inbound message can be addressed by one of the message templates. 
-If so, determine which of the message templates to use and proceed to Stage 2. Otherwise, return "[ALERT HUMAN]".
-
-Return your response on a JSON format with the following keys:
-- "response" (string): The response to the InboundMessage, if applicable. If a human is to be alerted, the value will be [ALERT HUMAN]
-- "alert_human" (true or false): Whether or not to alert a human to review the response.
-- "phone_number" (string or null): The phone number of the contact, if available.
-- "tag" (string, array, or null): A tag or list of tags to add to the contact profile, if available.
-
-If the InboundMessage contains multiple queries, you can combine message templates to create a single response.
-
-## Examples
-
-Below are example conversations with leads. Each lead as a unique contact ID.
-An InboundMessage is from the lead. An OutboundMessage is from you.
-
-{examples}
+{instructions}
 
 ## Relevant documentation
 
 {document}
 
-# Stage 2
+{base_system_message}
 
-Review your response from stage 1. 
-Revise your response if needed to make sure you followed the instructions.
-Revise your response if needed to avoid asking questions that have already been answered in previous messages.
-Return "[ALERT HUMAN] if any of these conditions are met:
-- If the question cannot be answered through the message templates or documentation.
-- The message you generated does not match any of the message templates.
+# Examples
 
-# Stage 3
+Below are example conversations with leads. Each lead as a unique contact ID.
+An InboundMessage is from the lead. An OutboundMessage is from you.
 
-Review your response from stage 2 make sure all the instructions in 
-step 2 are adhered to. Revise your response or alert the human as needed.
+{examples}
     """
 
     prompt = """
-    Write the next OutboundMessage based on the following InboundMessage, 
-    which is delimited by triple backticks: ```{InboundMessage}```
+# Task
+
+Write the next OutboundMessage based on the following InboundMessage, 
+which is delimited by triple backticks: ```{InboundMessage}```
     """
     system_message = f'{system_message}{prompt}'
     ###
-    # print(f'\n**System_message**: {system_message}\n\n')
+    print(f'\n**System_message**: {system_message}\n\n')
     return system_message
 
 def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
