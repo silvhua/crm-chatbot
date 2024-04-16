@@ -89,11 +89,6 @@ def create_system_message(
 
 {base_system_message}
 
-# Examples
-
-Below are example conversations with leads. Each lead as a unique contact ID.
-An InboundMessage is from the lead. An OutboundMessage is from you.
-
 {examples}
     """
 
@@ -105,7 +100,7 @@ which is delimited by triple backticks: ```{InboundMessage}```
     """
     system_message = f'{system_message}{prompt}'
     ###
-    print(f'\n**System_message**: {system_message}\n\n')
+    # print(f'\n**System_message**: {system_message}\n\n')
     return system_message
 
 def create_chatbot(contactId, system_message, tools, model="gpt-3.5-turbo-1106", verbose=True):
